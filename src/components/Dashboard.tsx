@@ -1,11 +1,15 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency } from '@/utils/formatters';
 import { Calendar, House, User, Wallet } from 'lucide-react';
+import { ApartamentoModal } from './ApartamentoModal';
 
 export const Dashboard = () => {
   const { locacoes } = useLocacoes();
+  const [apartamentoSelecionado, setApartamentoSelecionado] = useState<string | null>(null);
+  const [modalAberto, setModalAberto] = useState(false);
 
   const estatisticas = {
     totalLocacoes: locacoes.length,
@@ -17,6 +21,13 @@ export const Dashboard = () => {
   const locacoesRecentes = locacoes
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 5);
+
+  const apartamentos = Array.from(new Set(locacoes.map(loc => loc.apartamento))).sort();
+
+  const handleApartamentoClick = (apartamento: string) => {
+    setApartamentoSelecionado(apartamento);
+    setModalAberto(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -78,6 +89,45 @@ export const Dashboard = () => {
         </Card>
       </div>
 
+      {apartamentos.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <House className="h-5 w-5" />
+              Apartamentos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {apartamentos.map((apartamento) => {
+                const locacoesApt = locacoes.filter(loc => loc.apartamento === apartamento);
+                const faturamentoApt = locacoesApt.reduce((acc, loc) => acc + loc.valorLocacao, 0);
+                
+                return (
+                  <Card 
+                    key={apartamento}
+                    className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200"
+                    onClick={() => handleApartamentoClick(apartamento)}
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="text-3xl font-bold text-indigo-900 mb-2">
+                        {apartamento}
+                      </div>
+                      <div className="text-sm text-indigo-700 mb-1">
+                        {locacoesApt.length} locações
+                      </div>
+                      <div className="text-sm font-medium text-indigo-800">
+                        {formatCurrency(faturamentoApt)}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -117,6 +167,12 @@ export const Dashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      <ApartamentoModal 
+        apartamento={apartamentoSelecionado}
+        open={modalAberto}
+        onOpenChange={setModalAberto}
+      />
     </div>
   );
 };
