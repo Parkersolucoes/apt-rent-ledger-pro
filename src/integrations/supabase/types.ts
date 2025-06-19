@@ -9,87 +9,13 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      apartamentos: {
-        Row: {
-          created_at: string
-          id: number
-          numero: string | null
-          proprietario: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          numero?: string | null
-          proprietario?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          numero?: string | null
-          proprietario?: string | null
-        }
-        Relationships: []
-      }
-      texts: {
-        Row: {
-          content: string
-          created_at: string | null
-          id: number
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          id?: never
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          id?: never
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      users: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          email: string
-          full_name: string | null
-          id: string
-          updated_at: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email: string
-          full_name?: string | null
-          id: string
-          updated_at?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_complete_schema: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
