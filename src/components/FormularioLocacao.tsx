@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,11 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLocacoes } from '@/hooks/useLocacoes';
+import { useApartamentos } from '@/hooks/useApartamentos';
 import { formatDateInput, parseDateInput, calcularComissao } from '@/utils/formatters';
 import { toast } from '@/hooks/use-toast';
 
 export const FormularioLocacao = () => {
   const { adicionarLocacao } = useLocacoes();
+  const { obterNumerosApartamentos } = useApartamentos();
   const [formData, setFormData] = useState({
     apartamento: '',
     ano: new Date().getFullYear(),
@@ -26,6 +27,8 @@ export const FormularioLocacao = () => {
     dataPagamentoProprietario: '',
     observacoes: ''
   });
+
+  const apartamentosDisponiveis = obterNumerosApartamentos();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,13 +115,18 @@ export const FormularioLocacao = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="apartamento">Apartamento *</Label>
-              <Input
-                id="apartamento"
-                value={formData.apartamento}
-                onChange={(e) => setFormData({...formData, apartamento: e.target.value})}
-                placeholder="Ex: Apto 101"
-                required
-              />
+              <Select value={formData.apartamento} onValueChange={(value) => setFormData({...formData, apartamento: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um apartamento" />
+                </SelectTrigger>
+                <SelectContent>
+                  {apartamentosDisponiveis.map((numero) => (
+                    <SelectItem key={numero} value={numero}>
+                      {numero}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
