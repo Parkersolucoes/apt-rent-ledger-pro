@@ -48,12 +48,12 @@ export const ListaLocacoes = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <Label htmlFor="filtroApartamento">Apartamento</Label>
-              <Select value={filtros.apartamento || ''} onValueChange={(value) => setFiltros({...filtros, apartamento: value || undefined})}>
+              <Select value={filtros.apartamento || 'todos'} onValueChange={(value) => setFiltros({...filtros, apartamento: value === 'todos' ? undefined : value})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   {apartamentos.map((apt) => (
                     <SelectItem key={apt} value={apt}>{apt}</SelectItem>
                   ))}
@@ -63,12 +63,12 @@ export const ListaLocacoes = () => {
             
             <div>
               <Label htmlFor="filtroAno">Ano</Label>
-              <Select value={filtros.ano?.toString() || ''} onValueChange={(value) => setFiltros({...filtros, ano: value ? parseInt(value) : undefined})}>
+              <Select value={filtros.ano?.toString() || 'todos'} onValueChange={(value) => setFiltros({...filtros, ano: value === 'todos' ? undefined : parseInt(value)})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   {anos.map((ano) => (
                     <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
                   ))}
@@ -78,12 +78,12 @@ export const ListaLocacoes = () => {
             
             <div>
               <Label htmlFor="filtroMes">Mês</Label>
-              <Select value={filtros.mes?.toString() || ''} onValueChange={(value) => setFiltros({...filtros, mes: value ? parseInt(value) : undefined})}>
+              <Select value={filtros.mes?.toString() || 'todos'} onValueChange={(value) => setFiltros({...filtros, mes: value === 'todos' ? undefined : parseInt(value)})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Todos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="todos">Todos</SelectItem>
                   {meses.map((mes) => (
                     <SelectItem key={mes.value} value={mes.value.toString()}>{mes.label}</SelectItem>
                   ))}
