@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dashboard } from '@/components/Dashboard';
 import { FormularioLocacao } from '@/components/FormularioLocacao';
 import { ListaLocacoes } from '@/components/ListaLocacoes';
+import { ListaApartamentos } from '@/components/ListaApartamentos';
 import { House, Calendar, User, Receipt } from 'lucide-react';
 
 const Index = () => {
@@ -20,10 +21,14 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <House className="h-4 w-4" />
               Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="apartamentos" className="flex items-center gap-2">
+              <House className="h-4 w-4" />
+              Apartamentos
             </TabsTrigger>
             <TabsTrigger value="nova-locacao" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
@@ -41,6 +46,10 @@ const Index = () => {
 
           <TabsContent value="dashboard">
             <Dashboard />
+          </TabsContent>
+
+          <TabsContent value="apartamentos">
+            <ListaApartamentos />
           </TabsContent>
 
           <TabsContent value="nova-locacao">
