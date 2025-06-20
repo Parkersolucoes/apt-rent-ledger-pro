@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ModelosMensagem from "./pages/ModelosMensagem";
+import Configuracoes from "./pages/Configuracoes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +34,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/modelos-mensagem" element={<ModelosMensagem />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
