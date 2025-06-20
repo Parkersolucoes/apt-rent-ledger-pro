@@ -70,14 +70,14 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-slate-900 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <Logo size="xl" />
           </div>
-          <h2 className="text-4xl font-bold text-slate-800 mb-2">Dashboard Executivo</h2>
-          <p className="text-slate-600">Visão geral do seu negócio de locações</p>
+          <h2 className="text-4xl font-bold text-white mb-2">Análise de Reservas</h2>
+          <p className="text-slate-300">Visão geral do seu negócio de locações</p>
         </div>
 
         {temDadosLocalStorage() && (
