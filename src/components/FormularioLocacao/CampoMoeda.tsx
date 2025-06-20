@@ -41,17 +41,17 @@ export const CampoMoeda = ({
 
   return (
     <div>
-      <Label htmlFor={id} className="text-blue-800 font-semibold">
+      <Label htmlFor={id} className="text-slate-200 font-semibold">
         {label} {required && '*'}
       </Label>
       <div className="relative">
-        <span className="absolute left-3 top-3 text-blue-600 font-semibold">R$</span>
+        <span className="absolute left-3 top-3 text-blue-400 font-semibold">R$</span>
         <Input
           id={id}
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
-          className={`border-blue-200 focus:border-blue-500 pl-10 ${readOnly ? 'bg-blue-50' : ''} ${className}`}
+          className={`border-slate-600 focus:border-blue-500 pl-10 bg-slate-700 text-slate-200 ${readOnly ? 'bg-slate-600' : ''} ${className}`}
           required={required}
           readOnly={readOnly}
         />

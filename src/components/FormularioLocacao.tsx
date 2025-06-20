@@ -136,8 +136,8 @@ export const FormularioLocacao = () => {
   return (
     <div className="min-h-screen gradient-bg-page p-4">
       <div className="max-w-4xl mx-auto">
-        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+        <Card className="shadow-2xl border-0 bg-slate-800/95 backdrop-blur-sm border border-slate-600">
+          <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-800 text-white rounded-t-lg">
             <CardTitle className="text-2xl font-bold text-center">Nova Locação</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -178,18 +178,18 @@ export const FormularioLocacao = () => {
               />
 
               <div>
-                <Label htmlFor="observacoes" className="text-blue-800 font-semibold">Observações</Label>
+                <Label htmlFor="observacoes" className="text-slate-200 font-semibold">Observações</Label>
                 <Textarea
                   id="observacoes"
                   value={formData.observacoes}
                   onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
                   placeholder="Observações adicionais..."
                   rows={3}
-                  className="border-blue-200 focus:border-blue-500"
+                  className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200"
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900 text-white font-semibold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
                 Cadastrar Locação
               </Button>
             </form>

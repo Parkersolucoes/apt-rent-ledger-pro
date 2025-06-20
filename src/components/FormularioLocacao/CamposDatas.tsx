@@ -18,25 +18,25 @@ export const CamposDatas = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <Label htmlFor="dataEntrada" className="text-blue-800 font-semibold">Data de Entrada *</Label>
+        <Label htmlFor="dataEntrada" className="text-slate-200 font-semibold">Data de Entrada *</Label>
         <Input
           id="dataEntrada"
           type="date"
           value={dataEntrada}
           onChange={(e) => onDataEntradaChange(e.target.value)}
-          className="border-blue-200 focus:border-blue-500"
+          className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200"
           required
         />
       </div>
       
       <div>
-        <Label htmlFor="dataSaida" className="text-blue-800 font-semibold">Data de Saída *</Label>
+        <Label htmlFor="dataSaida" className="text-slate-200 font-semibold">Data de Saída *</Label>
         <Input
           id="dataSaida"
           type="date"
           value={dataSaida}
           onChange={(e) => onDataSaidaChange(e.target.value)}
-          className="border-blue-200 focus:border-blue-500"
+          className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200"
           required
         />
       </div>
