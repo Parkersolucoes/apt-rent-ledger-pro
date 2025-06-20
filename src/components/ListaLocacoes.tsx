@@ -9,11 +9,19 @@ import { Badge } from '@/components/ui/badge';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency, formatDate, getMesNome } from '@/utils/formatters';
 import { FiltrosLocacao } from '@/types/locacao';
-import { Calendar, House, User, Flag } from 'lucide-react';
+import { Calendar, House, User, Flag, Edit, Trash2 } from 'lucide-react';
+import { ConfirmacaoExclusaoLocacao } from './ConfirmacaoExclusaoLocacao';
+import { EdicaoLocacao } from './EdicaoLocacao';
+import { toast } from '@/hooks/use-toast';
+import { Locacao } from '@/types/locacao';
 
 export const ListaLocacoes = () => {
-  const { locacoes, obterApartamentos, obterAnos, filtrarLocacoes } = useLocacoes();
+  const { locacoes, obterApartamentos, obterAnos, filtrarLocacoes, removerLocacao } = useLocacoes();
   const [filtros, setFiltros] = useState<FiltrosLocacao>({});
+  const [locacaoParaExcluir, setLocacaoParaExcluir] = useState<Locacao | null>(null);
+  const [locacaoParaEditar, setLocacaoParaEditar] = useState<Locacao | null>(null);
+  const [modalExclusaoAberto, setModalExclusaoAberto] = useState(false);
+  const [modalEdicaoAberto, setModalEdicaoAberto] = useState(false);
 
   const locacoesFiltradas = filtrarLocacoes(filtros);
   const apartamentos = obterApartamentos();
@@ -22,6 +30,44 @@ export const ListaLocacoes = () => {
   const limparFiltros = () => {
     setFiltros({});
   };
+
+  const handleExcluir = (locacao: Locacao) => {
+    setLocacaoParaExcluir(locacao);
+    setModalExclusaoAberto(true);
+  };
+
+  const handleEditar = (locacao: Locacao) => {
+    setLocacaoParaEditar(locacao);
+    setModalEdicaoAberto(true);
+  };
+
+  const confirmarExclusao = async () => {
+    if (locacaoParaExcluir) {
+      await removerLocacao(locacaoParaExcluir.id);
+      toast({
+        title: "Sucesso!",
+        description: "Locação excluída com sucesso.",
+      });
+      setModalExclusaoAberto(false);
+      setLocacaoParaExcluir(null);
+    }
+  };
+
+  // Calcular totais por apartamento
+  const totaisPorApartamento = apartamentos.reduce((acc, apartamento) => {
+    const locacoesApartamento = locacoesFiltradas.filter(loc => loc.apartamento === apartamento);
+    const valorTotal = locacoesApartamento.reduce((sum, loc) => sum + loc.valorLocacao + loc.taxaLimpeza, 0);
+    const comissaoTotal = locacoesApartamento.reduce((sum, loc) => sum + loc.comissao, 0);
+    const valorProprietario = valorTotal - comissaoTotal;
+    
+    acc[apartamento] = {
+      valorTotal,
+      comissaoTotal,
+      valorProprietario,
+      quantidade: locacoesApartamento.length
+    };
+    return acc;
+  }, {} as Record<string, { valorTotal: number; comissaoTotal: number; valorProprietario: number; quantidade: number }>);
 
   const meses = [
     { value: 1, label: 'Janeiro' },
@@ -101,6 +147,52 @@ export const ListaLocacoes = () => {
           </CardContent>
         </Card>
 
+        {/* Totais por Apartamento */}
+        {apartamentos.length > 0 && (
+          <Card className="shadow-professional-lg">
+            <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
+              <CardTitle className="text-xl">Totais por Apartamento</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {apartamentos.map((apartamento) => {
+                  const totais = totaisPorApartamento[apartamento];
+                  if (!totais || totais.quantidade === 0) return null;
+                  
+                  return (
+                    <Card key={apartamento} className="border-2">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="flex items-center gap-2 text-lg">
+                          <House className="h-5 w-5" />
+                          Apartamento {apartamento}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Locações:</span>
+                          <span className="font-medium">{totais.quantidade}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Valor Total:</span>
+                          <span className="font-medium text-green-600">{formatCurrency(totais.valorTotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Comissão:</span>
+                          <span className="font-medium text-blue-600">{formatCurrency(totais.comissaoTotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm border-t pt-2">
+                          <span className="text-muted-foreground font-medium">Valor Proprietário:</span>
+                          <span className="font-bold text-primary">{formatCurrency(totais.valorProprietario)}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-professional-lg">
           <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="flex items-center justify-between text-xl">
@@ -122,8 +214,8 @@ export const ListaLocacoes = () => {
                     key={locacao.id}
                     className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-card"
                   >
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="space-y-3">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <div className="lg:col-span-2 space-y-3">
                         <div className="flex items-center gap-2">
                           <House className="h-4 w-4 text-primary" />
                           <span className="font-semibold text-foreground">{locacao.apartamento}</span>
@@ -198,6 +290,27 @@ export const ListaLocacoes = () => {
                             </span>
                           </div>
                         )}
+
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditar(locacao)}
+                            className="flex items-center gap-1"
+                          >
+                            <Edit className="h-3 w-3" />
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleExcluir(locacao)}
+                            className="flex items-center gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Excluir
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -206,6 +319,19 @@ export const ListaLocacoes = () => {
             )}
           </CardContent>
         </Card>
+
+        <ConfirmacaoExclusaoLocacao
+          locacao={locacaoParaExcluir}
+          open={modalExclusaoAberto}
+          onOpenChange={setModalExclusaoAberto}
+          onConfirm={confirmarExclusao}
+        />
+
+        <EdicaoLocacao
+          locacao={locacaoParaEditar}
+          open={modalEdicaoAberto}
+          onOpenChange={setModalEdicaoAberto}
+        />
       </div>
     </div>
   );

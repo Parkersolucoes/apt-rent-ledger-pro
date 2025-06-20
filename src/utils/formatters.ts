@@ -1,21 +1,16 @@
-
 export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('pt-BR', {
+  return value.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL'
-  }).format(value);
+  });
 };
 
 export const formatDate = (date: Date): string => {
-  return new Intl.DateTimeFormat('pt-BR').format(date);
-};
-
-export const formatDateInput = (date: Date): string => {
-  return date.toISOString().split('T')[0];
-};
-
-export const parseDateInput = (dateString: string): Date => {
-  return new Date(dateString + 'T00:00:00');
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 };
 
 export const getMesNome = (mes: number): string => {
@@ -26,6 +21,15 @@ export const getMesNome = (mes: number): string => {
   return meses[mes - 1];
 };
 
+export const parseDateInput = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
 export const calcularComissao = (valorTotal: number): number => {
   return valorTotal * 0.2;
+};
+
+export const formatDateForInput = (date: Date): string => {
+  return date.toISOString().split('T')[0];
 };
