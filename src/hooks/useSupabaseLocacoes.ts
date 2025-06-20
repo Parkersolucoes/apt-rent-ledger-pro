@@ -12,14 +12,18 @@ export const useSupabaseLocacoes = () => {
   // Carregar locações do Supabase
   const carregarLocacoes = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('locacoes')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao carregar locações:', error);
+        throw error;
+      }
 
-      const locacoesFormatadas = data.map(loc => ({
+      const locacoesFormatadas = (data || []).map(loc => ({
         id: loc.id,
         apartamento: loc.apartamento,
         ano: loc.ano,
@@ -28,16 +32,16 @@ export const useSupabaseLocacoes = () => {
         telefone: loc.telefone || undefined,
         dataEntrada: new Date(loc.data_entrada),
         dataSaida: new Date(loc.data_saida),
-        valorLocacao: Number(loc.valor_locacao),
-        primeiroPagamento: Number(loc.primeiro_pagamento),
-        primeiroPagamentoPago: loc.primeiro_pagamento_pago || false,
+        valorLocacao: Number(loc.valor_locacao || 0),
+        primeiroPagamento: Number(loc.primeiro_pagamento || 0),
+        primeiroPagamentoPago: Boolean(loc.primeiro_pagamento_pago),
         primeiroPagamentoForma: loc.primeiro_pagamento_forma || 'Dinheiro',
-        segundoPagamento: Number(loc.segundo_pagamento),
-        segundoPagamentoPago: loc.segundo_pagamento_pago || false,
+        segundoPagamento: Number(loc.segundo_pagamento || 0),
+        segundoPagamentoPago: Boolean(loc.segundo_pagamento_pago),
         segundoPagamentoForma: loc.segundo_pagamento_forma || 'Dinheiro',
-        valorFaltando: Number(loc.valor_faltando),
-        taxaLimpeza: Number(loc.taxa_limpeza),
-        comissao: Number(loc.comissao),
+        valorFaltando: Number(loc.valor_faltando || 0),
+        taxaLimpeza: Number(loc.taxa_limpeza || 0),
+        comissao: Number(loc.comissao || 0),
         valorProprietario: Number(loc.valor_proprietario || 0),
         dataPagamentoProprietario: loc.data_pagamento_proprietario ? new Date(loc.data_pagamento_proprietario) : undefined,
         observacoes: loc.observacoes || undefined,
@@ -63,34 +67,43 @@ export const useSupabaseLocacoes = () => {
 
   const adicionarLocacao = async (locacao: Omit<Locacao, 'id' | 'createdAt'>) => {
     try {
+      const insertData = {
+        apartamento: locacao.apartamento,
+        ano: locacao.ano,
+        mes: locacao.mes,
+        hospede: locacao.hospede,
+        telefone: locacao.telefone || null,
+        data_entrada: locacao.dataEntrada.toISOString().split('T')[0],
+        data_saida: locacao.dataSaida.toISOString().split('T')[0],
+        valor_locacao: locacao.valorLocacao,
+        primeiro_pagamento: locacao.primeiroPagamento || 0,
+        primeiro_pagamento_pago: locacao.primeiroPagamentoPago || false,
+        primeiro_pagamento_forma: locacao.primeiroPagamentoForma || 'Dinheiro',
+        segundo_pagamento: locacao.segundoPagamento || 0,
+        segundo_pagamento_pago: locacao.segundoPagamentoPago || false,
+        segundo_pagamento_forma: locacao.segundoPagamentoForma || 'Dinheiro',
+        valor_faltando: locacao.valorFaltando || 0,
+        taxa_limpeza: locacao.taxaLimpeza || 0,
+        comissao: locacao.comissao || 0,
+        valor_proprietario: locacao.valorProprietario || 0,
+        data_pagamento_proprietario: locacao.dataPagamentoProprietario?.toISOString().split('T')[0] || null,
+        observacoes: locacao.observacoes || null
+      };
+
       const { data, error } = await supabase
         .from('locacoes')
-        .insert({
-          apartamento: locacao.apartamento,
-          ano: locacao.ano,
-          mes: locacao.mes,
-          hospede: locacao.hospede,
-          telefone: locacao.telefone || null,
-          data_entrada: locacao.dataEntrada.toISOString().split('T')[0],
-          data_saida: locacao.dataSaida.toISOString().split('T')[0],
-          valor_locacao: locacao.valorLocacao,
-          primeiro_pagamento: locacao.primeiroPagamento,
-          primeiro_pagamento_pago: locacao.primeiroPagamentoPago,
-          primeiro_pagamento_forma: locacao.primeiroPagamentoForma,
-          segundo_pagamento: locacao.segundoPagamento,
-          segundo_pagamento_pago: locacao.segundoPagamentoPago,
-          segundo_pagamento_forma: locacao.segundoPagamentoForma,
-          valor_faltando: locacao.valorFaltando,
-          taxa_limpeza: locacao.taxaLimpeza,
-          comissao: locacao.comissao,
-          valor_proprietario: locacao.valorProprietario,
-          data_pagamento_proprietario: locacao.dataPagamentoProprietario?.toISOString().split('T')[0] || null,
-          observacoes: locacao.observacoes || null
-        })
+        .insert(insertData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro detalhado ao inserir:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('Nenhum dado retornado após inserção');
+      }
 
       const novaLocacao: Locacao = {
         id: data.id,
@@ -101,16 +114,16 @@ export const useSupabaseLocacoes = () => {
         telefone: data.telefone || undefined,
         dataEntrada: new Date(data.data_entrada),
         dataSaida: new Date(data.data_saida),
-        valorLocacao: Number(data.valor_locacao),
-        primeiroPagamento: Number(data.primeiro_pagamento),
-        primeiroPagamentoPago: data.primeiro_pagamento_pago || false,
+        valorLocacao: Number(data.valor_locacao || 0),
+        primeiroPagamento: Number(data.primeiro_pagamento || 0),
+        primeiroPagamentoPago: Boolean(data.primeiro_pagamento_pago),
         primeiroPagamentoForma: data.primeiro_pagamento_forma || 'Dinheiro',
-        segundoPagamento: Number(data.segundo_pagamento),
-        segundoPagamentoPago: data.segundo_pagamento_pago || false,
+        segundoPagamento: Number(data.segundo_pagamento || 0),
+        segundoPagamentoPago: Boolean(data.segundo_pagamento_pago),
         segundoPagamentoForma: data.segundo_pagamento_forma || 'Dinheiro',
-        valorFaltando: Number(data.valor_faltando),
-        taxaLimpeza: Number(data.taxa_limpeza),
-        comissao: Number(data.comissao),
+        valorFaltando: Number(data.valor_faltando || 0),
+        taxaLimpeza: Number(data.taxa_limpeza || 0),
+        comissao: Number(data.comissao || 0),
         valorProprietario: Number(data.valor_proprietario || 0),
         dataPagamentoProprietario: data.data_pagamento_proprietario ? new Date(data.data_pagamento_proprietario) : undefined,
         observacoes: data.observacoes || undefined,
@@ -123,6 +136,8 @@ export const useSupabaseLocacoes = () => {
         title: "Sucesso!",
         description: "Locação cadastrada com sucesso.",
       });
+
+      return novaLocacao;
     } catch (error) {
       console.error('Erro ao adicionar locação:', error);
       toast({
@@ -179,16 +194,16 @@ export const useSupabaseLocacoes = () => {
         telefone: data.telefone || undefined,
         dataEntrada: new Date(data.data_entrada),
         dataSaida: new Date(data.data_saida),
-        valorLocacao: Number(data.valor_locacao),
-        primeiroPagamento: Number(data.primeiro_pagamento),
-        primeiroPagamentoPago: data.primeiro_pagamento_pago || false,
+        valorLocacao: Number(data.valor_locacao || 0),
+        primeiroPagamento: Number(data.primeiro_pagamento || 0),
+        primeiroPagamentoPago: Boolean(data.primeiro_pagamento_pago),
         primeiroPagamentoForma: data.primeiro_pagamento_forma || 'Dinheiro',
-        segundoPagamento: Number(data.segundo_pagamento),
-        segundoPagamentoPago: data.segundo_pagamento_pago || false,
+        segundoPagamento: Number(data.segundo_pagamento || 0),
+        segundoPagamentoPago: Boolean(data.segundo_pagamento_pago),
         segundoPagamentoForma: data.segundo_pagamento_forma || 'Dinheiro',
-        valorFaltando: Number(data.valor_faltando),
-        taxaLimpeza: Number(data.taxa_limpeza),
-        comissao: Number(data.comissao),
+        valorFaltando: Number(data.valor_faltando || 0),
+        taxaLimpeza: Number(data.taxa_limpeza || 0),
+        comissao: Number(data.comissao || 0),
         valorProprietario: Number(data.valor_proprietario || 0),
         dataPagamentoProprietario: data.data_pagamento_proprietario ? new Date(data.data_pagamento_proprietario) : undefined,
         observacoes: data.observacoes || undefined,
@@ -199,10 +214,8 @@ export const useSupabaseLocacoes = () => {
         prev.map(loc => loc.id === id ? locacaoAtualizada : loc)
       );
 
-      // Enviar webhook de atualização
       sendLocacaoAtualizada(locacaoAtualizada);
 
-      // Verificar se houve mudança nos pagamentos para webhook específico
       const locacaoOriginal = locacoes.find(l => l.id === id);
       if (locacaoOriginal) {
         if (locacao.primeiroPagamentoPago !== undefined && locacao.primeiroPagamentoPago !== locacaoOriginal.primeiroPagamentoPago) {
@@ -236,7 +249,6 @@ export const useSupabaseLocacoes = () => {
 
       setLocacoes(prev => prev.filter(loc => loc.id !== id));
 
-      // Enviar webhook de exclusão
       if (locacaoParaExcluir) {
         sendLocacaoExcluida(locacaoParaExcluir);
       }
