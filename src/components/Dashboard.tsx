@@ -240,7 +240,7 @@ export const Dashboard = () => {
 
         <Card className="bg-white border-blue-200 shadow-lg">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-white">
               <Calendar className="h-5 w-5" />
               Locações no Mês ({mesAtual}/{anoAtual}) - {locacoesMesCorrente.length} reservas
             </CardTitle>
