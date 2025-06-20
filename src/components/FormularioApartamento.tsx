@@ -24,7 +24,6 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
   const [formData, setFormData] = useState({
     numero: apartamento?.numero || '',
     descricao: apartamento?.descricao || '',
-    endereco: apartamento?.endereco || '',
     proprietario: apartamento?.proprietario || '',
     ativo: apartamento?.ativo ?? true
   });
@@ -63,7 +62,6 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
         setFormData({
           numero: '',
           descricao: '',
-          endereco: '',
           proprietario: '',
           ativo: true
         });
@@ -109,17 +107,6 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
                 className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200 placeholder:text-slate-400"
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="endereco" className="text-slate-200">Endereço Completo</Label>
-            <Input
-              id="endereco"
-              value={formData.endereco}
-              onChange={(e) => setFormData(prev => ({ ...prev, endereco: e.target.value }))}
-              placeholder="Endereço completo do apartamento"
-              className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200 placeholder:text-slate-400"
-            />
           </div>
 
           <div className="space-y-2">
