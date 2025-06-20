@@ -15,6 +15,7 @@ export interface Locacao {
   valorFaltando: number;
   taxaLimpeza: number;
   comissao: number; // 20% do total
+  valorProprietario: number; // valor total - taxa limpeza - comissão
   dataPagamentoProprietario?: Date;
   observacoes?: string;
   createdAt: Date;

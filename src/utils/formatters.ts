@@ -1,3 +1,4 @@
+
 export const formatCurrency = (value: number): string => {
   return value.toLocaleString('pt-BR', {
     style: 'currency',
@@ -26,8 +27,13 @@ export const parseDateInput = (dateString: string): Date => {
   return new Date(year, month - 1, day);
 };
 
-export const calcularComissao = (valorTotal: number): number => {
-  return valorTotal * 0.2;
+export const calcularComissao = (valorLocacao: number): number => {
+  return valorLocacao * 0.2;
+};
+
+export const calcularValorProprietario = (valorLocacao: number, taxaLimpeza: number, comissao: number): number => {
+  const valorTotal = valorLocacao + taxaLimpeza;
+  return valorTotal - taxaLimpeza - comissao;
 };
 
 export const formatDateForInput = (date: Date): string => {

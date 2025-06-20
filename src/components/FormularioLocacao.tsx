@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,11 +6,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { useApartamentos } from '@/hooks/useApartamentos';
-import { parseDateInput, calcularComissao } from '@/utils/formatters';
+import { parseDateInput, calcularComissao, calcularValorProprietario } from '@/utils/formatters';
 import { toast } from '@/hooks/use-toast';
 import { CamposBasicos } from './FormularioLocacao/CamposBasicos';
 import { CamposDatas } from './FormularioLocacao/CamposDatas';
 import { CamposValores } from './FormularioLocacao/CamposValores';
+import { CamposCalculados } from './FormularioLocacao/CamposCalculados';
 import { CamposPagamento } from './FormularioLocacao/CamposPagamento';
 
 export const FormularioLocacao = () => {
@@ -48,6 +50,12 @@ export const FormularioLocacao = () => {
     return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
   };
 
+  // Cálculos automatizados
+  const valorLocacao = parseCurrencyInput(formData.valorLocacao);
+  const taxaLimpeza = parseCurrencyInput(formData.taxaLimpeza);
+  const comissao = calcularComissao(valorLocacao);
+  const valorProprietario = calcularValorProprietario(valorLocacao, taxaLimpeza, comissao);
+
   const handleCurrencyChange = (field: string, value: string) => {
     const formattedValue = formatCurrencyInput(value);
     setFormData(prev => ({
@@ -85,14 +93,15 @@ export const FormularioLocacao = () => {
       return;
     }
 
-    const valorLocacao = parseCurrencyInput(formData.valorLocacao);
+    const valorLocacaoNum = parseCurrencyInput(formData.valorLocacao);
     const primeiroPagamento = parseCurrencyInput(formData.primeiroPagamento);
     const segundoPagamento = parseCurrencyInput(formData.segundoPagamento);
-    const taxaLimpeza = parseCurrencyInput(formData.taxaLimpeza);
+    const taxaLimpezaNum = parseCurrencyInput(formData.taxaLimpeza);
     
-    const valorTotal = valorLocacao + taxaLimpeza;
+    const valorTotal = valorLocacaoNum + taxaLimpezaNum;
     const valorFaltando = valorTotal - primeiroPagamento - segundoPagamento;
-    const comissao = calcularComissao(valorTotal);
+    const comissaoCalculada = calcularComissao(valorLocacaoNum);
+    const valorProprietarioCalculado = calcularValorProprietario(valorLocacaoNum, taxaLimpezaNum, comissaoCalculada);
 
     adicionarLocacao({
       apartamento: formData.apartamento,
@@ -101,14 +110,15 @@ export const FormularioLocacao = () => {
       hospede: formData.hospede,
       dataEntrada: parseDateInput(formData.dataEntrada),
       dataSaida: parseDateInput(formData.dataSaida),
-      valorLocacao,
+      valorLocacao: valorLocacaoNum,
       primeiroPagamento,
       primeiroPagamentoPago: formData.primeiroPagamentoPago,
       segundoPagamento,
       segundoPagamentoPago: formData.segundoPagamentoPago,
       valorFaltando,
-      taxaLimpeza,
-      comissao,
+      taxaLimpeza: taxaLimpezaNum,
+      comissao: comissaoCalculada,
+      valorProprietario: valorProprietarioCalculado,
       dataPagamentoProprietario: formData.dataPagamentoProprietario ? parseDateInput(formData.dataPagamentoProprietario) : undefined,
       observacoes: formData.observacoes || undefined
     });
@@ -179,11 +189,11 @@ export const FormularioLocacao = () => {
                 onSegundoPagamentoPagoChange={(checked) => setFormData({...formData, segundoPagamentoPago: checked})}
               />
 
-              <CamposPagamento
-                proprietarioPago={formData.proprietarioPago}
-                dataPagamentoProprietario={formData.dataPagamentoProprietario}
-                onProprietarioPagoChange={(checked) => setFormData({...formData, proprietarioPago: checked})}
-                onDataPagamentoProprietarioChange={(value) => setFormData({...formData, dataPagamentoProprietario: value})}
+              <CamposCalculados
+                valorLocacao={formData.valorLocacao}
+                taxaLimpeza={formData.taxaLimpeza}
+                comissao={comissao}
+                valorProprietario={valorProprietario}
               />
 
               <div>
@@ -196,6 +206,13 @@ export const FormularioLocacao = () => {
                   rows={3}
                 />
               </div>
+
+              <CamposPagamento
+                proprietarioPago={formData.proprietarioPago}
+                dataPagamentoProprietario={formData.dataPagamentoProprietario}
+                onProprietarioPagoChange={(checked) => setFormData({...formData, proprietarioPago: checked})}
+                onDataPagamentoProprietarioChange={(value) => setFormData({...formData, dataPagamentoProprietario: value})}
+              />
 
               <Button type="submit" className="w-full font-semibold py-3 text-lg">
                 Cadastrar Locação
