@@ -87,7 +87,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="bg-blue-900 border-blue-800">
-      <SidebarHeader className="p-4 border-b border-blue-800">
+      <SidebarHeader className="p-4 border-b border-blue-800 bg-slate-900">
         <div className="flex items-center gap-3">
           <Logo size="md" showFallback={false} />
           <div>
