@@ -10,8 +10,10 @@ export interface Locacao {
   valorLocacao: number;
   primeiroPagamento: number;
   primeiroPagamentoPago: boolean;
+  primeiroPagamentoForma: string;
   segundoPagamento: number;
   segundoPagamentoPago: boolean;
+  segundoPagamentoForma: string;
   valorFaltando: number;
   taxaLimpeza: number;
   comissao: number; // 20% do total

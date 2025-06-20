@@ -2,31 +2,42 @@
 import { CampoMoeda } from './CampoMoeda';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface CamposValoresProps {
   valorLocacao: string;
   primeiroPagamento: string;
   primeiroPagamentoPago: boolean;
+  primeiroPagamentoForma: string;
   segundoPagamento: string;
   segundoPagamentoPago: boolean;
+  segundoPagamentoForma: string;
   taxaLimpeza: string;
   onValorLocacaoChange: (value: string) => void;
   onPrimeiroPagamentoChange: (value: string) => void;
   onPrimeiroPagamentoPagoChange: (checked: boolean) => void;
+  onPrimeiroPagamentoFormaChange: (value: string) => void;
   onSegundoPagamentoPagoChange: (checked: boolean) => void;
+  onSegundoPagamentoFormaChange: (value: string) => void;
 }
+
+const formasPagamento = ['Dinheiro', 'Cartão', 'Pix', 'Outros'];
 
 export const CamposValores = ({
   valorLocacao,
   primeiroPagamento,
   primeiroPagamentoPago,
+  primeiroPagamentoForma,
   segundoPagamento,
   segundoPagamentoPago,
+  segundoPagamentoForma,
   taxaLimpeza,
   onValorLocacaoChange,
   onPrimeiroPagamentoChange,
   onPrimeiroPagamentoPagoChange,
-  onSegundoPagamentoPagoChange
+  onPrimeiroPagamentoFormaChange,
+  onSegundoPagamentoPagoChange,
+  onSegundoPagamentoFormaChange
 }: CamposValoresProps) => {
   return (
     <div className="space-y-4">
@@ -68,6 +79,18 @@ export const CamposValores = ({
             <Label htmlFor="primeiroPagamentoPago" className="text-sm">
               Pagamento recebido
             </Label>
+            <Select value={primeiroPagamentoForma} onValueChange={onPrimeiroPagamentoFormaChange}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {formasPagamento.map((forma) => (
+                  <SelectItem key={forma} value={forma}>
+                    {forma}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -85,6 +108,18 @@ export const CamposValores = ({
             <Label htmlFor="segundoPagamentoPago" className="text-sm">
               Pagamento recebido
             </Label>
+            <Select value={segundoPagamentoForma} onValueChange={onSegundoPagamentoFormaChange}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {formasPagamento.map((forma) => (
+                  <SelectItem key={forma} value={forma}>
+                    {forma}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

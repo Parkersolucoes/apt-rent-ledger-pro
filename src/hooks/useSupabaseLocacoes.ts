@@ -35,8 +35,10 @@ export const useSupabaseLocacoes = () => {
           valorLocacao,
           primeiroPagamento: Number(loc.primeiro_pagamento),
           primeiroPagamentoPago: loc.primeiro_pagamento_pago || false,
+          primeiroPagamentoForma: loc.primeiro_pagamento_forma || 'Dinheiro',
           segundoPagamento: Number(loc.segundo_pagamento),
           segundoPagamentoPago: loc.segundo_pagamento_pago || false,
+          segundoPagamentoForma: loc.segundo_pagamento_forma || 'Dinheiro',
           valorFaltando: Number(loc.valor_faltando),
           taxaLimpeza,
           comissao,
@@ -78,8 +80,10 @@ export const useSupabaseLocacoes = () => {
           valor_locacao: locacao.valorLocacao,
           primeiro_pagamento: locacao.primeiroPagamento,
           primeiro_pagamento_pago: locacao.primeiroPagamentoPago,
+          primeiro_pagamento_forma: locacao.primeiroPagamentoForma,
           segundo_pagamento: locacao.segundoPagamento,
           segundo_pagamento_pago: locacao.segundoPagamentoPago,
+          segundo_pagamento_forma: locacao.segundoPagamentoForma,
           valor_faltando: locacao.valorFaltando,
           taxa_limpeza: locacao.taxaLimpeza,
           comissao: locacao.comissao,
@@ -108,8 +112,10 @@ export const useSupabaseLocacoes = () => {
         valorLocacao: Number(data.valor_locacao),
         primeiroPagamento: Number(data.primeiro_pagamento),
         primeiroPagamentoPago: data.primeiro_pagamento_pago || false,
+        primeiroPagamentoForma: data.primeiro_pagamento_forma || 'Dinheiro',
         segundoPagamento: Number(data.segundo_pagamento),
         segundoPagamentoPago: data.segundo_pagamento_pago || false,
+        segundoPagamentoForma: data.segundo_pagamento_forma || 'Dinheiro',
         valorFaltando: Number(data.valor_faltando),
         taxaLimpeza: Number(data.taxa_limpeza),
         comissao: Number(data.comissao),
@@ -143,8 +149,10 @@ export const useSupabaseLocacoes = () => {
       if (locacao.valorLocacao !== undefined) updateData.valor_locacao = locacao.valorLocacao;
       if (locacao.primeiroPagamento !== undefined) updateData.primeiro_pagamento = locacao.primeiroPagamento;
       if (locacao.primeiroPagamentoPago !== undefined) updateData.primeiro_pagamento_pago = locacao.primeiroPagamentoPago;
+      if (locacao.primeiroPagamentoForma !== undefined) updateData.primeiro_pagamento_forma = locacao.primeiroPagamentoForma;
       if (locacao.segundoPagamento !== undefined) updateData.segundo_pagamento = locacao.segundoPagamento;
       if (locacao.segundoPagamentoPago !== undefined) updateData.segundo_pagamento_pago = locacao.segundoPagamentoPago;
+      if (locacao.segundoPagamentoForma !== undefined) updateData.segundo_pagamento_forma = locacao.segundoPagamentoForma;
       if (locacao.valorFaltando !== undefined) updateData.valor_faltando = locacao.valorFaltando;
       if (locacao.taxaLimpeza !== undefined) updateData.taxa_limpeza = locacao.taxaLimpeza;
       if (locacao.comissao !== undefined) updateData.comissao = locacao.comissao;
@@ -179,8 +187,10 @@ export const useSupabaseLocacoes = () => {
         valorLocacao: Number(data.valor_locacao),
         primeiroPagamento: Number(data.primeiro_pagamento),
         primeiroPagamentoPago: data.primeiro_pagamento_pago || false,
+        primeiroPagamentoForma: data.primeiro_pagamento_forma || 'Dinheiro',
         segundoPagamento: Number(data.segundo_pagamento),
         segundoPagamentoPago: data.segundo_pagamento_pago || false,
+        segundoPagamentoForma: data.segundo_pagamento_forma || 'Dinheiro',
         valorFaltando: Number(data.valor_faltando),
         taxaLimpeza: Number(data.taxa_limpeza),
         comissao: Number(data.comissao),
