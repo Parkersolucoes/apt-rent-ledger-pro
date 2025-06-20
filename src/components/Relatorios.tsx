@@ -288,22 +288,22 @@ export const Relatorios = () => {
       yPosition += 12;
 
       // Container da tabela
-      const tableHeight = Math.min(locacoesFiltradas.length * 12 + 25, 120);
+      const tableHeight = Math.min(locacoesFiltradas.length * 12 + 30, 120);
       drawCard(margin, yPosition, contentWidth, tableHeight, [255, 255, 255]);
       
       // Cabeçalho da tabela
       doc.setFillColor(colors.grayLight[0], colors.grayLight[1], colors.grayLight[2]);
       doc.rect(margin + 2, yPosition + 2, contentWidth - 4, 16, 'F');
       
-      // Colunas otimizadas
+      // Definição das colunas com espaçamento otimizado
       const colunas = [
-        { label: 'Apto', x: margin + 5, width: 18, align: 'center' as const },
-        { label: 'Hóspede', x: margin + 25, width: 45, align: 'left' as const },
-        { label: 'Check-in', x: margin + 72, width: 22, align: 'center' as const },
-        { label: 'Check-out', x: margin + 96, width: 22, align: 'center' as const },
-        { label: 'Valor', x: margin + 120, width: 25, align: 'right' as const },
-        { label: 'Comissão', x: margin + 147, width: 25, align: 'right' as const },
-        { label: 'Líquido', x: margin + 174, width: 25, align: 'right' as const }
+        { label: 'Apto', x: margin + 5, width: 20, align: 'center' as const },
+        { label: 'Hóspede', x: margin + 27, width: 50, align: 'left' as const },
+        { label: 'Check-in', x: margin + 79, width: 25, align: 'center' as const },
+        { label: 'Check-out', x: margin + 106, width: 25, align: 'center' as const },
+        { label: 'Valor', x: margin + 133, width: 22, align: 'right' as const },
+        { label: 'Comissão', x: margin + 157, width: 22, align: 'right' as const },
+        { label: 'Líquido', x: margin + 181, width: 22, align: 'right' as const }
       ];
 
       // Headers
@@ -312,8 +312,14 @@ export const Relatorios = () => {
       doc.setFont('helvetica', 'bold');
       
       colunas.forEach(col => {
-        const textX = col.align === 'center' ? col.x + col.width/2 : 
-                     col.align === 'right' ? col.x + col.width - 3 : col.x + 3;
+        let textX = col.x;
+        if (col.align === 'center') {
+          textX = col.x + col.width / 2;
+        } else if (col.align === 'right') {
+          textX = col.x + col.width - 2;
+        } else {
+          textX = col.x + 2;
+        }
         doc.text(col.label, textX, yPosition + 12, { align: col.align });
       });
 
@@ -336,7 +342,7 @@ export const Relatorios = () => {
         
         const dados = [
           locacao.apartamento,
-          locacao.hospede.length > 25 ? locacao.hospede.substring(0, 22) + '...' : locacao.hospede,
+          locacao.hospede.length > 30 ? locacao.hospede.substring(0, 27) + '...' : locacao.hospede,
           locacao.dataEntrada.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
           locacao.dataSaida.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
           formatCurrency(locacao.valorLocacao),
@@ -346,8 +352,15 @@ export const Relatorios = () => {
 
         dados.forEach((dado, colIndex) => {
           const col = colunas[colIndex];
-          const textX = col.align === 'center' ? col.x + col.width/2 : 
-                       col.align === 'right' ? col.x + col.width - 3 : col.x + 3;
+          let textX = col.x;
+          
+          if (col.align === 'center') {
+            textX = col.x + col.width / 2;
+          } else if (col.align === 'right') {
+            textX = col.x + col.width - 2;
+          } else {
+            textX = col.x + 2;
+          }
           
           // Destaque para valores monetários
           if (colIndex >= 4) {
@@ -371,11 +384,18 @@ export const Relatorios = () => {
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       
-      // Totais
-      doc.text('TOTAIS', colunas[3].x + colunas[3].width - 3, footerY + 9, { align: 'right' });
-      doc.text(formatCurrency(valorTotalLocacao), colunas[4].x + colunas[4].width - 3, footerY + 9, { align: 'right' });
-      doc.text(formatCurrency(comissaoTotal), colunas[5].x + colunas[5].width - 3, footerY + 9, { align: 'right' });
-      doc.text(formatCurrency(proprietarioTotal), colunas[6].x + colunas[6].width - 3, footerY + 9, { align: 'right' });
+      // Label "TOTAIS"
+      const totalLabelX = colunas[3].x + colunas[3].width - 2;
+      doc.text('TOTAIS', totalLabelX, footerY + 9, { align: 'right' as const });
+      
+      // Valores dos totais
+      const totalValorX = colunas[4].x + colunas[4].width - 2;
+      const totalComissaoX = colunas[5].x + colunas[5].width - 2;
+      const totalLiquidoX = colunas[6].x + colunas[6].width - 2;
+      
+      doc.text(formatCurrency(valorTotalLocacao), totalValorX, footerY + 9, { align: 'right' as const });
+      doc.text(formatCurrency(comissaoTotal), totalComissaoX, footerY + 9, { align: 'right' as const });
+      doc.text(formatCurrency(proprietarioTotal), totalLiquidoX, footerY + 9, { align: 'right' as const });
 
       yPosition = footerY + 25;
     }
