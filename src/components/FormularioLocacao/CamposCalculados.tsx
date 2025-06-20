@@ -20,7 +20,7 @@ export const CamposCalculados = ({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label className="font-semibold">Comissão (20%)</Label>
+          <Label className="font-semibold">Comissão (20% sobre locação - taxa limpeza)</Label>
           <div className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
             R$ {comissao.toLocaleString('pt-BR', {
               minimumFractionDigits: 2,

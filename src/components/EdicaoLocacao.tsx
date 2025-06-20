@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -135,7 +134,7 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
     
     const valorTotal = valorLocacao + taxaLimpeza;
     const valorFaltando = valorTotal - primeiroPagamento - segundoPagamento;
-    const comissao = calcularComissao(valorTotal);
+    const comissao = calcularComissao(valorLocacao, taxaLimpeza);
 
     await atualizarLocacao(locacao.id, {
       apartamento: formData.apartamento,

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,7 +52,7 @@ export const FormularioLocacao = () => {
   // Cálculos automatizados
   const valorLocacao = parseCurrencyInput(formData.valorLocacao);
   const taxaLimpeza = parseCurrencyInput(formData.taxaLimpeza);
-  const comissao = calcularComissao(valorLocacao);
+  const comissao = calcularComissao(valorLocacao, taxaLimpeza);
   const valorProprietario = calcularValorProprietario(valorLocacao, taxaLimpeza, comissao);
 
   const handleCurrencyChange = (field: string, value: string) => {
@@ -100,7 +99,7 @@ export const FormularioLocacao = () => {
     
     const valorTotal = valorLocacaoNum + taxaLimpezaNum;
     const valorFaltando = valorTotal - primeiroPagamento - segundoPagamento;
-    const comissaoCalculada = calcularComissao(valorLocacaoNum);
+    const comissaoCalculada = calcularComissao(valorLocacaoNum, taxaLimpezaNum);
     const valorProprietarioCalculado = calcularValorProprietario(valorLocacaoNum, taxaLimpezaNum, comissaoCalculada);
 
     adicionarLocacao({

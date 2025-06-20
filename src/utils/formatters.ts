@@ -27,8 +27,8 @@ export const parseDateInput = (dateString: string): Date => {
   return new Date(year, month - 1, day);
 };
 
-export const calcularComissao = (valorLocacao: number): number => {
-  return valorLocacao * 0.2;
+export const calcularComissao = (valorLocacao: number, taxaLimpeza: number): number => {
+  return (valorLocacao - taxaLimpeza) * 0.2;
 };
 
 export const calcularValorProprietario = (valorLocacao: number, taxaLimpeza: number, comissao: number): number => {
