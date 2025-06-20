@@ -41,7 +41,7 @@ export const FiltrosLocacao = ({
         <CardTitle className="text-xl">Filtros</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div>
             <Label htmlFor="filtroApartamento" className="text-foreground font-medium">Apartamento</Label>
             <Select value={filtros.apartamento || 'todos'} onValueChange={(value) => setFiltros({...filtros, apartamento: value === 'todos' ? undefined : value})}>
@@ -83,6 +83,26 @@ export const FiltrosLocacao = ({
                 {meses.map((mes) => (
                   <SelectItem key={mes.value} value={mes.value.toString()}>{mes.label}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="filtroProprietarioPago" className="text-foreground font-medium">Proprietário Pago</Label>
+            <Select 
+              value={filtros.proprietarioPago === undefined ? 'todos' : filtros.proprietarioPago.toString()} 
+              onValueChange={(value) => setFiltros({
+                ...filtros, 
+                proprietarioPago: value === 'todos' ? undefined : value === 'true'
+              })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
               </SelectContent>
             </Select>
           </div>

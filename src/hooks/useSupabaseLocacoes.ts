@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Locacao, FiltrosLocacao } from '@/types/locacao';
@@ -243,6 +244,12 @@ export const useSupabaseLocacoes = () => {
       }
       if (filtros.mes && locacao.mes !== filtros.mes) {
         return false;
+      }
+      if (filtros.proprietarioPago !== undefined) {
+        const foiPago = !!locacao.dataPagamentoProprietario;
+        if (filtros.proprietarioPago !== foiPago) {
+          return false;
+        }
       }
       return true;
     });

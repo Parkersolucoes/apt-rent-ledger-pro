@@ -27,4 +27,5 @@ export interface FiltrosLocacao {
   apartamento?: string;
   ano?: number;
   mes?: number;
+  proprietarioPago?: boolean | 'todos';
 }
