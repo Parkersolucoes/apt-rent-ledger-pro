@@ -12,6 +12,10 @@ import NotFound from "./pages/NotFound";
 import ModelosMensagem from "./pages/ModelosMensagem";
 import Configuracoes from "./pages/Configuracoes";
 import Relatorios from "./pages/Relatorios";
+import Locacoes from "./pages/Locacoes";
+import NovaLocacao from "./pages/NovaLocacao";
+import Despesas from "./pages/Despesas";
+import NovaDespesa from "./pages/NovaDespesa";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +41,10 @@ const App = () => (
                 <Route path="/modelos-mensagem" element={<ModelosMensagem />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="/relatorios" element={<Relatorios />} />
+                <Route path="/locacoes" element={<Locacoes />} />
+                <Route path="/locacoes/novo" element={<NovaLocacao />} />
+                <Route path="/despesas" element={<Despesas />} />
+                <Route path="/despesas/novo" element={<NovaDespesa />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
