@@ -35,7 +35,7 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
   doc.rect(margin, currentY, contentWidth, 12, 'F');
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   
   colunas.forEach(col => {
@@ -45,18 +45,18 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
   currentY += 15;
 
   // Linhas da tabela com fonte maior
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   
   locacoes.forEach((locacao, index) => {
     if (index >= 12) return; // Limite para caber na página
     
-    const rowY = currentY + (index * 9);
+    const rowY = currentY + (index * 10);
     
     // Linha zebrada
     if (index % 2 === 0) {
       doc.setFillColor(248, 250, 252);
-      doc.rect(margin, rowY - 2, contentWidth, 9, 'F');
+      doc.rect(margin, rowY - 2, contentWidth, 10, 'F');
     }
 
     doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
@@ -84,17 +84,17 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
         doc.setFont('helvetica', 'normal');
       }
       
-      doc.text(dado, col.x, rowY + 5);
+      doc.text(dado, col.x, rowY + 6);
     });
   });
 
   // Linha de totais
-  const footerY = currentY + Math.min(locacoes.length, 12) * 9 + 5;
+  const footerY = currentY + Math.min(locacoes.length, 12) * 10 + 5;
   doc.setFillColor(colors.successLight[0], colors.successLight[1], colors.successLight[2]);
   doc.rect(margin, footerY, contentWidth, 12, 'F');
   
   doc.setTextColor(25, 25, 112);
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   
   const valorTotal = locacoes.reduce((sum, loc) => sum + loc.valorLocacao, 0);

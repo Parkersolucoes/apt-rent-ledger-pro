@@ -22,7 +22,7 @@ export const addExpensesSection = (doc: jsPDF, yPosition: number, despesas: Desp
   doc.rect(margin, currentY, contentWidth, 10, 'F');
   
   doc.setTextColor(colors.danger[0], colors.danger[1], colors.danger[2]);
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('Data', margin + 5, currentY + 7);
   doc.text('Descrição', margin + 40, currentY + 7);
@@ -31,29 +31,29 @@ export const addExpensesSection = (doc: jsPDF, yPosition: number, despesas: Desp
 
   currentY += 12;
 
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   despesas.slice(0, 8).forEach((despesa, index) => {
-    const rowY = currentY + (index * 8);
+    const rowY = currentY + (index * 9);
     
     if (index % 2 === 0) {
       doc.setFillColor(254, 248, 248);
-      doc.rect(margin, rowY - 2, contentWidth, 8, 'F');
+      doc.rect(margin, rowY - 2, contentWidth, 9, 'F');
     }
 
     doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
     doc.setFont('helvetica', 'normal');
     
-    doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 5, rowY + 4);
-    doc.text(despesa.descricao.length > 50 ? despesa.descricao.substring(0, 47) + '...' : despesa.descricao, margin + 40, rowY + 4);
-    doc.text(despesa.apartamento || 'Geral', margin + 150, rowY + 4);
+    doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 5, rowY + 5);
+    doc.text(despesa.descricao.length > 50 ? despesa.descricao.substring(0, 47) + '...' : despesa.descricao, margin + 40, rowY + 5);
+    doc.text(despesa.apartamento || 'Geral', margin + 150, rowY + 5);
     
     doc.setTextColor(colors.danger[0], colors.danger[1], colors.danger[2]);
     doc.setFont('helvetica', 'bold');
-    doc.text(formatCurrency(despesa.valor), margin + 200, rowY + 4);
+    doc.text(formatCurrency(despesa.valor), margin + 200, rowY + 5);
   });
 
   const despesasTotal = despesas.reduce((sum, desp) => sum + desp.valor, 0);
-  const totalY = currentY + Math.min(despesas.length, 8) * 8 + 3;
+  const totalY = currentY + Math.min(despesas.length, 8) * 9 + 3;
   doc.setFillColor(colors.danger[0], colors.danger[1], colors.danger[2]);
   doc.rect(margin, totalY, contentWidth, 10, 'F');
   
