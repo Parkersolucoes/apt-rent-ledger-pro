@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -319,12 +320,15 @@ export const Relatorios = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <Label htmlFor="apartamento">Apartamento</Label>
-                <Select value={filtros.apartamento || ''} onValueChange={(value) => setFiltros({...filtros, apartamento: value || undefined})}>
+                <Select 
+                  value={filtros.apartamento || 'todos'} 
+                  onValueChange={(value) => setFiltros({...filtros, apartamento: value === 'todos' ? undefined : value})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="todos">Todos</SelectItem>
                     {apartamentosDisponiveis.map((apt) => (
                       <SelectItem key={apt} value={apt}>Apartamento {apt}</SelectItem>
                     ))}
@@ -334,12 +338,15 @@ export const Relatorios = () => {
 
               <div>
                 <Label htmlFor="ano">Ano</Label>
-                <Select value={filtros.ano?.toString() || ''} onValueChange={(value) => setFiltros({...filtros, ano: value ? parseInt(value) : undefined})}>
+                <Select 
+                  value={filtros.ano?.toString() || 'todos'} 
+                  onValueChange={(value) => setFiltros({...filtros, ano: value === 'todos' ? undefined : parseInt(value)})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="todos">Todos</SelectItem>
                     {anos.map((ano) => (
                       <SelectItem key={ano} value={ano?.toString() || ''}>{ano}</SelectItem>
                     ))}
@@ -349,12 +356,15 @@ export const Relatorios = () => {
 
               <div>
                 <Label htmlFor="mes">Mês</Label>
-                <Select value={filtros.mes?.toString() || ''} onValueChange={(value) => setFiltros({...filtros, mes: value ? parseInt(value) : undefined})}>
+                <Select 
+                  value={filtros.mes?.toString() || 'todos'} 
+                  onValueChange={(value) => setFiltros({...filtros, mes: value === 'todos' ? undefined : parseInt(value)})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="todos">Todos</SelectItem>
                     {meses.map((mes) => (
                       <SelectItem key={mes.valor} value={mes.valor.toString()}>{mes.nome}</SelectItem>
                     ))}
