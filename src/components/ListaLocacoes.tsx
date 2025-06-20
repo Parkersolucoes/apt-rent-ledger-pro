@@ -299,7 +299,11 @@ export const ListaLocacoes = () => {
                 {locacoesFiltradas.map((locacao) => (
                   <div
                     key={locacao.id}
-                    className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-card"
+                    className={`border rounded-lg p-4 hover:shadow-md transition-all duration-200 ${
+                      locacao.dataPagamentoProprietario 
+                        ? 'bg-green-50 border-green-200' 
+                        : 'bg-rose-50 border-rose-200'
+                    }`}
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                       <div className="lg:col-span-2 space-y-3">
@@ -371,8 +375,8 @@ export const ListaLocacoes = () => {
                         </div>
                         
                         {locacao.dataPagamentoProprietario && (
-                          <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-sm">
-                            <span className="text-green-700">
+                          <div className="mt-2 p-2 bg-green-100 border border-green-300 rounded text-sm">
+                            <span className="text-green-800">
                               Pago ao proprietário em: {formatDate(locacao.dataPagamentoProprietario)}
                             </span>
                           </div>
