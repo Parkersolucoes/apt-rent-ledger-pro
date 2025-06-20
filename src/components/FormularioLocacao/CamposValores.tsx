@@ -44,7 +44,7 @@ export const CamposValores = ({
       <h3 className="text-lg font-semibold">Valores</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
           <CampoMoeda
             id="valorLocacao"
             label="Valor da Locação *"
@@ -62,7 +62,7 @@ export const CamposValores = ({
           </div>
         </div>
 
-        <div>
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
           <CampoMoeda
             id="primeiroPagamento"
             label="Primeiro Pagamento"
