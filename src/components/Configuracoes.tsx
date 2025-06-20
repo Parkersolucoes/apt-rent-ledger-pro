@@ -1,20 +1,20 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Webhook, Save, TestTube, Upload, Mail, Eye, EyeOff } from 'lucide-react';
+import { Webhook, Save, TestTube, Upload, Mail, Eye, EyeOff, MessageCircle } from 'lucide-react';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 
 export const Configuracoes = () => {
   const [webhookUrlInput, setWebhookUrlInput] = useState('');
   const [isTesting, setIsTesting] = useState(false);
   const [mostrarSenhaSMTP, setMostrarSenhaSMTP] = useState(false);
+  const [mostrarApiKeyEvolution, setMostrarApiKeyEvolution] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { logoUrl, webhookUrl, configSMTP, salvarLogo, salvarWebhook, salvarConfigSMTP, isLoading } = useConfiguracoes();
+  const { logoUrl, webhookUrl, configSMTP, configEvolution, salvarLogo, salvarWebhook, salvarConfigSMTP, salvarConfigEvolution, isLoading } = useConfiguracoes();
 
   const [smtpForm, setSMTPForm] = useState({
     host: '',
@@ -25,6 +25,12 @@ export const Configuracoes = () => {
     nomeRemetente: ''
   });
 
+  const [evolutionForm, setEvolutionForm] = useState({
+    apiUrl: '',
+    apiKey: '',
+    instanceName: ''
+  });
+
   // Sincronizar os inputs com os valores dos hooks quando carregados
   useEffect(() => {
     if (webhookUrl && !webhookUrlInput) {
@@ -33,7 +39,10 @@ export const Configuracoes = () => {
     if (configSMTP.host) {
       setSMTPForm(configSMTP);
     }
-  }, [webhookUrl, webhookUrlInput, configSMTP]);
+    if (configEvolution.apiUrl) {
+      setEvolutionForm(configEvolution);
+    }
+  }, [webhookUrl, webhookUrlInput, configSMTP, configEvolution]);
 
   const handleSaveWebhook = async () => {
     await salvarWebhook(webhookUrlInput);
@@ -41,6 +50,10 @@ export const Configuracoes = () => {
 
   const handleSaveSMTP = async () => {
     await salvarConfigSMTP(smtpForm);
+  };
+
+  const handleSaveEvolution = async () => {
+    await salvarConfigEvolution(evolutionForm);
   };
 
   const handleTest = async () => {
@@ -286,6 +299,87 @@ export const Configuracoes = () => {
                     <p><strong>Gmail:</strong> smtp.gmail.com:587 (Use senha de app)</p>
                     <p><strong>Outlook/Hotmail:</strong> smtp-mail.outlook.com:587</p>
                     <p><strong>Yahoo:</strong> smtp.mail.yahoo.com:587</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Configuração da Evolution API */}
+            <div className="space-y-4 border-t pt-6">
+              <div>
+                <Label className="font-semibold text-lg flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Evolution API (WhatsApp)
+                </Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure sua Evolution API para envio de relatórios por WhatsApp.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <Label htmlFor="evolution-api-url">URL da API *</Label>
+                    <Input
+                      id="evolution-api-url"
+                      value={evolutionForm.apiUrl}
+                      onChange={(e) => setEvolutionForm({...evolutionForm, apiUrl: e.target.value})}
+                      placeholder="https://sua-evolution-api.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="evolution-api-key">API Key *</Label>
+                    <div className="relative">
+                      <Input
+                        id="evolution-api-key"
+                        type={mostrarApiKeyEvolution ? "text" : "password"}
+                        value={evolutionForm.apiKey}
+                        onChange={(e) => setEvolutionForm({...evolutionForm, apiKey: e.target.value})}
+                        placeholder="Sua API Key da Evolution"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setMostrarApiKeyEvolution(!mostrarApiKeyEvolution)}
+                      >
+                        {mostrarApiKeyEvolution ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="evolution-instance-name">Nome da Instância *</Label>
+                    <Input
+                      id="evolution-instance-name"
+                      value={evolutionForm.instanceName}
+                      onChange={(e) => setEvolutionForm({...evolutionForm, instanceName: e.target.value})}
+                      placeholder="nome-da-instancia"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Button 
+                    onClick={handleSaveEvolution}
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    Salvar Configurações Evolution
+                  </Button>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg mt-4">
+                  <h4 className="font-semibold mb-2">Como configurar:</h4>
+                  <div className="text-sm space-y-1 text-muted-foreground">
+                    <p><strong>URL da API:</strong> Endereço completo da sua Evolution API (ex: https://api.minhaempresa.com)</p>
+                    <p><strong>API Key:</strong> Chave de autenticação da sua Evolution API</p>
+                    <p><strong>Instância:</strong> Nome da instância configurada na Evolution API</p>
                   </div>
                 </div>
               </div>

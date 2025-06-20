@@ -11,6 +11,12 @@ interface ConfiguracaoSMTP {
   nomeRemetente: string;
 }
 
+interface ConfiguracaoEvolution {
+  apiUrl: string;
+  apiKey: string;
+  instanceName: string;
+}
+
 export const useConfiguracoes = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [webhookUrl, setWebhookUrl] = useState<string>('');
@@ -21,6 +27,11 @@ export const useConfiguracoes = () => {
     senha: '',
     emailRemetente: '',
     nomeRemetente: ''
+  });
+  const [configEvolution, setConfigEvolution] = useState<ConfiguracaoEvolution>({
+    apiUrl: '',
+    apiKey: '',
+    instanceName: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -89,6 +100,33 @@ export const useConfiguracoes = () => {
           }
         });
         setConfigSMTP(smtpConfig);
+      }
+
+      // Carregar configurações Evolution
+      const evolutionKeys = ['evolution_api_url', 'evolution_api_key', 'evolution_instance_name'];
+      const { data: evolutionData, error: evolutionError } = await supabase
+        .from('configuracoes_sistema')
+        .select('chave, valor')
+        .in('chave', evolutionKeys);
+
+      if (evolutionError && evolutionError.code !== 'PGRST116') {
+        console.error('Erro ao carregar configurações Evolution:', evolutionError);
+      } else if (evolutionData && evolutionData.length > 0) {
+        const evolutionConfig = { ...configEvolution };
+        evolutionData.forEach(config => {
+          switch (config.chave) {
+            case 'evolution_api_url':
+              evolutionConfig.apiUrl = config.valor || '';
+              break;
+            case 'evolution_api_key':
+              evolutionConfig.apiKey = config.valor || '';
+              break;
+            case 'evolution_instance_name':
+              evolutionConfig.instanceName = config.valor || '';
+              break;
+          }
+        });
+        setConfigEvolution(evolutionConfig);
       }
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
@@ -252,6 +290,53 @@ export const useConfiguracoes = () => {
     }
   };
 
+  const salvarConfigEvolution = async (config: ConfiguracaoEvolution) => {
+    if (!config.apiUrl || !config.apiKey || !config.instanceName) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos da Evolution API.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    setIsLoading(true);
+    try {
+      const configsToSave = [
+        { chave: 'evolution_api_url', valor: config.apiUrl },
+        { chave: 'evolution_api_key', valor: config.apiKey },
+        { chave: 'evolution_instance_name', valor: config.instanceName },
+      ];
+
+      for (const configItem of configsToSave) {
+        const { error } = await supabase
+          .from('configuracoes_sistema')
+          .upsert(configItem, { onConflict: 'chave' });
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      setConfigEvolution(config);
+      toast({
+        title: "Sucesso!",
+        description: "Configurações da Evolution API salvas com sucesso."
+      });
+      return true;
+    } catch (error) {
+      console.error('Erro ao salvar configurações Evolution:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao salvar as configurações da Evolution API.",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     carregarConfiguracoes();
   }, []);
@@ -260,9 +345,11 @@ export const useConfiguracoes = () => {
     logoUrl,
     webhookUrl,
     configSMTP,
+    configEvolution,
     salvarLogo,
     salvarWebhook,
     salvarConfigSMTP,
+    salvarConfigEvolution,
     isLoading,
     recarregarConfiguracoes: carregarConfiguracoes
   };

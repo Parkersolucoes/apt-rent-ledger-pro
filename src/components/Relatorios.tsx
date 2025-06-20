@@ -6,15 +6,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { useDespesas } from '@/hooks/useDespesas';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { CalendarIcon, FileText, Mail, Download } from 'lucide-react';
+import { CalendarIcon, FileText, Mail, Download, MessageCircle } from 'lucide-react';
 import { RelatorioDetalhado } from './Relatorios/RelatorioDetalhado';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { enviarPDFWhatsApp, formatarTelefone } from '@/utils/whatsapp';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -27,7 +29,7 @@ interface FiltrosRelatorio {
 export const Relatorios = () => {
   const { locacoes, obterApartamentos } = useLocacoes();
   const { despesas } = useDespesas();
-  const { logoUrl } = useConfiguracoes();
+  const { logoUrl, configEvolution } = useConfiguracoes();
   const { toast } = useToast();
   
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({
@@ -39,6 +41,9 @@ export const Relatorios = () => {
   const [mostrarRelatorio, setMostrarRelatorio] = useState(false);
   const [emailDestino, setEmailDestino] = useState('');
   const [enviandoEmail, setEnviandoEmail] = useState(false);
+  const [telefoneWhatsApp, setTelefoneWhatsApp] = useState('');
+  const [enviandoWhatsApp, setEnviandoWhatsApp] = useState(false);
+  const [modalWhatsAppAberto, setModalWhatsAppAberto] = useState(false);
 
   const apartamentos = obterApartamentos();
 
@@ -49,7 +54,7 @@ export const Relatorios = () => {
     setMostrarRelatorio(true);
   };
 
-  const exportarPDF = async () => {
+  const gerarPDFBlob = async (): Promise<{ blob: Blob; filename: string } | null> => {
     const relatorioElement = document.querySelector('.relatorio-detalhado') as HTMLElement;
     if (!relatorioElement) {
       toast({
@@ -57,7 +62,7 @@ export const Relatorios = () => {
         description: "Relatório não encontrado para exportação.",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
     try {
@@ -69,11 +74,11 @@ export const Relatorios = () => {
         color: black !important;
         width: 210mm !important;
         min-height: 297mm !important;
-        padding: 5mm !important;
+        padding: 2mm !important;
         box-shadow: none !important;
         border: none !important;
-        font-size: 10px !important;
-        line-height: 1.3 !important;
+        font-size: 9px !important;
+        line-height: 1.2 !important;
       `;
 
       // Apply specific styles to nested elements for PDF
@@ -82,7 +87,7 @@ export const Relatorios = () => {
         (card as HTMLElement).style.border = '1px solid #ccc';
         (card as HTMLElement).style.boxShadow = 'none';
         (card as HTMLElement).style.background = 'white';
-        (card as HTMLElement).style.marginBottom = '6px';
+        (card as HTMLElement).style.marginBottom = '3px';
       });
 
       const headers = relatorioElement.querySelectorAll('[class*="bg-gradient"]');
@@ -90,14 +95,14 @@ export const Relatorios = () => {
         (header as HTMLElement).style.background = '#f8f9fa !important';
         (header as HTMLElement).style.color = '#000 !important';
         (header as HTMLElement).style.border = '1px solid #ccc';
-        (header as HTMLElement).style.padding = '6px';
+        (header as HTMLElement).style.padding = '3px';
       });
 
       // Optimize table styles for PDF
       const tables = relatorioElement.querySelectorAll('table');
       tables.forEach(table => {
-        (table as HTMLElement).style.fontSize = '9px';
-        (table as HTMLElement).style.lineHeight = '1.2';
+        (table as HTMLElement).style.fontSize = '8px';
+        (table as HTMLElement).style.lineHeight = '1.1';
       });
 
       // Capture the element as canvas
@@ -106,37 +111,35 @@ export const Relatorios = () => {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: 794, // A4 width in pixels at 96 DPI
-        height: 1123, // A4 height in pixels at 96 DPI
+        width: 794,
+        height: 1123,
       });
 
       // Create PDF with minimal margins
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       
-      const imgWidth = 200; // Reduced width for minimal margins (5mm each side)
-      const pageHeight = 287; // Reduced height for minimal margins (5mm each side)
+      const imgWidth = 206; // Minimal margins (2mm each side)
+      const pageHeight = 293; // Minimal margins (2mm each side)
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-      let position = 5; // Start with 5mm margin
+      let position = 2; // Start with 2mm margin
 
       // Add first page
-      pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', 2, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
       // Add additional pages if needed
       while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 5;
+        position = heightLeft - imgHeight + 2;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', 2, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
 
-      // Generate filename
+      // Generate filename and blob
       const filename = `relatorio-${filtros.apartamento}-${formatDate(filtros.dataInicio).replace(/\//g, '-')}-${formatDate(filtros.dataFim).replace(/\//g, '-')}.pdf`;
-      
-      // Download the PDF
-      pdf.save(filename);
+      const pdfBlob = pdf.output('blob');
 
       // Restore original styles
       relatorioElement.style.cssText = originalStyle;
@@ -150,21 +153,92 @@ export const Relatorios = () => {
         (table as HTMLElement).style.cssText = '';
       });
 
-      toast({
-        title: "PDF exportado com sucesso!",
-        description: `O arquivo ${filename} foi baixado.`,
-      });
+      return { blob: pdfBlob, filename };
 
     } catch (error) {
-      console.error('Erro ao exportar PDF:', error);
+      console.error('Erro ao gerar PDF:', error);
       toast({
-        title: "Erro ao exportar PDF",
+        title: "Erro ao gerar PDF",
         description: "Ocorreu um erro ao gerar o arquivo PDF.",
         variant: "destructive",
       });
       
       // Restore original styles in case of error
       relatorioElement.style.cssText = '';
+      return null;
+    }
+  };
+
+  const exportarPDF = async () => {
+    const pdfData = await gerarPDFBlob();
+    if (!pdfData) return;
+
+    // Create download link
+    const url = URL.createObjectURL(pdfData.blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = pdfData.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "PDF exportado com sucesso!",
+      description: `O arquivo ${pdfData.filename} foi baixado.`,
+    });
+  };
+
+  const enviarPorWhatsApp = async () => {
+    if (!telefoneWhatsApp.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, informe o número do WhatsApp.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!configEvolution.apiUrl || !configEvolution.apiKey || !configEvolution.instanceName) {
+      toast({
+        title: "Erro",
+        description: "Configure a Evolution API nas configurações do sistema.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setEnviandoWhatsApp(true);
+    try {
+      const pdfData = await gerarPDFBlob();
+      if (!pdfData) return;
+
+      const mensagem = `📊 *Relatório Financeiro*\n\n🏢 Apartamento: ${filtros.apartamento}\n📅 Período: ${formatDate(filtros.dataInicio)} a ${formatDate(filtros.dataFim)}\n💰 Receitas: ${formatCurrency(totalReceitas)}\n💸 Despesas: ${formatCurrency(totalDespesas)}\n📈 Lucro: ${formatCurrency(lucroLiquido)}`;
+
+      await enviarPDFWhatsApp(
+        configEvolution,
+        telefoneWhatsApp,
+        pdfData.blob,
+        pdfData.filename,
+        mensagem
+      );
+
+      toast({
+        title: "WhatsApp enviado com sucesso!",
+        description: `O relatório foi enviado para ${telefoneWhatsApp}`,
+      });
+
+      setTelefoneWhatsApp('');
+      setModalWhatsAppAberto(false);
+    } catch (error) {
+      console.error('Erro ao enviar WhatsApp:', error);
+      toast({
+        title: "Erro ao enviar WhatsApp",
+        description: "Verifique as configurações da Evolution API.",
+        variant: "destructive",
+      });
+    } finally {
+      setEnviandoWhatsApp(false);
     }
   };
 
@@ -333,6 +407,50 @@ export const Relatorios = () => {
                     <Download className="mr-2 h-4 w-4" />
                     Exportar PDF
                   </Button>
+
+                  <Dialog open={modalWhatsAppAberto} onOpenChange={setModalWhatsAppAberto}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="bg-green-50 hover:bg-green-100 border-green-200">
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Enviar WhatsApp
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Enviar Relatório por WhatsApp</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="telefone">Número do WhatsApp</Label>
+                          <Input
+                            id="telefone"
+                            placeholder="(11) 99999-9999"
+                            value={telefoneWhatsApp}
+                            onChange={(e) => setTelefoneWhatsApp(e.target.value)}
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Digite o número com DDD (ex: 11999999999)
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={enviarPorWhatsApp}
+                            disabled={!telefoneWhatsApp || enviandoWhatsApp}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            {enviandoWhatsApp ? 'Enviando...' : 'Enviar'}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setModalWhatsAppAberto(false)}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   
                   <div className="flex gap-2">
                     <Input 
