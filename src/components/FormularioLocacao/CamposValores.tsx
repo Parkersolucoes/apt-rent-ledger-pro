@@ -1,7 +1,7 @@
+
 import { CampoMoeda } from './CampoMoeda';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Flag } from 'lucide-react';
 
 interface CamposValoresProps {
   valorLocacao: string;
@@ -34,12 +34,13 @@ export const CamposValores = ({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="valorLocacao" className="font-semibold">Valor da Locação *</Label>
           <CampoMoeda
             id="valorLocacao"
+            label="Valor da Locação *"
             value={valorLocacao}
             onChange={onValorLocacaoChange}
             placeholder="0,00"
+            required
           />
         </div>
 
@@ -51,9 +52,9 @@ export const CamposValores = ({
         </div>
 
         <div>
-          <Label htmlFor="primeiroPagamento" className="font-semibold">Primeiro Pagamento</Label>
           <CampoMoeda
             id="primeiroPagamento"
+            label="Primeiro Pagamento"
             value={primeiroPagamento}
             onChange={onPrimeiroPagamentoChange}
             placeholder="0,00"
