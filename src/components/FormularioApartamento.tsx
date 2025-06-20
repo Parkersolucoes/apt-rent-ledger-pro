@@ -78,55 +78,59 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>
+    <Card className="w-full max-w-2xl mx-auto shadow-2xl border-0 bg-slate-800/95 backdrop-blur-sm border border-slate-600">
+      <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-800 text-white rounded-t-lg">
+        <CardTitle className="text-xl text-blue-50">
           {apartamento ? 'Editar Apartamento' : 'Novo Apartamento'}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="numero">Número do Apartamento *</Label>
+              <Label htmlFor="numero" className="text-slate-200">Número do Apartamento *</Label>
               <Input
                 id="numero"
                 value={formData.numero}
                 onChange={(e) => setFormData(prev => ({ ...prev, numero: e.target.value }))}
                 placeholder="Ex: 101, 201A, etc."
                 required
+                className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200 placeholder:text-slate-400"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proprietario">Proprietário</Label>
+              <Label htmlFor="proprietario" className="text-slate-200">Proprietário</Label>
               <Input
                 id="proprietario"
                 value={formData.proprietario}
                 onChange={(e) => setFormData(prev => ({ ...prev, proprietario: e.target.value }))}
                 placeholder="Nome do proprietário"
+                className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200 placeholder:text-slate-400"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="endereco">Endereço Completo</Label>
+            <Label htmlFor="endereco" className="text-slate-200">Endereço Completo</Label>
             <Input
               id="endereco"
               value={formData.endereco}
               onChange={(e) => setFormData(prev => ({ ...prev, endereco: e.target.value }))}
               placeholder="Endereço completo do apartamento"
+              className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200 placeholder:text-slate-400"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição</Label>
+            <Label htmlFor="descricao" className="text-slate-200">Descrição</Label>
             <Textarea
               id="descricao"
               value={formData.descricao}
               onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
               placeholder="Descrição do apartamento (quartos, banheiros, características, etc.)"
               rows={3}
+              className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200 placeholder:text-slate-400"
             />
           </div>
 
@@ -136,17 +140,17 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
               checked={formData.ativo}
               onCheckedChange={(checked) => setFormData(prev => ({ ...prev, ativo: checked }))}
             />
-            <Label htmlFor="ativo">Apartamento ativo</Label>
+            <Label htmlFor="ativo" className="text-slate-200">Apartamento ativo</Label>
           </div>
 
           <div className="flex gap-3 justify-end">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button type="button" variant="outline" onClick={onCancel} className="border-slate-500 bg-slate-600 text-slate-200 hover:bg-slate-500">
                 <X className="h-4 w-4 mr-2" />
                 Cancelar
               </Button>
             )}
-            <Button type="submit">
+            <Button type="submit" className="bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900">
               <Save className="h-4 w-4 mr-2" />
               {apartamento ? 'Atualizar' : 'Cadastrar'}
             </Button>
