@@ -5,6 +5,7 @@ export interface Locacao {
   ano: number;
   mes: number;
   hospede: string;
+  telefone?: string;
   dataEntrada: Date;
   dataSaida: Date;
   valorLocacao: number;

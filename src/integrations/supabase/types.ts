@@ -92,6 +92,7 @@ export type Database = {
           segundo_pagamento_forma: string | null
           segundo_pagamento_pago: boolean | null
           taxa_limpeza: number
+          telefone: string | null
           valor_faltando: number
           valor_locacao: number
           valor_proprietario: number | null
@@ -115,6 +116,7 @@ export type Database = {
           segundo_pagamento_forma?: string | null
           segundo_pagamento_pago?: boolean | null
           taxa_limpeza?: number
+          telefone?: string | null
           valor_faltando?: number
           valor_locacao: number
           valor_proprietario?: number | null
@@ -138,6 +140,7 @@ export type Database = {
           segundo_pagamento_forma?: string | null
           segundo_pagamento_pago?: boolean | null
           taxa_limpeza?: number
+          telefone?: string | null
           valor_faltando?: number
           valor_locacao?: number
           valor_proprietario?: number | null

@@ -1,3 +1,4 @@
+
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -7,11 +8,13 @@ interface CamposBasicosProps {
   ano: number;
   mes: number;
   hospede: string;
+  telefone: string;
   apartamentosDisponiveis: string[];
   onApartamentoChange: (value: string) => void;
   onAnoChange: (value: number) => void;
   onMesChange: (value: number) => void;
   onHospedeChange: (value: string) => void;
+  onTelefoneChange: (value: string) => void;
 }
 
 export const CamposBasicos = ({
@@ -19,11 +22,13 @@ export const CamposBasicos = ({
   ano,
   mes,
   hospede,
+  telefone,
   apartamentosDisponiveis,
   onApartamentoChange,
   onAnoChange,
   onMesChange,
-  onHospedeChange
+  onHospedeChange,
+  onTelefoneChange
 }: CamposBasicosProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -52,6 +57,17 @@ export const CamposBasicos = ({
           onChange={(e) => onHospedeChange(e.target.value)}
           placeholder="Nome do hóspede"
           required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="telefone" className="font-semibold">Telefone</Label>
+        <Input
+          id="telefone"
+          type="tel"
+          value={telefone}
+          onChange={(e) => onTelefoneChange(e.target.value)}
+          placeholder="Telefone do hóspede"
         />
       </div>
 

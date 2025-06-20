@@ -29,6 +29,7 @@ export const FormularioLocacao = () => {
     ano: new Date().getFullYear(),
     mes: new Date().getMonth() + 1,
     hospede: '',
+    telefone: '',
     dataEntrada: '',
     dataSaida: '',
     valorLocacao: '',
@@ -96,6 +97,7 @@ export const FormularioLocacao = () => {
       ano: new Date().getFullYear(),
       mes: new Date().getMonth() + 1,
       hospede: '',
+      telefone: '',
       dataEntrada: '',
       dataSaida: '',
       valorLocacao: '',
@@ -139,6 +141,7 @@ export const FormularioLocacao = () => {
       ano: formData.ano,
       mes: formData.mes,
       hospede: formData.hospede,
+      telefone: formData.telefone || undefined,
       dataEntrada: parseDateInput(formData.dataEntrada),
       dataSaida: parseDateInput(formData.dataSaida),
       valorLocacao: valorLocacaoNum,
@@ -205,11 +208,13 @@ export const FormularioLocacao = () => {
                 ano={formData.ano}
                 mes={formData.mes}
                 hospede={formData.hospede}
+                telefone={formData.telefone}
                 apartamentosDisponiveis={apartamentosDisponiveis}
                 onApartamentoChange={(value) => setFormData({...formData, apartamento: value})}
                 onAnoChange={(value) => setFormData({...formData, ano: value})}
                 onMesChange={(value) => setFormData({...formData, mes: value})}
                 onHospedeChange={(value) => setFormData({...formData, hospede: value})}
+                onTelefoneChange={(value) => setFormData({...formData, telefone: value})}
               />
 
               <CamposDatas

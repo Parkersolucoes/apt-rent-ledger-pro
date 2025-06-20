@@ -25,6 +25,7 @@ export const useSupabaseLocacoes = () => {
         ano: loc.ano,
         mes: loc.mes,
         hospede: loc.hospede,
+        telefone: loc.telefone || undefined,
         dataEntrada: new Date(loc.data_entrada),
         dataSaida: new Date(loc.data_saida),
         valorLocacao: Number(loc.valor_locacao),
@@ -69,6 +70,7 @@ export const useSupabaseLocacoes = () => {
           ano: locacao.ano,
           mes: locacao.mes,
           hospede: locacao.hospede,
+          telefone: locacao.telefone || null,
           data_entrada: locacao.dataEntrada.toISOString().split('T')[0],
           data_saida: locacao.dataSaida.toISOString().split('T')[0],
           valor_locacao: locacao.valorLocacao,
@@ -96,6 +98,7 @@ export const useSupabaseLocacoes = () => {
         ano: data.ano,
         mes: data.mes,
         hospede: data.hospede,
+        telefone: data.telefone || undefined,
         dataEntrada: new Date(data.data_entrada),
         dataSaida: new Date(data.data_saida),
         valorLocacao: Number(data.valor_locacao),
@@ -139,6 +142,7 @@ export const useSupabaseLocacoes = () => {
       if (locacao.ano !== undefined) updateData.ano = locacao.ano;
       if (locacao.mes !== undefined) updateData.mes = locacao.mes;
       if (locacao.hospede !== undefined) updateData.hospede = locacao.hospede;
+      if (locacao.telefone !== undefined) updateData.telefone = locacao.telefone || null;
       if (locacao.dataEntrada !== undefined) updateData.data_entrada = locacao.dataEntrada.toISOString().split('T')[0];
       if (locacao.dataSaida !== undefined) updateData.data_saida = locacao.dataSaida.toISOString().split('T')[0];
       if (locacao.valorLocacao !== undefined) updateData.valor_locacao = locacao.valorLocacao;
@@ -172,6 +176,7 @@ export const useSupabaseLocacoes = () => {
         ano: data.ano,
         mes: data.mes,
         hospede: data.hospede,
+        telefone: data.telefone || undefined,
         dataEntrada: new Date(data.data_entrada),
         dataSaida: new Date(data.data_saida),
         valorLocacao: Number(data.valor_locacao),
