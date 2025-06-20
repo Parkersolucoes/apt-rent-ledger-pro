@@ -26,8 +26,8 @@ export const useSupabaseLocacoes = () => {
       const locacoesFormatadas = (data || []).map(loc => ({
         id: loc.id,
         apartamento: loc.apartamento,
-        ano: loc.ano,
-        mes: loc.mes,
+        ano: loc.ano || undefined,
+        mes: loc.mes || undefined,
         hospede: loc.hospede,
         telefone: loc.telefone || undefined,
         dataEntrada: new Date(loc.data_entrada),
@@ -69,8 +69,8 @@ export const useSupabaseLocacoes = () => {
     try {
       const insertData = {
         apartamento: locacao.apartamento,
-        ano: locacao.ano,
-        mes: locacao.mes,
+        ano: locacao.ano || null,
+        mes: locacao.mes || null,
         hospede: locacao.hospede,
         telefone: locacao.telefone || null,
         data_entrada: locacao.dataEntrada.toISOString().split('T')[0],
@@ -108,8 +108,8 @@ export const useSupabaseLocacoes = () => {
       const novaLocacao: Locacao = {
         id: data.id,
         apartamento: data.apartamento,
-        ano: data.ano,
-        mes: data.mes,
+        ano: data.ano || undefined,
+        mes: data.mes || undefined,
         hospede: data.hospede,
         telefone: data.telefone || undefined,
         dataEntrada: new Date(data.data_entrada),
@@ -188,8 +188,8 @@ export const useSupabaseLocacoes = () => {
       const locacaoAtualizada: Locacao = {
         id: data.id,
         apartamento: data.apartamento,
-        ano: data.ano,
-        mes: data.mes,
+        ano: data.ano || undefined,
+        mes: data.mes || undefined,
         hospede: data.hospede,
         telefone: data.telefone || undefined,
         dataEntrada: new Date(data.data_entrada),
@@ -294,7 +294,7 @@ export const useSupabaseLocacoes = () => {
   };
 
   const obterAnos = () => {
-    const anos = Array.from(new Set(locacoes.map(loc => loc.ano)));
+    const anos = Array.from(new Set(locacoes.filter(loc => loc.ano).map(loc => loc.ano!)));
     return anos.sort((a, b) => b - a);
   };
 

@@ -2,8 +2,8 @@
 export interface Locacao {
   id: string;
   apartamento: string;
-  ano: number;
-  mes: number;
+  ano?: number;
+  mes?: number;
   hospede: string;
   telefone?: string;
   dataEntrada: Date;

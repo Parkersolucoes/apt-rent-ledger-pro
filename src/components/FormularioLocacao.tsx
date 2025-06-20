@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -25,8 +26,6 @@ export const FormularioLocacao = () => {
   
   const [formData, setFormData] = useState({
     apartamento: '',
-    ano: new Date().getFullYear(),
-    mes: new Date().getMonth() + 1,
     hospede: '',
     telefone: '',
     dataEntrada: '',
@@ -93,8 +92,6 @@ export const FormularioLocacao = () => {
   const resetForm = () => {
     setFormData({
       apartamento: '',
-      ano: new Date().getFullYear(),
-      mes: new Date().getMonth() + 1,
       hospede: '',
       telefone: '',
       dataEntrada: '',
@@ -135,14 +132,17 @@ export const FormularioLocacao = () => {
     const comissaoCalculada = calcularComissao(valorLocacaoNum, taxaLimpezaNum);
     const valorProprietarioCalculado = calcularValorProprietario(valorLocacaoNum, taxaLimpezaNum, comissaoCalculada);
 
+    const dataEntrada = parseDateInput(formData.dataEntrada);
+    const dataSaida = parseDateInput(formData.dataSaida);
+
     const novaLocacao = {
       apartamento: formData.apartamento,
-      ano: formData.ano,
-      mes: formData.mes,
+      ano: dataEntrada.getFullYear(),
+      mes: dataEntrada.getMonth() + 1,
       hospede: formData.hospede,
       telefone: formData.telefone || undefined,
-      dataEntrada: parseDateInput(formData.dataEntrada),
-      dataSaida: parseDateInput(formData.dataSaida),
+      dataEntrada,
+      dataSaida,
       valorLocacao: valorLocacaoNum,
       primeiroPagamento,
       primeiroPagamentoPago: formData.primeiroPagamentoPago,
@@ -209,14 +209,10 @@ export const FormularioLocacao = () => {
             <form onSubmit={handleSubmit} className="space-y-8">
               <CamposBasicos
                 apartamento={formData.apartamento}
-                ano={formData.ano}
-                mes={formData.mes}
                 hospede={formData.hospede}
                 telefone={formData.telefone}
                 apartamentosDisponiveis={apartamentosDisponiveis}
                 onApartamentoChange={(value) => setFormData({...formData, apartamento: value})}
-                onAnoChange={(value) => setFormData({...formData, ano: value})}
-                onMesChange={(value) => setFormData({...formData, mes: value})}
                 onHospedeChange={(value) => setFormData({...formData, hospede: value})}
                 onTelefoneChange={(value) => setFormData({...formData, telefone: value})}
               />
