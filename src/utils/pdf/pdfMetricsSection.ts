@@ -10,8 +10,8 @@ export const addMetricsSection = (doc: jsPDF, yPosition: number, locacoes: Locac
   const { margin, contentWidth } = pdfDimensions;
   
   const valorTotalLocacao = locacoes.reduce((sum, loc) => sum + loc.valorLocacao, 0);
-  const comissaoTotal = locacoes.reduce((sum, loc) => sum + loc.comissao, 0);
   const limpezaTotal = locacoes.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
+  const comissaoTotal = locacoes.reduce((sum, loc) => sum + loc.comissao, 0);
   const proprietarioTotal = locacoes.reduce((sum, loc) => sum + loc.valorProprietario, 0);
   const despesasTotal = despesas.reduce((sum, desp) => sum + desp.valor, 0);
   const lucroLiquido = proprietarioTotal - despesasTotal;
@@ -23,6 +23,13 @@ export const addMetricsSection = (doc: jsPDF, yPosition: number, locacoes: Locac
       subtitulo: `${locacoes.length} locações`,
       cor: colors.success,
       corFundo: colors.successLight
+    },
+    { 
+      titulo: 'Limpeza', 
+      valor: formatCurrency(limpezaTotal), 
+      subtitulo: 'Total limpeza',
+      cor: colors.primary,
+      corFundo: colors.primaryLight
     },
     { 
       titulo: 'Comissão', 
@@ -55,7 +62,7 @@ export const addMetricsSection = (doc: jsPDF, yPosition: number, locacoes: Locac
   ];
 
   // Distribuir em uma linha horizontal
-  const cardWidth = (contentWidth - 20) / 5;
+  const cardWidth = (contentWidth - 25) / 6;
   const cardHeight = 25;
 
   metricas.forEach((metrica, index) => {

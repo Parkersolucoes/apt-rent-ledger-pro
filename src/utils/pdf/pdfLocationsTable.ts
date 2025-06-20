@@ -17,17 +17,17 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
   doc.text('Detalhamento das Locações', margin, currentY);
   currentY += 10;
 
-  // Tabela ajustada com espaçamento reduzido e nova coluna
+  // Tabela com colunas ajustadas na ordem solicitada
   const colunas = [
-    { label: 'Apto', x: margin + 3, width: 20 },
-    { label: 'Hóspede', x: margin + 25, width: 45 },
-    { label: 'Check-in', x: margin + 72, width: 25 },
-    { label: 'Check-out', x: margin + 99, width: 25 },
-    { label: 'Valor Total', x: margin + 126, width: 25 },
-    { label: 'Comissão', x: margin + 153, width: 22 },
-    { label: 'Taxa Limpeza', x: margin + 177, width: 25 },
-    { label: 'Líquido', x: margin + 204, width: 25 },
-    { label: 'Proprietário', x: margin + 231, width: 28 }
+    { label: 'Apto', x: margin + 3, width: 18 },
+    { label: 'Hóspede', x: margin + 23, width: 35 },
+    { label: 'Check-in', x: margin + 60, width: 25 },
+    { label: 'Check-out', x: margin + 87, width: 25 },
+    { label: 'Receita Total', x: margin + 114, width: 28 },
+    { label: 'Limpeza', x: margin + 144, width: 22 },
+    { label: 'Comissão', x: margin + 168, width: 22 },
+    { label: 'Proprietário', x: margin + 192, width: 28 },
+    { label: 'Valor Prop.', x: margin + 222, width: 28 }
   ];
 
   // Cabeçalho da tabela
@@ -44,8 +44,8 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
 
   currentY += 15;
 
-  // Linhas da tabela
-  doc.setFontSize(7);
+  // Linhas da tabela com fonte maior
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   
   locacoes.forEach((locacao, index) => {
@@ -61,17 +61,15 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
 
     doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
     
-    const valorLiquido = locacao.valorLocacao - locacao.comissao - locacao.taxaLimpeza;
-    
     const dados = [
       locacao.apartamento,
-      locacao.hospede.length > 15 ? locacao.hospede.substring(0, 12) + '...' : locacao.hospede,
+      locacao.hospede.length > 12 ? locacao.hospede.substring(0, 9) + '...' : locacao.hospede,
       locacao.dataEntrada.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
       locacao.dataSaida.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
       formatCurrency(locacao.valorLocacao),
-      formatCurrency(locacao.comissao),
       formatCurrency(locacao.taxaLimpeza),
-      formatCurrency(valorLiquido),
+      formatCurrency(locacao.comissao),
+      formatCurrency(locacao.valorProprietario),
       formatCurrency(locacao.valorProprietario)
     ];
 
@@ -79,7 +77,7 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
       const col = colunas[colIndex];
       
       if (colIndex >= 4) { // Valores monetários
-        doc.setTextColor(colors.success[0], colors.success[1], colors.success[2]);
+        doc.setTextColor(25, 25, 112); // Azul próximo ao preto
         doc.setFont('helvetica', 'bold');
       } else {
         doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
@@ -95,21 +93,20 @@ export const addLocationsTable = (doc: jsPDF, yPosition: number, locacoes: Locac
   doc.setFillColor(colors.successLight[0], colors.successLight[1], colors.successLight[2]);
   doc.rect(margin, footerY, contentWidth, 12, 'F');
   
-  doc.setTextColor(colors.success[0], colors.success[1], colors.success[2]);
+  doc.setTextColor(25, 25, 112);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   
   const valorTotal = locacoes.reduce((sum, loc) => sum + loc.valorLocacao, 0);
-  const comissaoTotal = locacoes.reduce((sum, loc) => sum + loc.comissao, 0);
   const limpezaTotal = locacoes.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
-  const liquidoTotal = valorTotal - comissaoTotal - limpezaTotal;
+  const comissaoTotal = locacoes.reduce((sum, loc) => sum + loc.comissao, 0);
   const proprietarioTotal = locacoes.reduce((sum, loc) => sum + loc.valorProprietario, 0);
   
   doc.text('TOTAIS', colunas[0].x, footerY + 8);
   doc.text(formatCurrency(valorTotal), colunas[4].x, footerY + 8);
-  doc.text(formatCurrency(comissaoTotal), colunas[5].x, footerY + 8);
-  doc.text(formatCurrency(limpezaTotal), colunas[6].x, footerY + 8);
-  doc.text(formatCurrency(liquidoTotal), colunas[7].x, footerY + 8);
+  doc.text(formatCurrency(limpezaTotal), colunas[5].x, footerY + 8);
+  doc.text(formatCurrency(comissaoTotal), colunas[6].x, footerY + 8);
+  doc.text(formatCurrency(proprietarioTotal), colunas[7].x, footerY + 8);
   doc.text(formatCurrency(proprietarioTotal), colunas[8].x, footerY + 8);
 
   return footerY + 20;
