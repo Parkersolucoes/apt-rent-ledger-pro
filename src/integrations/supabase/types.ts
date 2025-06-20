@@ -42,6 +42,36 @@ export type Database = {
         }
         Relationships: []
       }
+      despesas: {
+        Row: {
+          apartamento: string
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          apartamento: string
+          created_at?: string
+          data: string
+          descricao: string
+          id?: string
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          apartamento?: string
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       locacoes: {
         Row: {
           ano: number

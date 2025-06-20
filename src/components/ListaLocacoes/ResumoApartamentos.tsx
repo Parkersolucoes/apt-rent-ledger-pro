@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { House } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
+import { useDespesas } from '@/hooks/useDespesas';
 
 interface TotaisApartamento {
   valorTotal: number;
@@ -20,6 +21,8 @@ export const ResumoApartamentos = ({
   apartamentos, 
   totaisPorApartamento 
 }: ResumoApartamentosProps) => {
+  const { obterTotalDespesasPorApartamento } = useDespesas();
+
   if (apartamentos.length === 0) return null;
 
   return (
@@ -32,6 +35,9 @@ export const ResumoApartamentos = ({
           {apartamentos.map((apartamento) => {
             const totais = totaisPorApartamento[apartamento];
             if (!totais || totais.quantidade === 0) return null;
+            
+            const totalDespesas = obterTotalDespesasPorApartamento(apartamento);
+            const valorProprietarioFinal = totais.valorProprietario - totalDespesas;
             
             return (
               <Card key={apartamento} className="border-2">
@@ -58,9 +64,17 @@ export const ResumoApartamentos = ({
                     <span className="text-muted-foreground">Comissão:</span>
                     <span className="font-medium text-blue-600">{formatCurrency(totais.comissaoTotal)}</span>
                   </div>
+                  {totalDespesas > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Total Despesas:</span>
+                      <span className="font-medium text-red-600">{formatCurrency(totalDespesas)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm border-t pt-2">
                     <span className="text-muted-foreground font-medium">Valor Proprietário:</span>
-                    <span className="font-bold text-primary">{formatCurrency(totais.valorProprietario)}</span>
+                    <span className={`font-bold ${valorProprietarioFinal >= 0 ? 'text-primary' : 'text-red-600'}`}>
+                      {formatCurrency(valorProprietarioFinal)}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
