@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -156,12 +157,12 @@ export const FormularioLocacao = () => {
     };
 
     try {
-      const locacaoCriada = await adicionarLocacao(novaLocacao);
+      await adicionarLocacao(novaLocacao);
 
       // Enviar webhook de nova locação
       sendLocacaoCriada({
         ...novaLocacao,
-        id: locacaoCriada?.id || 'novo',
+        id: 'novo',
         createdAt: new Date()
       });
 
