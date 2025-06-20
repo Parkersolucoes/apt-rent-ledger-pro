@@ -1,4 +1,3 @@
-
 import { CampoMoeda } from './CampoMoeda';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -30,63 +29,64 @@ export const CamposValores = ({
   onSegundoPagamentoPagoChange
 }: CamposValoresProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <CampoMoeda
-        id="valorLocacao"
-        label="Valor da Locação"
-        value={valorLocacao}
-        onChange={onValorLocacaoChange}
-        required
-      />
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Valores</h3>
       
-      <div className="space-y-2">
-        <CampoMoeda
-          id="primeiroPagamento"
-          label="1º Pagamento"
-          value={primeiroPagamento}
-          onChange={onPrimeiroPagamentoChange}
-        />
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="primeiroPagamentoPago"
-            checked={primeiroPagamentoPago}
-            onCheckedChange={onPrimeiroPagamentoPagoChange}
-            className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="valorLocacao" className="font-semibold">Valor da Locação *</Label>
+          <CampoMoeda
+            id="valorLocacao"
+            value={valorLocacao}
+            onChange={onValorLocacaoChange}
+            placeholder="0,00"
           />
-          <Label htmlFor="primeiroPagamentoPago" className="text-sm text-black font-medium flex items-center gap-1">
-            <Flag className="h-3 w-3" />
-            PAGO
-          </Label>
+        </div>
+
+        <div>
+          <Label className="font-semibold">Taxa de Limpeza</Label>
+          <div className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+            R$ {taxaLimpeza}
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="primeiroPagamento" className="font-semibold">Primeiro Pagamento</Label>
+          <CampoMoeda
+            id="primeiroPagamento"
+            value={primeiroPagamento}
+            onChange={onPrimeiroPagamentoChange}
+            placeholder="0,00"
+          />
+          <div className="flex items-center space-x-2 mt-2">
+            <Checkbox
+              id="primeiroPagamentoPago"
+              checked={primeiroPagamentoPago}
+              onCheckedChange={onPrimeiroPagamentoPagoChange}
+            />
+            <Label htmlFor="primeiroPagamentoPago" className="text-sm">
+              Pagamento recebido
+            </Label>
+          </div>
+        </div>
+
+        <div>
+          <Label className="font-semibold">Segundo Pagamento</Label>
+          <div className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm">
+            R$ {segundoPagamento}
+          </div>
+          <div className="flex items-center space-x-2 mt-2">
+            <Checkbox
+              id="segundoPagamentoPago"
+              checked={segundoPagamentoPago}
+              onCheckedChange={onSegundoPagamentoPagoChange}
+            />
+            <Label htmlFor="segundoPagamentoPago" className="text-sm">
+              Pagamento recebido
+            </Label>
+          </div>
         </div>
       </div>
-      
-      <div className="space-y-2">
-        <CampoMoeda
-          id="segundoPagamento"
-          label="2º Pagamento (Calculado)"
-          value={segundoPagamento}
-          readOnly
-        />
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="segundoPagamentoPago"
-            checked={segundoPagamentoPago}
-            onCheckedChange={onSegundoPagamentoPagoChange}
-            className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-          />
-          <Label htmlFor="segundoPagamentoPago" className="text-sm text-black font-medium flex items-center gap-1">
-            <Flag className="h-3 w-3" />
-            PAGO
-          </Label>
-        </div>
-      </div>
-      
-      <CampoMoeda
-        id="taxaLimpeza"
-        label="Taxa de Limpeza (Fixo)"
-        value={taxaLimpeza}
-        readOnly
-      />
     </div>
   );
 };

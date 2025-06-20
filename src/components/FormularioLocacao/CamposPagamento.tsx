@@ -1,6 +1,5 @@
-
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 
 interface CamposPagamentoProps {
@@ -17,29 +16,33 @@ export const CamposPagamento = ({
   onDataPagamentoProprietarioChange
 }: CamposPagamentoProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Pagamento ao Proprietário</h3>
+      
       <div className="flex items-center space-x-2">
         <Checkbox
           id="proprietarioPago"
           checked={proprietarioPago}
-          onCheckedChange={(checked) => onProprietarioPagoChange(!!checked)}
-          className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          onCheckedChange={onProprietarioPagoChange}
         />
-        <Label htmlFor="proprietarioPago" className="text-black font-semibold">
-          Proprietário Pago
+        <Label htmlFor="proprietarioPago" className="font-semibold">
+          Proprietário foi pago
         </Label>
       </div>
 
-      <div>
-        <Label htmlFor="dataPagamentoProprietario" className="text-black font-semibold">Data de Pagamento ao Proprietário</Label>
-        <Input
-          id="dataPagamentoProprietario"
-          type="date"
-          value={dataPagamentoProprietario}
-          onChange={(e) => onDataPagamentoProprietarioChange(e.target.value)}
-          className="border-gray-300 focus:border-blue-500 bg-white text-black"
-        />
-      </div>
+      {proprietarioPago && (
+        <div>
+          <Label htmlFor="dataPagamentoProprietario" className="font-semibold">
+            Data do Pagamento ao Proprietário
+          </Label>
+          <Input
+            id="dataPagamentoProprietario"
+            type="date"
+            value={dataPagamentoProprietario}
+            onChange={(e) => onDataPagamentoProprietarioChange(e.target.value)}
+          />
+        </div>
+      )}
     </div>
   );
 };

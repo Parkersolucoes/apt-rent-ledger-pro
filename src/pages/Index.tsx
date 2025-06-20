@@ -9,50 +9,50 @@ import { House, Calendar, User, Receipt } from 'lucide-react';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-black mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             Sistema de Locações
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-muted-foreground">
             Controle financeiro completo para locações de apartamentos
           </p>
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white shadow-professional border border-gray-300">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger 
               value="dashboard" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="flex items-center gap-2"
             >
               <House className="h-4 w-4" />
               Dashboard
             </TabsTrigger>
             <TabsTrigger 
               value="apartamentos" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="flex items-center gap-2"
             >
               <House className="h-4 w-4" />
               Apartamentos
             </TabsTrigger>
             <TabsTrigger 
               value="nova-locacao" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
               Nova Locação
             </TabsTrigger>
             <TabsTrigger 
               value="locacoes" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="flex items-center gap-2"
             >
               <Receipt className="h-4 w-4" />
               Locações
             </TabsTrigger>
             <TabsTrigger 
               value="relatorios" 
-              className="flex items-center gap-2 text-gray-600 data-[state=active]:bg-blue-600 data-[state=active]:text-white"
+              className="flex items-center gap-2"
             >
               <User className="h-4 w-4" />
               Relatórios
@@ -76,9 +76,9 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="relatorios">
-            <div className="text-center py-12 bg-white rounded-lg shadow-professional border border-gray-300">
-              <h3 className="text-xl font-semibold mb-4 text-black">Relatórios</h3>
-              <p className="text-gray-600">
+            <div className="text-center py-12 bg-card rounded-lg border">
+              <h3 className="text-xl font-semibold mb-4 text-card-foreground">Relatórios</h3>
+              <p className="text-muted-foreground">
                 Funcionalidade de relatórios em desenvolvimento.
               </p>
             </div>

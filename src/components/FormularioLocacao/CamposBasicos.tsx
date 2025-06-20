@@ -1,6 +1,5 @@
-
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface CamposBasicosProps {
@@ -15,21 +14,6 @@ interface CamposBasicosProps {
   onHospedeChange: (value: string) => void;
 }
 
-const meses = [
-  { value: 1, label: 'Janeiro' },
-  { value: 2, label: 'Fevereiro' },
-  { value: 3, label: 'Março' },
-  { value: 4, label: 'Abril' },
-  { value: 5, label: 'Maio' },
-  { value: 6, label: 'Junho' },
-  { value: 7, label: 'Julho' },
-  { value: 8, label: 'Agosto' },
-  { value: 9, label: 'Setembro' },
-  { value: 10, label: 'Outubro' },
-  { value: 11, label: 'Novembro' },
-  { value: 12, label: 'Dezembro' }
-];
-
 export const CamposBasicos = ({
   apartamento,
   ano,
@@ -42,66 +26,63 @@ export const CamposBasicos = ({
   onHospedeChange
 }: CamposBasicosProps) => {
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="apartamento" className="text-black font-semibold">Apartamento *</Label>
-          <Select value={apartamento} onValueChange={onApartamentoChange}>
-            <SelectTrigger className="border-gray-300 focus:border-blue-500 bg-white text-black">
-              <SelectValue placeholder="Selecione um apartamento" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-300">
-              {apartamentosDisponiveis.map((numero) => (
-                <SelectItem key={numero} value={numero} className="text-black hover:bg-blue-50">
-                  {numero}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div>
-          <Label htmlFor="ano" className="text-black font-semibold">Ano *</Label>
-          <Input
-            id="ano"
-            type="number"
-            value={ano}
-            onChange={(e) => onAnoChange(parseInt(e.target.value))}
-            min="2020"
-            max="2030"
-            className="border-gray-300 focus:border-blue-500 bg-white text-black"
-            required
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="mes" className="text-black font-semibold">Mês *</Label>
-          <Select value={mes.toString()} onValueChange={(value) => onMesChange(parseInt(value))}>
-            <SelectTrigger className="border-gray-300 focus:border-blue-500 bg-white text-black">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white border-gray-300">
-              {meses.map((mesItem) => (
-                <SelectItem key={mesItem.value} value={mesItem.value.toString()} className="text-black hover:bg-blue-50">
-                  {mesItem.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <Label htmlFor="apartamento" className="font-semibold">Apartamento *</Label>
+        <Select value={apartamento} onValueChange={onApartamentoChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o apartamento" />
+          </SelectTrigger>
+          <SelectContent>
+            {apartamentosDisponiveis.map((numero) => (
+              <SelectItem key={numero} value={numero}>
+                Apartamento {numero}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
-        <Label htmlFor="hospede" className="text-black font-semibold">Nome do Hóspede *</Label>
+        <Label htmlFor="hospede" className="font-semibold">Hóspede *</Label>
         <Input
           id="hospede"
+          type="text"
           value={hospede}
           onChange={(e) => onHospedeChange(e.target.value)}
-          placeholder="Nome completo do hóspede"
-          className="border-gray-300 focus:border-blue-500 bg-white text-black"
+          placeholder="Nome do hóspede"
           required
         />
       </div>
-    </>
+
+      <div>
+        <Label htmlFor="ano" className="font-semibold">Ano</Label>
+        <Input
+          id="ano"
+          type="number"
+          value={ano}
+          onChange={(e) => onAnoChange(parseInt(e.target.value))}
+          placeholder="Ano"
+          min="2020"
+          max="2030"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="mes" className="font-semibold">Mês</Label>
+        <Select value={mes.toString()} onValueChange={(value) => onMesChange(parseInt(value))}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Array.from({ length: 12 }, (_, i) => (
+              <SelectItem key={i + 1} value={(i + 1).toString()}>
+                {new Date(2024, i, 1).toLocaleDateString('pt-BR', { month: 'long' })}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 };
