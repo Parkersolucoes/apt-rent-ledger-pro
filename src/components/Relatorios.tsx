@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -287,7 +286,7 @@ export const Relatorios = () => {
 
     yPosition += cardHeight + 15;
 
-    // TABELA DE LOCAÇÕES OTIMIZADA - Layout melhorado
+    // TABELA DE LOCAÇÕES REDESENHADA COM MELHOR ALINHAMENTO
     if (locacoesFiltradas.length > 0) {
       checkAndAddPage(60);
       
@@ -301,40 +300,48 @@ export const Relatorios = () => {
       drawSeparator(yPosition, [51, 65, 85]);
       yPosition += 5;
 
-      // Cabeçalho da tabela otimizado - Larguras ajustadas conforme o modelo
+      // Cabeçalho da tabela otimizado com larguras precisas
       doc.setFillColor(248, 250, 252); // Slate-50
-      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'F');
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 1, 1, 'F');
       doc.setDrawColor(203, 213, 225); // Slate-300
       doc.setLineWidth(0.5);
-      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 1, 1, 'S');
       
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(51, 65, 85);
       
-      // Colunas com larguras balanceadas baseadas no modelo da imagem
+      // Definição das colunas com larguras balanceadas
       const cols = [
-        { x: margin + 2, w: 12, h: 'Apt.' },                    // 12mm - Apartamento
-        { x: margin + 16, w: 32, h: 'Hóspede' },                // 32mm - Nome do hóspede
-        { x: margin + 50, w: 20, h: 'Check-in' },               // 20mm - Data entrada
-        { x: margin + 72, w: 20, h: 'Check-out' },              // 20mm - Data saída
-        { x: margin + 94, w: 24, h: 'Valor Locação' },          // 24mm - Valor da locação
-        { x: margin + 120, w: 18, h: 'Limpeza' },               // 18mm - Taxa limpeza
-        { x: margin + 140, w: 20, h: 'Comissão' },              // 20mm - Comissão
-        { x: margin + 162, w: 28, h: 'Proprietário' }           // 28mm - Valor proprietário
+        { x: margin + 2, w: 16, h: 'Apartamento', align: 'center' },           // 16mm
+        { x: margin + 20, w: 40, h: 'Hóspede', align: 'left' },               // 40mm
+        { x: margin + 62, w: 20, h: 'Check-in', align: 'center' },            // 20mm
+        { x: margin + 84, w: 20, h: 'Check-out', align: 'center' },           // 20mm
+        { x: margin + 106, w: 22, h: 'Valor Locação', align: 'right' },       // 22mm
+        { x: margin + 130, w: 18, h: 'Limpeza', align: 'right' },             // 18mm
+        { x: margin + 150, w: 20, h: 'Comissão', align: 'right' },            // 20mm
+        { x: margin + 172, w: 23, h: 'Proprietário', align: 'right' }         // 23mm - até margin final
       ];
 
       // Desenhar linhas verticais dos cabeçalhos
       doc.setDrawColor(203, 213, 225);
       cols.forEach((col, index) => {
         if (index > 0) {
-          doc.line(col.x - 1, yPosition, col.x - 1, yPosition + 14);
+          doc.line(col.x - 1, yPosition + 1, col.x - 1, yPosition + 15);
         }
-        // Centralizar texto nos cabeçalhos
-        doc.text(col.h, col.x + (col.w / 2), yPosition + 9, { align: 'center' });
+        
+        // Posicionar texto do cabeçalho conforme alinhamento
+        let textX = col.x + 2; // padrão left
+        if (col.align === 'center') {
+          textX = col.x + (col.w / 2);
+        } else if (col.align === 'right') {
+          textX = col.x + col.w - 2;
+        }
+        
+        doc.text(col.h, textX, yPosition + 10, { align: col.align });
       });
 
-      yPosition += 17;
+      yPosition += 19;
 
       // Dados da tabela com melhor formatação
       doc.setFont('helvetica', 'normal');
@@ -343,7 +350,7 @@ export const Relatorios = () => {
       locacoesFiltradas.forEach((locacao, index) => {
         checkAndAddPage(12);
 
-        const rowHeight = 10;
+        const rowHeight = 11;
 
         // Fundo alternado para linhas
         if (index % 2 === 0) {
@@ -351,7 +358,7 @@ export const Relatorios = () => {
           doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'F');
         }
 
-        // Linhas da tabela
+        // Bordas da linha
         doc.setDrawColor(229, 231, 235); // Gray-200
         doc.setLineWidth(0.3);
         doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'S');
@@ -363,78 +370,91 @@ export const Relatorios = () => {
           }
         });
 
-        doc.setFontSize(8);
+        doc.setFontSize(7.5);
         
-        // Truncar textos longos e ajustar posicionamento
-        const truncateText = (text: string, maxLength: number) => {
-          return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+        // Função para truncar texto mantendo qualidade
+        const truncateText = (text: string, maxWidth: number, fontSize: number = 7.5) => {
+          const textWidth = doc.getTextWidth(text);
+          if (textWidth <= maxWidth) return text;
+          
+          const avgCharWidth = textWidth / text.length;
+          const maxChars = Math.floor(maxWidth / avgCharWidth) - 3;
+          return text.substring(0, Math.max(1, maxChars)) + '...';
         };
 
+        // Preparar valores com formatação adequada
         const valores = [
           locacao.apartamento,
-          truncateText(locacao.hospede, 18),
-          locacao.dataEntrada.toLocaleDateString('pt-BR'),
-          locacao.dataSaida.toLocaleDateString('pt-BR'),
+          truncateText(locacao.hospede, cols[1].w - 4),
+          locacao.dataEntrada.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+          locacao.dataSaida.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
           formatCurrency(locacao.valorLocacao),
           formatCurrency(locacao.taxaLimpeza),
           formatCurrency(locacao.comissao),
           formatCurrency(locacao.valorProprietario)
         ];
 
+        // Renderizar cada valor na sua respectiva coluna
         valores.forEach((valor, colIndex) => {
-          if (colIndex >= 4) { // Valores monetários
+          const col = cols[colIndex];
+          let textX = col.x + 2; // padrão left
+          
+          if (col.align === 'center') {
+            textX = col.x + (col.w / 2);
+          } else if (col.align === 'right') {
+            textX = col.x + col.w - 2;
+          }
+
+          // Cor diferenciada para valores monetários
+          if (colIndex >= 4) {
             doc.setTextColor(21, 128, 61); // Green-700
             doc.setFont('helvetica', 'bold');
-            // Alinhar valores monetários à direita
-            doc.text(valor, cols[colIndex].x + cols[colIndex].w - 2, yPosition + 6, { align: 'right' });
           } else {
             doc.setTextColor(31, 41, 55);
             doc.setFont('helvetica', 'normal');
-            // Centralizar outros campos
-            if (colIndex === 0) {
-              // Apartamento centralizado
-              doc.text(valor, cols[colIndex].x + (cols[colIndex].w / 2), yPosition + 6, { align: 'center' });
-            } else {
-              // Outros campos alinhados à esquerda com margem
-              doc.text(valor, cols[colIndex].x + 2, yPosition + 6);
-            }
           }
+
+          doc.text(valor, textX, yPosition + 7, { align: col.align });
         });
 
         yPosition += rowHeight;
       });
 
-      // Linha de totais estilizada
-      checkAndAddPage(14);
-      yPosition += 2;
+      // Linha de totais redesenhada
+      checkAndAddPage(16);
+      yPosition += 3;
       
-      const totalRowHeight = 12;
+      const totalRowHeight = 14;
       doc.setFillColor(240, 253, 244); // Green-50
       doc.roundedRect(margin, yPosition, contentWidth, totalRowHeight, 1, 1, 'F');
       doc.setDrawColor(34, 197, 94); // Green-500
       doc.setLineWidth(1);
       doc.roundedRect(margin, yPosition, contentWidth, totalRowHeight, 1, 1, 'S');
       
-      // Linhas verticais na linha de totais
-      cols.forEach((col, colIndex) => {
-        if (colIndex >= 4) { // Apenas nas colunas de valores
-          doc.setDrawColor(34, 197, 94);
-          doc.line(col.x - 1, yPosition, col.x - 1, yPosition + totalRowHeight);
-        }
-      });
+      // Linhas verticais na linha de totais (apenas nas colunas de valores)
+      for (let i = 4; i < cols.length; i++) {
+        doc.setDrawColor(34, 197, 94);
+        doc.line(cols[i].x - 1, yPosition + 1, cols[i].x - 1, yPosition + totalRowHeight - 1);
+      }
       
       doc.setTextColor(21, 128, 61);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
+      doc.setFontSize(8.5);
       
-      // Label "TOTAIS:" alinhada com as colunas de valores
-      doc.text('TOTAIS:', cols[3].x + cols[3].w - 2, yPosition + 7, { align: 'right' });
+      // Label "TOTAIS:" posicionada corretamente
+      doc.text('TOTAIS:', cols[3].x + cols[3].w - 2, yPosition + 8, { align: 'right' });
       
-      // Valores totais alinhados à direita em suas respectivas colunas
-      doc.text(formatCurrency(valorTotalLocacao), cols[4].x + cols[4].w - 2, yPosition + 7, { align: 'right' });
-      doc.text(formatCurrency(limpezaTotal), cols[5].x + cols[5].w - 2, yPosition + 7, { align: 'right' });
-      doc.text(formatCurrency(comissaoTotal), cols[6].x + cols[6].w - 2, yPosition + 7, { align: 'right' });
-      doc.text(formatCurrency(proprietarioTotal), cols[7].x + cols[7].w - 2, yPosition + 7, { align: 'right' });
+      // Calcular totais
+      const totalValorLocacao = locacoesFiltradas.reduce((acc, loc) => acc + loc.valorLocacao, 0);
+      const totalLimpeza = locacoesFiltradas.reduce((acc, loc) => acc + loc.taxaLimpeza, 0);
+      const totalComissao = locacoesFiltradas.reduce((acc, loc) => acc + loc.comissao, 0);
+      const totalProprietario = locacoesFiltradas.reduce((acc, loc) => acc + loc.valorProprietario, 0);
+      
+      // Valores totais alinhados corretamente
+      doc.text(formatCurrency(totalValorLocacao), cols[4].x + cols[4].w - 2, yPosition + 8, { align: 'right' });
+      doc.text(formatCurrency(totalLimpeza), cols[5].x + cols[5].w - 2, yPosition + 8, { align: 'right' });
+      doc.text(formatCurrency(totalComissao), cols[6].x + cols[6].w - 2, yPosition + 8, { align: 'right' });
+      doc.text(formatCurrency(totalProprietario), cols[7].x + cols[7].w - 2, yPosition + 8, { align: 'right' });
 
       yPosition += totalRowHeight + 15;
     }
@@ -518,13 +538,17 @@ export const Relatorios = () => {
           if (colIndex === 3) { // Valor
             doc.setTextColor(185, 28, 28); // Red-700
             doc.setFont('helvetica', 'bold');
+            // Alinhar valores monetários à direita
             doc.text(valor, despCols[colIndex].x + despCols[colIndex].w - 2, yPosition + 6, { align: 'right' });
           } else {
             doc.setTextColor(31, 41, 55);
             doc.setFont('helvetica', 'normal');
-            if (colIndex === 0 || colIndex === 1) {
+            // Centralizar outros campos
+            if (colIndex === 0) {
+              // Apartamento centralizado
               doc.text(valor, despCols[colIndex].x + (despCols[colIndex].w / 2), yPosition + 6, { align: 'center' });
             } else {
+              // Outros campos alinhados à esquerda com margem
               doc.text(valor, despCols[colIndex].x + 2, yPosition + 6);
             }
           }
