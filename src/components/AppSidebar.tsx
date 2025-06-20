@@ -97,29 +97,29 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="p-2">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
+      <SidebarContent className="p-2 bg-blue-900">
+        <SidebarGroup className="bg-blue-900">
+          <SidebarGroupContent className="bg-blue-900">
+            <SidebarMenu className="bg-blue-900">
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.title} className="bg-blue-900">
                   {item.items ? (
                     <Collapsible defaultOpen={item.items.some(subItem => subItem.url === location.pathname)}>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="w-full text-white hover:text-white hover:bg-blue-800">
+                        <SidebarMenuButton className="w-full text-white hover:text-white hover:bg-blue-800 bg-blue-900">
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
                           <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]:rotate-90" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
+                      <CollapsibleContent className="bg-blue-900">
+                        <SidebarMenuSub className="bg-blue-900">
                           {item.items.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubItem key={subItem.title} className="bg-blue-900">
                               <SidebarMenuSubButton 
                                 asChild
                                 isActive={location.pathname === subItem.url}
-                                className="text-blue-200 hover:text-white hover:bg-blue-800"
+                                className="text-blue-200 hover:text-white hover:bg-blue-800 bg-blue-900"
                               >
                                 <Link to={subItem.url}>
                                   <subItem.icon className="h-3 w-3" />
@@ -135,7 +135,7 @@ export function AppSidebar() {
                     <SidebarMenuButton 
                       asChild
                       isActive={location.pathname === item.url}
-                      className="text-white hover:text-white hover:bg-blue-800 data-[active=true]:bg-blue-600 data-[active=true]:text-white"
+                      className="text-white hover:text-white hover:bg-blue-800 data-[active=true]:bg-blue-600 data-[active=true]:text-white bg-blue-900"
                     >
                       <Link to={item.url!}>
                         <item.icon className="h-4 w-4" />
