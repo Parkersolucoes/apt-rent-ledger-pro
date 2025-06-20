@@ -16,6 +16,7 @@ import Locacoes from "./pages/Locacoes";
 import NovaLocacao from "./pages/NovaLocacao";
 import Despesas from "./pages/Despesas";
 import NovaDespesa from "./pages/NovaDespesa";
+import { ListaApartamentos } from "./components/ListaApartamentos";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ const App = () => (
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/apartamentos" element={<ListaApartamentos />} />
                 <Route path="/modelos-mensagem" element={<ModelosMensagem />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="/relatorios" element={<Relatorios />} />
