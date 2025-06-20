@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -313,14 +314,14 @@ export const Relatorios = () => {
       
       // Definição das colunas com larguras balanceadas
       const cols = [
-        { x: margin + 2, w: 16, h: 'Apartamento', align: 'center' },           // 16mm
-        { x: margin + 20, w: 40, h: 'Hóspede', align: 'left' },               // 40mm
-        { x: margin + 62, w: 20, h: 'Check-in', align: 'center' },            // 20mm
-        { x: margin + 84, w: 20, h: 'Check-out', align: 'center' },           // 20mm
-        { x: margin + 106, w: 22, h: 'Valor Locação', align: 'right' },       // 22mm
-        { x: margin + 130, w: 18, h: 'Limpeza', align: 'right' },             // 18mm
-        { x: margin + 150, w: 20, h: 'Comissão', align: 'right' },            // 20mm
-        { x: margin + 172, w: 23, h: 'Proprietário', align: 'right' }         // 23mm - até margin final
+        { x: margin + 2, w: 16, h: 'Apartamento', align: 'center' as const },
+        { x: margin + 20, w: 40, h: 'Hóspede', align: 'left' as const },
+        { x: margin + 62, w: 20, h: 'Check-in', align: 'center' as const },
+        { x: margin + 84, w: 20, h: 'Check-out', align: 'center' as const },
+        { x: margin + 106, w: 22, h: 'Valor Locação', align: 'right' as const },
+        { x: margin + 130, w: 18, h: 'Limpeza', align: 'right' as const },
+        { x: margin + 150, w: 20, h: 'Comissão', align: 'right' as const },
+        { x: margin + 172, w: 23, h: 'Proprietário', align: 'right' as const }
       ];
 
       // Desenhar linhas verticais dos cabeçalhos
@@ -486,17 +487,25 @@ export const Relatorios = () => {
       
       // Colunas para despesas
       const despCols = [
-        { x: margin + 2, w: 20, h: 'Data' },
-        { x: margin + 24, w: 25, h: 'Apartamento' },
-        { x: margin + 51, w: 95, h: 'Descrição' },
-        { x: margin + 148, w: 27, h: 'Valor' }
+        { x: margin + 2, w: 20, h: 'Data', align: 'center' as const },
+        { x: margin + 24, w: 25, h: 'Apartamento', align: 'center' as const },
+        { x: margin + 51, w: 95, h: 'Descrição', align: 'left' as const },
+        { x: margin + 148, w: 27, h: 'Valor', align: 'right' as const }
       ];
 
       despCols.forEach((col, index) => {
         if (index > 0) {
           doc.line(col.x - 1, yPosition, col.x - 1, yPosition + 14);
         }
-        doc.text(col.h, col.x + (col.w / 2), yPosition + 9, { align: 'center' });
+        
+        let textX = col.x + 2; // padrão left
+        if (col.align === 'center') {
+          textX = col.x + (col.w / 2);
+        } else if (col.align === 'right') {
+          textX = col.x + col.w - 2;
+        }
+        
+        doc.text(col.h, textX, yPosition + 9, { align: col.align });
       });
 
       yPosition += 17;
@@ -535,23 +544,24 @@ export const Relatorios = () => {
         ];
 
         despesaValues.forEach((valor, colIndex) => {
+          const col = despCols[colIndex];
+          let textX = col.x + 2; // padrão left
+          
+          if (col.align === 'center') {
+            textX = col.x + (col.w / 2);
+          } else if (col.align === 'right') {
+            textX = col.x + col.w - 2;
+          }
+
           if (colIndex === 3) { // Valor
             doc.setTextColor(185, 28, 28); // Red-700
             doc.setFont('helvetica', 'bold');
-            // Alinhar valores monetários à direita
-            doc.text(valor, despCols[colIndex].x + despCols[colIndex].w - 2, yPosition + 6, { align: 'right' });
           } else {
             doc.setTextColor(31, 41, 55);
             doc.setFont('helvetica', 'normal');
-            // Centralizar outros campos
-            if (colIndex === 0) {
-              // Apartamento centralizado
-              doc.text(valor, despCols[colIndex].x + (despCols[colIndex].w / 2), yPosition + 6, { align: 'center' });
-            } else {
-              // Outros campos alinhados à esquerda com margem
-              doc.text(valor, despCols[colIndex].x + 2, yPosition + 6);
-            }
           }
+
+          doc.text(valor, textX, yPosition + 6, { align: col.align });
         });
 
         yPosition += rowHeight;
