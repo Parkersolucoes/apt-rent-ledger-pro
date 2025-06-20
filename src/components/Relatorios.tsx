@@ -15,6 +15,8 @@ import { RelatorioDetalhado } from './Relatorios/RelatorioDetalhado';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface FiltrosRelatorio {
   apartamento: string;
@@ -47,34 +49,111 @@ export const Relatorios = () => {
     setMostrarRelatorio(true);
   };
 
-  const exportarPDF = () => {
-    // Aplicar estilos específicos para impressão
-    const style = document.createElement('style');
-    style.textContent = `
-      @media print {
-        body * { visibility: hidden; }
-        .relatorio-impressao, .relatorio-impressao * { visibility: visible; }
-        .relatorio-impressao { position: absolute; left: 0; top: 0; width: 100%; }
-        @page { size: A4; margin: 1cm; }
-      }
-    `;
-    document.head.appendChild(style);
-    
-    // Adicionar classe para impressão
-    const relatorioElement = document.querySelector('.relatorio-detalhado');
-    if (relatorioElement) {
-      relatorioElement.classList.add('relatorio-impressao');
+  const exportarPDF = async () => {
+    const relatorioElement = document.querySelector('.relatorio-detalhado') as HTMLElement;
+    if (!relatorioElement) {
+      toast({
+        title: "Erro",
+        description: "Relatório não encontrado para exportação.",
+        variant: "destructive",
+      });
+      return;
     }
-    
-    window.print();
-    
-    // Remover estilos após impressão
-    setTimeout(() => {
-      document.head.removeChild(style);
-      if (relatorioElement) {
-        relatorioElement.classList.remove('relatorio-impressao');
+
+    try {
+      // Temporarily modify styles for better PDF capture
+      const originalStyle = relatorioElement.style.cssText;
+      relatorioElement.style.cssText = `
+        ${originalStyle}
+        background: white !important;
+        color: black !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        padding: 20mm !important;
+        box-shadow: none !important;
+        border: none !important;
+        font-size: 12px !important;
+        line-height: 1.4 !important;
+      `;
+
+      // Apply specific styles to nested elements for PDF
+      const cards = relatorioElement.querySelectorAll('.border-slate-200');
+      cards.forEach(card => {
+        (card as HTMLElement).style.border = '1px solid #ccc';
+        (card as HTMLElement).style.boxShadow = 'none';
+        (card as HTMLElement).style.background = 'white';
+      });
+
+      const headers = relatorioElement.querySelectorAll('[class*="bg-gradient"]');
+      headers.forEach(header => {
+        (header as HTMLElement).style.background = '#f8f9fa !important';
+        (header as HTMLElement).style.color = '#000 !important';
+        (header as HTMLElement).style.border = '1px solid #ccc';
+      });
+
+      // Capture the element as canvas
+      const canvas = await html2canvas(relatorioElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: 794, // A4 width in pixels at 96 DPI
+        height: 1123, // A4 height in pixels at 96 DPI
+      });
+
+      // Create PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
-    }, 1000);
+
+      // Generate filename
+      const filename = `relatorio-${filtros.apartamento}-${formatDate(filtros.dataInicio).replace(/\//g, '-')}-${formatDate(filtros.dataFim).replace(/\//g, '-')}.pdf`;
+      
+      // Download the PDF
+      pdf.save(filename);
+
+      // Restore original styles
+      relatorioElement.style.cssText = originalStyle;
+      cards.forEach(card => {
+        (card as HTMLElement).style.cssText = '';
+      });
+      headers.forEach(header => {
+        (header as HTMLElement).style.cssText = '';
+      });
+
+      toast({
+        title: "PDF exportado com sucesso!",
+        description: `O arquivo ${filename} foi baixado.`,
+      });
+
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      toast({
+        title: "Erro ao exportar PDF",
+        description: "Ocorreu um erro ao gerar o arquivo PDF.",
+        variant: "destructive",
+      });
+      
+      // Restore original styles in case of error
+      relatorioElement.style.cssText = '';
+    }
   };
 
   const enviarPorEmail = async () => {
