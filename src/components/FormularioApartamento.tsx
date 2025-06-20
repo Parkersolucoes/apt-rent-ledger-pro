@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { useToast } from '@/hooks/use-toast';
 import { Apartamento } from '@/types/apartamento';
+import { CampoTelefone } from './CampoTelefone';
 import { Save, X } from 'lucide-react';
 
 interface FormularioApartamentoProps {
@@ -25,6 +26,7 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
     numero: apartamento?.numero || '',
     descricao: apartamento?.descricao || '',
     proprietario: apartamento?.proprietario || '',
+    telefoneProprietario: apartamento?.telefoneProprietario || '',
     ativo: apartamento?.ativo ?? true
   });
 
@@ -63,6 +65,7 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
           numero: '',
           descricao: '',
           proprietario: '',
+          telefoneProprietario: '',
           ativo: true
         });
       }
@@ -107,6 +110,15 @@ export const FormularioApartamento = ({ apartamento, onSuccess, onCancel }: Form
                 className="border-input focus:border-primary bg-background text-foreground"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+            <CampoTelefone
+              label="Telefone do Proprietário"
+              value={formData.telefoneProprietario}
+              onChange={(value) => setFormData(prev => ({ ...prev, telefoneProprietario: value }))}
+              placeholder="(00) 00000-0000"
+            />
           </div>
 
           <div className="space-y-2">

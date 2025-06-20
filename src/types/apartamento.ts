@@ -5,6 +5,7 @@ export interface Apartamento {
   descricao?: string;
   endereco?: string;
   proprietario?: string;
+  telefoneProprietario?: string;
   ativo: boolean;
   createdAt: Date;
   updatedAt: Date;

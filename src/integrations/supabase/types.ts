@@ -18,6 +18,7 @@ export type Database = {
           id: string
           numero: string
           proprietario: string | null
+          telefone_proprietario: string | null
           updated_at: string
         }
         Insert: {
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           numero: string
           proprietario?: string | null
+          telefone_proprietario?: string | null
           updated_at?: string
         }
         Update: {
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           numero?: string
           proprietario?: string | null
+          telefone_proprietario?: string | null
           updated_at?: string
         }
         Relationships: []

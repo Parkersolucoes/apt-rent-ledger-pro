@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FormularioApartamento } from './FormularioApartamento';
 import { ConfirmacaoExclusao } from './ConfirmacaoExclusao';
 import { Apartamento } from '@/types/apartamento';
-import { Plus, Pencil, Trash2, Search, Building, User } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Building, User, Phone } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 export const ListaApartamentos = () => {
@@ -137,6 +137,13 @@ export const ListaApartamentos = () => {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                           <User className="h-3 w-3" />
                           {apartamento.proprietario}
+                        </div>
+                      )}
+
+                      {apartamento.telefoneProprietario && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                          <Phone className="h-3 w-3" />
+                          {apartamento.telefoneProprietario}
                         </div>
                       )}
 

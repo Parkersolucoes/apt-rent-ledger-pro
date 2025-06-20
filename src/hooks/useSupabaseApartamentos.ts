@@ -24,6 +24,7 @@ export const useSupabaseApartamentos = () => {
         descricao: apt.descricao || undefined,
         endereco: apt.endereco || undefined,
         proprietario: apt.proprietario || undefined,
+        telefoneProprietario: apt.telefone_proprietario || undefined,
         ativo: apt.ativo,
         createdAt: new Date(apt.created_at),
         updatedAt: new Date(apt.updated_at)
@@ -55,6 +56,7 @@ export const useSupabaseApartamentos = () => {
           descricao: apartamento.descricao || null,
           endereco: apartamento.endereco || null,
           proprietario: apartamento.proprietario || null,
+          telefone_proprietario: apartamento.telefoneProprietario || null,
           ativo: apartamento.ativo
         })
         .select()
@@ -68,6 +70,7 @@ export const useSupabaseApartamentos = () => {
         descricao: data.descricao || undefined,
         endereco: data.endereco || undefined,
         proprietario: data.proprietario || undefined,
+        telefoneProprietario: data.telefone_proprietario || undefined,
         ativo: data.ativo,
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at)
@@ -93,6 +96,7 @@ export const useSupabaseApartamentos = () => {
           descricao: apartamento.descricao || null,
           endereco: apartamento.endereco || null,
           proprietario: apartamento.proprietario || null,
+          telefone_proprietario: apartamento.telefoneProprietario || null,
           ativo: apartamento.ativo,
           updated_at: new Date().toISOString()
         })
@@ -108,6 +112,7 @@ export const useSupabaseApartamentos = () => {
         descricao: data.descricao || undefined,
         endereco: data.endereco || undefined,
         proprietario: data.proprietario || undefined,
+        telefoneProprietario: data.telefone_proprietario || undefined,
         ativo: data.ativo,
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at)
