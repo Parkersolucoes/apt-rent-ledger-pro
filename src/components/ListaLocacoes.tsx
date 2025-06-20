@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency, formatDate, getMesNome } from '@/utils/formatters';
 import { FiltrosLocacao } from '@/types/locacao';
-import { Calendar, House, User, Flag, Edit, Trash2 } from 'lucide-react';
+import { Calendar, House, User, Flag, Edit, Trash2, Filter } from 'lucide-react';
 import { ConfirmacaoExclusaoLocacao } from './ConfirmacaoExclusaoLocacao';
 import { EdicaoLocacao } from './EdicaoLocacao';
 import { toast } from '@/hooks/use-toast';
@@ -29,6 +29,16 @@ export const ListaLocacoes = () => {
 
   const limparFiltros = () => {
     setFiltros({});
+  };
+
+  const aplicarFiltroRapido = (tipo: 'apartamento' | 'ano' | 'mes', valor: string | number) => {
+    if (tipo === 'apartamento') {
+      setFiltros({...filtros, apartamento: valor as string});
+    } else if (tipo === 'ano') {
+      setFiltros({...filtros, ano: valor as number});
+    } else if (tipo === 'mes') {
+      setFiltros({...filtros, mes: valor as number});
+    }
   };
 
   const handleExcluir = (locacao: Locacao) => {
@@ -142,6 +152,83 @@ export const ListaLocacoes = () => {
                 <Button onClick={limparFiltros} variant="outline" className="w-full">
                   Limpar Filtros
                 </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Botões de Filtro Rápido */}
+        <Card className="shadow-professional-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Filter className="h-6 w-6" />
+              Filtros Rápidos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            {/* Botões de Apartamentos */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <House className="h-5 w-5 text-blue-600" />
+                Apartamentos
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {apartamentos.map((apartamento) => (
+                  <Button
+                    key={apartamento}
+                    size="lg"
+                    variant={filtros.apartamento === apartamento ? "default" : "outline"}
+                    onClick={() => aplicarFiltroRapido('apartamento', apartamento)}
+                    className="h-16 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  >
+                    <House className="h-6 w-6 mr-2" />
+                    {apartamento}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Botões de Anos */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-green-600" />
+                Anos
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {anos.map((ano) => (
+                  <Button
+                    key={ano}
+                    size="lg"
+                    variant={filtros.ano === ano ? "default" : "outline"}
+                    onClick={() => aplicarFiltroRapido('ano', ano)}
+                    className="h-16 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  >
+                    <Calendar className="h-6 w-6 mr-2" />
+                    {ano}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Botões de Meses */}
+            <div>
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <User className="h-5 w-5 text-purple-600" />
+                Meses
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {meses.map((mes) => (
+                  <Button
+                    key={mes.value}
+                    size="lg"
+                    variant={filtros.mes === mes.value ? "default" : "outline"}
+                    onClick={() => aplicarFiltroRapido('mes', mes.value)}
+                    className="h-16 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  >
+                    <Calendar className="h-5 w-5 mr-2" />
+                    {mes.label}
+                  </Button>
+                ))}
               </div>
             </div>
           </CardContent>
