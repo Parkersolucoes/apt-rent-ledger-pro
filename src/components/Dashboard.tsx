@@ -16,6 +16,9 @@ export const Dashboard = () => {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
+  const mesAtual = hoje.getMonth() + 1; // getMonth() retorna 0-11, precisamos 1-12
+  const anoAtual = hoje.getFullYear();
+
   // Locações ativas hoje
   const locacoesAtivas = locacoes.filter(loc => {
     const dataEntrada = new Date(loc.dataEntrada);
@@ -26,6 +29,11 @@ export const Dashboard = () => {
     return hoje >= dataEntrada && hoje <= dataSaida;
   });
 
+  // Locações do mês corrente
+  const locacoesMesCorrente = locacoes.filter(loc => 
+    loc.mes === mesAtual && loc.ano === anoAtual
+  );
+
   const apartamentosOcupados = new Set(locacoesAtivas.map(loc => loc.apartamento));
   const todosApartamentos = new Set(locacoes.map(loc => loc.apartamento));
   const apartamentosDisponiveis = todosApartamentos.size - apartamentosOcupados.size;
@@ -34,7 +42,7 @@ export const Dashboard = () => {
     apartamentosAtivos: todosApartamentos.size,
     apartamentosOcupados: apartamentosOcupados.size,
     apartamentosDisponiveis: apartamentosDisponiveis,
-    faturamentoTotal: locacoes.reduce((acc, loc) => acc + loc.valorLocacao, 0)
+    faturamentoTotal: locacoesMesCorrente.reduce((acc, loc) => acc + loc.valorLocacao, 0)
   };
 
   const locacoesRecentes = locacoes
@@ -153,7 +161,7 @@ export const Dashboard = () => {
           <Card className="bg-gradient-to-br from-blue-900 to-blue-800 border-blue-600 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-blue-100">
-                Faturamento Total
+                Faturamento do Mês
               </CardTitle>
               <Wallet className="h-5 w-5 text-blue-300" />
             </CardHeader>
@@ -161,6 +169,9 @@ export const Dashboard = () => {
               <div className="text-2xl font-bold text-blue-300">
                 {formatCurrency(estatisticas.faturamentoTotal)}
               </div>
+              <p className="text-xs text-blue-200 mt-1">
+                {mesAtual}/{anoAtual}
+              </p>
             </CardContent>
           </Card>
         </div>
