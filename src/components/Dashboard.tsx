@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency } from '@/utils/formatters';
-import { Calendar, House, User, Wallet, Database, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { House, User, Wallet, Database, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { ApartamentoModal } from './ApartamentoModal';
 import { migrarDadosParaSupabase, limparLocalStorage } from '@/utils/migration';
 
@@ -32,12 +31,10 @@ export const Dashboard = () => {
   const apartamentosDisponiveis = todosApartamentos.size - apartamentosOcupados.size;
 
   const estatisticas = {
-    totalLocacoes: locacoes.length,
     apartamentosAtivos: todosApartamentos.size,
     apartamentosOcupados: apartamentosOcupados.size,
     apartamentosDisponiveis: apartamentosDisponiveis,
-    faturamentoTotal: locacoes.reduce((acc, loc) => acc + loc.valorLocacao, 0),
-    comissaoTotal: locacoes.reduce((acc, loc) => acc + loc.comissao, 0)
+    faturamentoTotal: locacoes.reduce((acc, loc) => acc + loc.valorLocacao, 0)
   };
 
   const locacoesRecentes = locacoes
@@ -104,21 +101,7 @@ export const Dashboard = () => {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600 shadow-xl hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-slate-300">
-                Total de Locações
-              </CardTitle>
-              <Calendar className="h-5 w-5 text-blue-400" />
-            </CardHeader>
-            <CardContent className="pb-4">
-              <div className="text-3xl font-bold text-blue-400">
-                {estatisticas.totalLocacoes}
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-600 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-slate-300">
@@ -177,20 +160,6 @@ export const Dashboard = () => {
             <CardContent className="pb-4">
               <div className="text-2xl font-bold text-blue-300">
                 {formatCurrency(estatisticas.faturamentoTotal)}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-teal-900 to-teal-800 border-teal-600 shadow-xl hover:shadow-2xl transition-all duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-teal-100">
-                Comissões Totais
-              </CardTitle>
-              <Wallet className="h-5 w-5 text-teal-300" />
-            </CardHeader>
-            <CardContent className="pb-4">
-              <div className="text-2xl font-bold text-teal-300">
-                {formatCurrency(estatisticas.comissaoTotal)}
               </div>
             </CardContent>
           </Card>
