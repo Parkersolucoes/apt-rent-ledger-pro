@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -286,7 +287,7 @@ export const Relatorios = () => {
 
     yPosition += cardHeight + 15;
 
-    // TABELA DE LOCAÇÕES OTIMIZADA
+    // TABELA DE LOCAÇÕES OTIMIZADA - Layout melhorado
     if (locacoesFiltradas.length > 0) {
       checkAndAddPage(60);
       
@@ -295,57 +296,83 @@ export const Relatorios = () => {
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('DETALHAMENTO DAS LOCAÇÕES', margin, yPosition);
-      yPosition += 6;
+      yPosition += 8;
 
-      drawSeparator(yPosition);
+      drawSeparator(yPosition, [51, 65, 85]);
       yPosition += 5;
 
-      // Cabeçalho da tabela compacto
+      // Cabeçalho da tabela otimizado - Larguras ajustadas conforme o modelo
       doc.setFillColor(248, 250, 252); // Slate-50
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
+      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'F');
       doc.setDrawColor(203, 213, 225); // Slate-300
       doc.setLineWidth(0.5);
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'S');
       
-      doc.setFontSize(8);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(51, 65, 85);
       
-      // Colunas otimizadas
+      // Colunas com larguras balanceadas baseadas no modelo da imagem
       const cols = [
-        { x: margin + 2, w: 15, h: 'Apt.' },
-        { x: margin + 19, w: 35, h: 'Hóspede' },
-        { x: margin + 56, w: 20, h: 'Check-in' },
-        { x: margin + 78, w: 20, h: 'Check-out' },
-        { x: margin + 100, w: 23, h: 'Valor Locação' },
-        { x: margin + 125, w: 18, h: 'Limpeza' },
-        { x: margin + 145, w: 23, h: 'Comissão' },
-        { x: margin + 170, w: 25, h: 'Proprietário' }
+        { x: margin + 2, w: 12, h: 'Apt.' },                    // 12mm - Apartamento
+        { x: margin + 16, w: 32, h: 'Hóspede' },                // 32mm - Nome do hóspede
+        { x: margin + 50, w: 20, h: 'Check-in' },               // 20mm - Data entrada
+        { x: margin + 72, w: 20, h: 'Check-out' },              // 20mm - Data saída
+        { x: margin + 94, w: 24, h: 'Valor Locação' },          // 24mm - Valor da locação
+        { x: margin + 120, w: 18, h: 'Limpeza' },               // 18mm - Taxa limpeza
+        { x: margin + 140, w: 20, h: 'Comissão' },              // 20mm - Comissão
+        { x: margin + 162, w: 28, h: 'Proprietário' }           // 28mm - Valor proprietário
       ];
 
-      cols.forEach(col => {
-        doc.text(col.h, col.x, yPosition + 8);
+      // Desenhar linhas verticais dos cabeçalhos
+      doc.setDrawColor(203, 213, 225);
+      cols.forEach((col, index) => {
+        if (index > 0) {
+          doc.line(col.x - 1, yPosition, col.x - 1, yPosition + 14);
+        }
+        // Centralizar texto nos cabeçalhos
+        doc.text(col.h, col.x + (col.w / 2), yPosition + 9, { align: 'center' });
       });
 
-      yPosition += 15;
+      yPosition += 17;
 
-      // Dados da tabela
+      // Dados da tabela com melhor formatação
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(31, 41, 55);
       
       locacoesFiltradas.forEach((locacao, index) => {
-        checkAndAddPage(10);
+        checkAndAddPage(12);
 
+        const rowHeight = 10;
+
+        // Fundo alternado para linhas
         if (index % 2 === 0) {
           doc.setFillColor(249, 250, 251); // Gray-50
-          doc.roundedRect(margin, yPosition - 1, contentWidth, 8, 0.5, 0.5, 'F');
+          doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'F');
         }
 
-        doc.setFontSize(7);
+        // Linhas da tabela
+        doc.setDrawColor(229, 231, 235); // Gray-200
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'S');
+
+        // Linhas verticais
+        cols.forEach((col, colIndex) => {
+          if (colIndex > 0) {
+            doc.line(col.x - 1, yPosition - 1, col.x - 1, yPosition + rowHeight - 1);
+          }
+        });
+
+        doc.setFontSize(8);
         
+        // Truncar textos longos e ajustar posicionamento
+        const truncateText = (text: string, maxLength: number) => {
+          return text.length > maxLength ? text.substring(0, maxLength - 3) + '...' : text;
+        };
+
         const valores = [
           locacao.apartamento,
-          locacao.hospede.length > 20 ? locacao.hospede.substring(0, 17) + '...' : locacao.hospede,
+          truncateText(locacao.hospede, 18),
           locacao.dataEntrada.toLocaleDateString('pt-BR'),
           locacao.dataSaida.toLocaleDateString('pt-BR'),
           formatCurrency(locacao.valorLocacao),
@@ -358,35 +385,58 @@ export const Relatorios = () => {
           if (colIndex >= 4) { // Valores monetários
             doc.setTextColor(21, 128, 61); // Green-700
             doc.setFont('helvetica', 'bold');
+            // Alinhar valores monetários à direita
+            doc.text(valor, cols[colIndex].x + cols[colIndex].w - 2, yPosition + 6, { align: 'right' });
           } else {
             doc.setTextColor(31, 41, 55);
             doc.setFont('helvetica', 'normal');
+            // Centralizar outros campos
+            if (colIndex === 0) {
+              // Apartamento centralizado
+              doc.text(valor, cols[colIndex].x + (cols[colIndex].w / 2), yPosition + 6, { align: 'center' });
+            } else {
+              // Outros campos alinhados à esquerda com margem
+              doc.text(valor, cols[colIndex].x + 2, yPosition + 6);
+            }
           }
-          doc.text(valor, cols[colIndex].x, yPosition + 5);
         });
 
-        yPosition += 8;
+        yPosition += rowHeight;
       });
 
-      // Linha de totais
-      checkAndAddPage(12);
+      // Linha de totais estilizada
+      checkAndAddPage(14);
+      yPosition += 2;
+      
+      const totalRowHeight = 12;
       doc.setFillColor(240, 253, 244); // Green-50
-      doc.roundedRect(margin, yPosition, contentWidth, 10, 1, 1, 'F');
-      doc.setDrawColor(34, 197, 94);
+      doc.roundedRect(margin, yPosition, contentWidth, totalRowHeight, 1, 1, 'F');
+      doc.setDrawColor(34, 197, 94); // Green-500
       doc.setLineWidth(1);
-      doc.roundedRect(margin, yPosition, contentWidth, 10, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, totalRowHeight, 1, 1, 'S');
+      
+      // Linhas verticais na linha de totais
+      cols.forEach((col, colIndex) => {
+        if (colIndex >= 4) { // Apenas nas colunas de valores
+          doc.setDrawColor(34, 197, 94);
+          doc.line(col.x - 1, yPosition, col.x - 1, yPosition + totalRowHeight);
+        }
+      });
       
       doc.setTextColor(21, 128, 61);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
+      doc.setFontSize(9);
       
-      doc.text('TOTAIS:', margin + 78, yPosition + 6);
-      doc.text(formatCurrency(valorTotalLocacao), cols[4].x, yPosition + 6);
-      doc.text(formatCurrency(limpezaTotal), cols[5].x, yPosition + 6);
-      doc.text(formatCurrency(comissaoTotal), cols[6].x, yPosition + 6);
-      doc.text(formatCurrency(proprietarioTotal), cols[7].x, yPosition + 6);
+      // Label "TOTAIS:" alinhada com as colunas de valores
+      doc.text('TOTAIS:', cols[3].x + cols[3].w - 2, yPosition + 7, { align: 'right' });
+      
+      // Valores totais alinhados à direita em suas respectivas colunas
+      doc.text(formatCurrency(valorTotalLocacao), cols[4].x + cols[4].w - 2, yPosition + 7, { align: 'right' });
+      doc.text(formatCurrency(limpezaTotal), cols[5].x + cols[5].w - 2, yPosition + 7, { align: 'right' });
+      doc.text(formatCurrency(comissaoTotal), cols[6].x + cols[6].w - 2, yPosition + 7, { align: 'right' });
+      doc.text(formatCurrency(proprietarioTotal), cols[7].x + cols[7].w - 2, yPosition + 7, { align: 'right' });
 
-      yPosition += 20;
+      yPosition += totalRowHeight + 15;
     }
 
     // TABELA DE DESPESAS OTIMIZADA
@@ -398,69 +448,109 @@ export const Relatorios = () => {
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
       doc.text('DETALHAMENTO DAS DESPESAS', margin, yPosition);
-      yPosition += 6;
+      yPosition += 8;
 
-      drawSeparator(yPosition);
+      drawSeparator(yPosition, [51, 65, 85]);
       yPosition += 5;
 
       // Cabeçalho da tabela
       doc.setFillColor(248, 250, 252);
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
+      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'F');
       doc.setDrawColor(203, 213, 225);
       doc.setLineWidth(0.5);
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'S');
       
-      doc.setFontSize(8);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(51, 65, 85);
       
-      doc.text('Data', margin + 2, yPosition + 8);
-      doc.text('Apartamento', margin + 25, yPosition + 8);
-      doc.text('Descrição', margin + 50, yPosition + 8);
-      doc.text('Valor', margin + 150, yPosition + 8);
+      // Colunas para despesas
+      const despCols = [
+        { x: margin + 2, w: 20, h: 'Data' },
+        { x: margin + 24, w: 25, h: 'Apartamento' },
+        { x: margin + 51, w: 95, h: 'Descrição' },
+        { x: margin + 148, w: 27, h: 'Valor' }
+      ];
 
-      yPosition += 15;
+      despCols.forEach((col, index) => {
+        if (index > 0) {
+          doc.line(col.x - 1, yPosition, col.x - 1, yPosition + 14);
+        }
+        doc.text(col.h, col.x + (col.w / 2), yPosition + 9, { align: 'center' });
+      });
+
+      yPosition += 17;
 
       // Dados das despesas
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(31, 41, 55);
       
       despesasFiltradas.forEach((despesa, index) => {
-        checkAndAddPage(10);
+        checkAndAddPage(12);
+
+        const rowHeight = 10;
 
         if (index % 2 === 0) {
           doc.setFillColor(254, 242, 242); // Red-50
-          doc.roundedRect(margin, yPosition - 1, contentWidth, 8, 0.5, 0.5, 'F');
+          doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'F');
         }
 
-        doc.setFontSize(7);
-        doc.setTextColor(31, 41, 55);
-        doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 2, yPosition + 5);
-        doc.text(despesa.apartamento || 'Geral', margin + 25, yPosition + 5);
-        doc.text(despesa.descricao.length > 50 ? despesa.descricao.substring(0, 47) + '...' : despesa.descricao, margin + 50, yPosition + 5);
-        
-        doc.setTextColor(185, 28, 28); // Red-700
-        doc.setFont('helvetica', 'bold');
-        doc.text(formatCurrency(despesa.valor), margin + 150, yPosition + 5);
+        doc.setDrawColor(229, 231, 235);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'S');
 
-        yPosition += 8;
+        despCols.forEach((col, colIndex) => {
+          if (colIndex > 0) {
+            doc.line(col.x - 1, yPosition - 1, col.x - 1, yPosition + rowHeight - 1);
+          }
+        });
+
+        doc.setFontSize(8);
+        
+        const despesaValues = [
+          despesa.data.toLocaleDateString('pt-BR'),
+          despesa.apartamento || 'Geral',
+          despesa.descricao.length > 55 ? despesa.descricao.substring(0, 52) + '...' : despesa.descricao,
+          formatCurrency(despesa.valor)
+        ];
+
+        despesaValues.forEach((valor, colIndex) => {
+          if (colIndex === 3) { // Valor
+            doc.setTextColor(185, 28, 28); // Red-700
+            doc.setFont('helvetica', 'bold');
+            doc.text(valor, despCols[colIndex].x + despCols[colIndex].w - 2, yPosition + 6, { align: 'right' });
+          } else {
+            doc.setTextColor(31, 41, 55);
+            doc.setFont('helvetica', 'normal');
+            if (colIndex === 0 || colIndex === 1) {
+              doc.text(valor, despCols[colIndex].x + (despCols[colIndex].w / 2), yPosition + 6, { align: 'center' });
+            } else {
+              doc.text(valor, despCols[colIndex].x + 2, yPosition + 6);
+            }
+          }
+        });
+
+        yPosition += rowHeight;
       });
 
       // Total das despesas
-      checkAndAddPage(12);
+      checkAndAddPage(14);
+      yPosition += 2;
+      
+      const totalDespHeight = 12;
       doc.setFillColor(254, 242, 242);
-      doc.roundedRect(margin, yPosition, contentWidth, 10, 1, 1, 'F');
+      doc.roundedRect(margin, yPosition, contentWidth, totalDespHeight, 1, 1, 'F');
       doc.setDrawColor(239, 68, 68);
       doc.setLineWidth(1);
-      doc.roundedRect(margin, yPosition, contentWidth, 10, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, totalDespHeight, 1, 1, 'S');
       
       doc.setTextColor(185, 28, 28);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.text('TOTAL DAS DESPESAS:', margin + 100, yPosition + 6);
-      doc.text(formatCurrency(despesasTotal), margin + 150, yPosition + 6);
+      doc.setFontSize(9);
+      doc.text('TOTAL DAS DESPESAS:', despCols[2].x + despCols[2].w - 2, yPosition + 7, { align: 'right' });
+      doc.text(formatCurrency(despesasTotal), despCols[3].x + despCols[3].w - 2, yPosition + 7, { align: 'right' });
 
-      yPosition += 20;
+      yPosition += totalDespHeight + 15;
     }
 
     // ANÁLISE COMPACTA E PROFISSIONAL
@@ -470,9 +560,9 @@ export const Relatorios = () => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('ANÁLISE E INDICADORES', margin, yPosition);
-    yPosition += 6;
+    yPosition += 8;
 
-    drawSeparator(yPosition);
+    drawSeparator(yPosition, [51, 65, 85]);
     yPosition += 5;
 
     // Box de análise compacto
@@ -483,7 +573,7 @@ export const Relatorios = () => {
     doc.roundedRect(margin, yPosition, contentWidth, 30, 2, 2, 'S');
 
     doc.setTextColor(55, 65, 81);
-    doc.setFontSize(8);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
 
     const insights = [
@@ -504,7 +594,7 @@ export const Relatorios = () => {
     // RODAPÉ ELEGANTE
     checkAndAddPage(15);
     
-    drawSeparator(yPosition);
+    drawSeparator(yPosition, [51, 65, 85]);
     yPosition += 5;
 
     doc.setFillColor(248, 250, 252);
