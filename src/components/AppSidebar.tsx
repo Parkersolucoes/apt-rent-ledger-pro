@@ -1,4 +1,3 @@
-
 import {
   Calendar,
   Home,
@@ -9,6 +8,7 @@ import {
   ChevronRight,
   Plus,
   List,
+  FileText,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -74,6 +74,11 @@ const menuItems = [
         icon: List,
       },
     ],
+  },
+  {
+    title: "Relatórios",
+    url: "/relatorios",
+    icon: FileText,
   },
   {
     title: "Configurações",
