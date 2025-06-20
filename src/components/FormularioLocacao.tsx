@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { formatDateInput, parseDateInput, calcularComissao } from '@/utils/formatters';
@@ -23,12 +25,56 @@ export const FormularioLocacao = () => {
     valorLocacao: '',
     primeiroPagamento: '',
     segundoPagamento: '',
-    taxaLimpeza: '',
+    taxaLimpeza: '100.00',
+    proprietarioPago: false,
     dataPagamentoProprietario: '',
     observacoes: ''
   });
 
   const apartamentosDisponiveis = obterNumerosApartamentos();
+
+  const formatCurrencyInput = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    // Converte para centavos
+    const amount = parseFloat(numbers) / 100;
+    // Formata para moeda brasileira
+    return amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  const parseCurrencyInput = (value: string) => {
+    // Remove formatação e converte para número
+    return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+  };
+
+  const handleCurrencyChange = (field: string, value: string) => {
+    const formattedValue = formatCurrencyInput(value);
+    setFormData(prev => ({
+      ...prev,
+      [field]: formattedValue
+    }));
+
+    // Calcular segundo pagamento automaticamente quando sair do primeiro pagamento
+    if (field === 'primeiroPagamento') {
+      const valorLocacao = parseCurrencyInput(formData.valorLocacao);
+      const taxaLimpeza = parseCurrencyInput(formData.taxaLimpeza);
+      const primeiroPagamento = parseCurrencyInput(formattedValue);
+      const valorTotal = valorLocacao + taxaLimpeza;
+      const segundoPagamento = Math.max(0, valorTotal - primeiroPagamento);
+      
+      setFormData(prev => ({
+        ...prev,
+        primeiroPagamento: formattedValue,
+        segundoPagamento: segundoPagamento.toLocaleString('pt-BR', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })
+      }));
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,10 +88,10 @@ export const FormularioLocacao = () => {
       return;
     }
 
-    const valorLocacao = parseFloat(formData.valorLocacao);
-    const primeiroPagamento = parseFloat(formData.primeiroPagamento) || 0;
-    const segundoPagamento = parseFloat(formData.segundoPagamento) || 0;
-    const taxaLimpeza = parseFloat(formData.taxaLimpeza) || 0;
+    const valorLocacao = parseCurrencyInput(formData.valorLocacao);
+    const primeiroPagamento = parseCurrencyInput(formData.primeiroPagamento);
+    const segundoPagamento = parseCurrencyInput(formData.segundoPagamento);
+    const taxaLimpeza = parseCurrencyInput(formData.taxaLimpeza);
     
     const valorTotal = valorLocacao + taxaLimpeza;
     const valorFaltando = valorTotal - primeiroPagamento - segundoPagamento;
@@ -84,7 +130,8 @@ export const FormularioLocacao = () => {
       valorLocacao: '',
       primeiroPagamento: '',
       segundoPagamento: '',
-      taxaLimpeza: '',
+      taxaLimpeza: '100,00',
+      proprietarioPago: false,
       dataPagamentoProprietario: '',
       observacoes: ''
     });
@@ -106,171 +153,200 @@ export const FormularioLocacao = () => {
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Nova Locação</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="apartamento">Apartamento *</Label>
-              <Select value={formData.apartamento} onValueChange={(value) => setFormData({...formData, apartamento: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um apartamento" />
-                </SelectTrigger>
-                <SelectContent>
-                  {apartamentosDisponiveis.map((numero) => (
-                    <SelectItem key={numero} value={numero}>
-                      {numero}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="ano">Ano *</Label>
-              <Input
-                id="ano"
-                type="number"
-                value={formData.ano}
-                onChange={(e) => setFormData({...formData, ano: parseInt(e.target.value)})}
-                min="2020"
-                max="2030"
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="mes">Mês *</Label>
-              <Select value={formData.mes.toString()} onValueChange={(value) => setFormData({...formData, mes: parseInt(value)})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {meses.map((mes) => (
-                    <SelectItem key={mes.value} value={mes.value.toString()}>
-                      {mes.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-4">
+      <div className="max-w-4xl mx-auto">
+        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+            <CardTitle className="text-2xl font-bold text-center">Nova Locação</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="apartamento" className="text-blue-800 font-semibold">Apartamento *</Label>
+                  <Select value={formData.apartamento} onValueChange={(value) => setFormData({...formData, apartamento: value})}>
+                    <SelectTrigger className="border-blue-200 focus:border-blue-500">
+                      <SelectValue placeholder="Selecione um apartamento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {apartamentosDisponiveis.map((numero) => (
+                        <SelectItem key={numero} value={numero}>
+                          {numero}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="ano" className="text-blue-800 font-semibold">Ano *</Label>
+                  <Input
+                    id="ano"
+                    type="number"
+                    value={formData.ano}
+                    onChange={(e) => setFormData({...formData, ano: parseInt(e.target.value)})}
+                    min="2020"
+                    max="2030"
+                    className="border-blue-200 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="mes" className="text-blue-800 font-semibold">Mês *</Label>
+                  <Select value={formData.mes.toString()} onValueChange={(value) => setFormData({...formData, mes: parseInt(value)})}>
+                    <SelectTrigger className="border-blue-200 focus:border-blue-500">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {meses.map((mes) => (
+                        <SelectItem key={mes.value} value={mes.value.toString()}>
+                          {mes.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-          <div>
-            <Label htmlFor="hospede">Nome do Hóspede *</Label>
-            <Input
-              id="hospede"
-              value={formData.hospede}
-              onChange={(e) => setFormData({...formData, hospede: e.target.value})}
-              placeholder="Nome completo do hóspede"
-              required
-            />
-          </div>
+              <div>
+                <Label htmlFor="hospede" className="text-blue-800 font-semibold">Nome do Hóspede *</Label>
+                <Input
+                  id="hospede"
+                  value={formData.hospede}
+                  onChange={(e) => setFormData({...formData, hospede: e.target.value})}
+                  placeholder="Nome completo do hóspede"
+                  className="border-blue-200 focus:border-blue-500"
+                  required
+                />
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="dataEntrada">Data de Entrada *</Label>
-              <Input
-                id="dataEntrada"
-                type="date"
-                value={formData.dataEntrada}
-                onChange={(e) => setFormData({...formData, dataEntrada: e.target.value})}
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="dataSaida">Data de Saída *</Label>
-              <Input
-                id="dataSaida"
-                type="date"
-                value={formData.dataSaida}
-                onChange={(e) => setFormData({...formData, dataSaida: e.target.value})}
-                required
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="dataEntrada" className="text-blue-800 font-semibold">Data de Entrada *</Label>
+                  <Input
+                    id="dataEntrada"
+                    type="date"
+                    value={formData.dataEntrada}
+                    onChange={(e) => setFormData({...formData, dataEntrada: e.target.value})}
+                    className="border-blue-200 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="dataSaida" className="text-blue-800 font-semibold">Data de Saída *</Label>
+                  <Input
+                    id="dataSaida"
+                    type="date"
+                    value={formData.dataSaida}
+                    onChange={(e) => setFormData({...formData, dataSaida: e.target.value})}
+                    className="border-blue-200 focus:border-blue-500"
+                    required
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="valorLocacao">Valor da Locação (R$) *</Label>
-              <Input
-                id="valorLocacao"
-                type="number"
-                step="0.01"
-                value={formData.valorLocacao}
-                onChange={(e) => setFormData({...formData, valorLocacao: e.target.value})}
-                placeholder="0,00"
-                required
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="primeiroPagamento">1º Pagamento (R$)</Label>
-              <Input
-                id="primeiroPagamento"
-                type="number"
-                step="0.01"
-                value={formData.primeiroPagamento}
-                onChange={(e) => setFormData({...formData, primeiroPagamento: e.target.value})}
-                placeholder="0,00"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="segundoPagamento">2º Pagamento (R$)</Label>
-              <Input
-                id="segundoPagamento"
-                type="number"
-                step="0.01"
-                value={formData.segundoPagamento}
-                onChange={(e) => setFormData({...formData, segundoPagamento: e.target.value})}
-                placeholder="0,00"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="taxaLimpeza">Taxa de Limpeza (R$)</Label>
-              <Input
-                id="taxaLimpeza"
-                type="number"
-                step="0.01"
-                value={formData.taxaLimpeza}
-                onChange={(e) => setFormData({...formData, taxaLimpeza: e.target.value})}
-                placeholder="0,00"
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <Label htmlFor="valorLocacao" className="text-blue-800 font-semibold">Valor da Locação *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-blue-600 font-semibold">R$</span>
+                    <Input
+                      id="valorLocacao"
+                      value={formData.valorLocacao}
+                      onChange={(e) => handleCurrencyChange('valorLocacao', e.target.value)}
+                      placeholder="0,00"
+                      className="border-blue-200 focus:border-blue-500 pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="primeiroPagamento" className="text-blue-800 font-semibold">1º Pagamento</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-blue-600 font-semibold">R$</span>
+                    <Input
+                      id="primeiroPagamento"
+                      value={formData.primeiroPagamento}
+                      onChange={(e) => handleCurrencyChange('primeiroPagamento', e.target.value)}
+                      placeholder="0,00"
+                      className="border-blue-200 focus:border-blue-500 pl-10"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="segundoPagamento" className="text-blue-800 font-semibold">2º Pagamento (Calculado)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-blue-600 font-semibold">R$</span>
+                    <Input
+                      id="segundoPagamento"
+                      value={formData.segundoPagamento}
+                      readOnly
+                      className="border-blue-200 bg-blue-50 pl-10"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="taxaLimpeza" className="text-blue-800 font-semibold">Taxa de Limpeza (Fixo)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-blue-600 font-semibold">R$</span>
+                    <Input
+                      id="taxaLimpeza"
+                      value={formData.taxaLimpeza}
+                      readOnly
+                      className="border-blue-200 bg-blue-50 pl-10"
+                    />
+                  </div>
+                </div>
+              </div>
 
-          <div>
-            <Label htmlFor="dataPagamentoProprietario">Data de Pagamento ao Proprietário</Label>
-            <Input
-              id="dataPagamentoProprietario"
-              type="date"
-              value={formData.dataPagamentoProprietario}
-              onChange={(e) => setFormData({...formData, dataPagamentoProprietario: e.target.value})}
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="proprietarioPago"
+                    checked={formData.proprietarioPago}
+                    onCheckedChange={(checked) => setFormData({...formData, proprietarioPago: !!checked})}
+                  />
+                  <Label htmlFor="proprietarioPago" className="text-blue-800 font-semibold">
+                    Proprietário Pago
+                  </Label>
+                </div>
 
-          <div>
-            <Label htmlFor="observacoes">Observações</Label>
-            <Textarea
-              id="observacoes"
-              value={formData.observacoes}
-              onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
-              placeholder="Observações adicionais..."
-              rows={3}
-            />
-          </div>
+                <div>
+                  <Label htmlFor="dataPagamentoProprietario" className="text-blue-800 font-semibold">Data de Pagamento ao Proprietário</Label>
+                  <Input
+                    id="dataPagamentoProprietario"
+                    type="date"
+                    value={formData.dataPagamentoProprietario}
+                    onChange={(e) => setFormData({...formData, dataPagamentoProprietario: e.target.value})}
+                    className="border-blue-200 focus:border-blue-500"
+                  />
+                </div>
+              </div>
 
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-            Cadastrar Locação
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+              <div>
+                <Label htmlFor="observacoes" className="text-blue-800 font-semibold">Observações</Label>
+                <Textarea
+                  id="observacoes"
+                  value={formData.observacoes}
+                  onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
+                  placeholder="Observações adicionais..."
+                  rows={3}
+                  className="border-blue-200 focus:border-blue-500"
+                />
+              </div>
+
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 text-lg shadow-lg">
+                Cadastrar Locação
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
