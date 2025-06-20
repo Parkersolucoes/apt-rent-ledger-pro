@@ -11,7 +11,7 @@ import { useApartamentos } from '@/hooks/useApartamentos';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { FiltrosDespesa } from '@/types/despesa';
 import { toast } from '@/hooks/use-toast';
-import { Trash2, Receipt, Calendar, Building } from 'lucide-react';
+import { Trash2, Edit, Calendar, Building } from 'lucide-react';
 
 export const ListaDespesas = () => {
   const { despesas, filtrarDespesas, removerDespesa, obterApartamentos } = useDespesas();
@@ -34,6 +34,11 @@ export const ListaDespesas = () => {
         description: "Despesa excluída com sucesso.",
       });
     }
+  };
+
+  const handleEditar = (id: string) => {
+    console.log('Editando despesa:', id);
+    // TODO: Implementar edição
   };
 
   const totalDespesas = despesasFiltradas.reduce((total, despesa) => total + despesa.valor, 0);
@@ -98,7 +103,7 @@ export const ListaDespesas = () => {
           </CardContent>
         </Card>
 
-        {/* Lista de Despesas */}
+        {/* Grid de Despesas */}
         <Card className="shadow-lg">
           <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="flex items-center justify-between text-xl">
@@ -114,50 +119,51 @@ export const ListaDespesas = () => {
                 Nenhuma despesa encontrada com os filtros aplicados.
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {despesasFiltradas.map((despesa) => (
                   <div
                     key={despesa.id}
-                    className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white"
+                    className="border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-white space-y-3"
                   >
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                      <div className="lg:col-span-2 space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Building className="h-4 w-4 text-primary" />
-                          <span className="font-semibold text-foreground">Apartamento {despesa.apartamento}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Receipt className="h-4 w-4 text-blue-600" />
-                          <span className="text-foreground">{despesa.descricao}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-purple-600" />
-                          <span className="text-sm text-muted-foreground">
-                            {formatDate(despesa.data)}
-                          </span>
-                        </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <Building className="h-3 w-3 text-primary" />
+                        <span className="font-semibold text-sm">Apt {despesa.apartamento}</span>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-red-600">
-                            {formatCurrency(despesa.valor)}
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleExcluir(despesa.id)}
-                            className="flex items-center gap-1 text-red-600 border-red-200 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                            Excluir
-                          </Button>
-                        </div>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEditar(despesa.id)}
+                          className="h-6 w-6 p-0 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleExcluir(despesa.id)}
+                          className="h-6 w-6 p-0 text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-foreground font-medium line-clamp-2">
+                      {despesa.descricao}
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(despesa.data)}
+                      </span>
+                    </div>
+                    
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-red-600">
+                        {formatCurrency(despesa.valor)}
                       </div>
                     </div>
                   </div>
