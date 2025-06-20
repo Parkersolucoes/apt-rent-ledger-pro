@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,10 +13,14 @@ import { CamposDatas } from './FormularioLocacao/CamposDatas';
 import { CamposValores } from './FormularioLocacao/CamposValores';
 import { CamposCalculados } from './FormularioLocacao/CamposCalculados';
 import { CamposPagamento } from './FormularioLocacao/CamposPagamento';
+import { ConfirmacaoNovoRegistro } from './ConfirmacaoNovoRegistro';
 
 export const FormularioLocacao = () => {
   const { adicionarLocacao } = useLocacoes();
   const { obterNumerosApartamentos } = useApartamentos();
+  const navigate = useNavigate();
+  const [showConfirmacao, setShowConfirmacao] = useState(false);
+  
   const [formData, setFormData] = useState({
     apartamento: '',
     ano: new Date().getFullYear(),
@@ -82,7 +87,29 @@ export const FormularioLocacao = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetForm = () => {
+    setFormData({
+      apartamento: '',
+      ano: new Date().getFullYear(),
+      mes: new Date().getMonth() + 1,
+      hospede: '',
+      dataEntrada: '',
+      dataSaida: '',
+      valorLocacao: '',
+      primeiroPagamento: '',
+      primeiroPagamentoPago: false,
+      primeiroPagamentoForma: 'Dinheiro',
+      segundoPagamento: '',
+      segundoPagamentoPago: false,
+      segundoPagamentoForma: 'Dinheiro',
+      taxaLimpeza: '100,00',
+      proprietarioPago: false,
+      dataPagamentoProprietario: '',
+      observacoes: ''
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.apartamento || !formData.hospede || !formData.dataEntrada || !formData.dataSaida || !formData.valorLocacao) {
@@ -104,53 +131,52 @@ export const FormularioLocacao = () => {
     const comissaoCalculada = calcularComissao(valorLocacaoNum, taxaLimpezaNum);
     const valorProprietarioCalculado = calcularValorProprietario(valorLocacaoNum, taxaLimpezaNum, comissaoCalculada);
 
-    adicionarLocacao({
-      apartamento: formData.apartamento,
-      ano: formData.ano,
-      mes: formData.mes,
-      hospede: formData.hospede,
-      dataEntrada: parseDateInput(formData.dataEntrada),
-      dataSaida: parseDateInput(formData.dataSaida),
-      valorLocacao: valorLocacaoNum,
-      primeiroPagamento,
-      primeiroPagamentoPago: formData.primeiroPagamentoPago,
-      primeiroPagamentoForma: formData.primeiroPagamentoForma,
-      segundoPagamento,
-      segundoPagamentoPago: formData.segundoPagamentoPago,
-      segundoPagamentoForma: formData.segundoPagamentoForma,
-      valorFaltando,
-      taxaLimpeza: taxaLimpezaNum,
-      comissao: comissaoCalculada,
-      valorProprietario: valorProprietarioCalculado,
-      dataPagamentoProprietario: formData.dataPagamentoProprietario ? parseDateInput(formData.dataPagamentoProprietario) : undefined,
-      observacoes: formData.observacoes || undefined
-    });
+    try {
+      await adicionarLocacao({
+        apartamento: formData.apartamento,
+        ano: formData.ano,
+        mes: formData.mes,
+        hospede: formData.hospede,
+        dataEntrada: parseDateInput(formData.dataEntrada),
+        dataSaida: parseDateInput(formData.dataSaida),
+        valorLocacao: valorLocacaoNum,
+        primeiroPagamento,
+        primeiroPagamentoPago: formData.primeiroPagamentoPago,
+        primeiroPagamentoForma: formData.primeiroPagamentoForma,
+        segundoPagamento,
+        segundoPagamentoPago: formData.segundoPagamentoPago,
+        segundoPagamentoForma: formData.segundoPagamentoForma,
+        valorFaltando,
+        taxaLimpeza: taxaLimpezaNum,
+        comissao: comissaoCalculada,
+        valorProprietario: valorProprietarioCalculado,
+        dataPagamentoProprietario: formData.dataPagamentoProprietario ? parseDateInput(formData.dataPagamentoProprietario) : undefined,
+        observacoes: formData.observacoes || undefined
+      });
 
+      // Mostrar diálogo de confirmação em vez de toast e reset direto
+      setShowConfirmacao(true);
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível cadastrar a locação. Tente novamente.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleNovoRegistro = () => {
+    setShowConfirmacao(false);
+    resetForm();
     toast({
-      title: "Sucesso!",
-      description: "Locação cadastrada com sucesso.",
+      title: "Pronto!",
+      description: "Formulário limpo para nova locação.",
     });
+  };
 
-    // Reset form
-    setFormData({
-      apartamento: '',
-      ano: new Date().getFullYear(),
-      mes: new Date().getMonth() + 1,
-      hospede: '',
-      dataEntrada: '',
-      dataSaida: '',
-      valorLocacao: '',
-      primeiroPagamento: '',
-      primeiroPagamentoPago: false,
-      primeiroPagamentoForma: 'Dinheiro',
-      segundoPagamento: '',
-      segundoPagamentoPago: false,
-      segundoPagamentoForma: 'Dinheiro',
-      taxaLimpeza: '100,00',
-      proprietarioPago: false,
-      dataPagamentoProprietario: '',
-      observacoes: ''
-    });
+  const handleIrParaLista = () => {
+    setShowConfirmacao(false);
+    navigate('/locacoes');
   };
 
   return (
@@ -230,6 +256,15 @@ export const FormularioLocacao = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ConfirmacaoNovoRegistro
+        open={showConfirmacao}
+        onOpenChange={setShowConfirmacao}
+        titulo="Locação cadastrada com sucesso!"
+        descricao="A locação foi salva no sistema e está disponível na lista de locações."
+        onNovoRegistro={handleNovoRegistro}
+        onIrParaLista={handleIrParaLista}
+      />
     </div>
   );
 };
