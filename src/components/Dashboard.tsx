@@ -31,10 +31,19 @@ export const Dashboard = () => {
     return hoje >= dataEntrada && hoje <= dataSaida;
   });
 
-  // Locações do mês corrente
-  const locacoesMesCorrente = locacoes.filter(loc => 
-    loc.mes === mesAtual && loc.ano === anoAtual
-  );
+  // Locações do mês corrente que estão ativas (dentro do período de entrada e saída)
+  const locacoesMesCorrente = locacoes.filter(loc => {
+    const dataEntrada = new Date(loc.dataEntrada);
+    const dataSaida = new Date(loc.dataSaida);
+    dataEntrada.setHours(0, 0, 0, 0);
+    dataSaida.setHours(0, 0, 0, 0);
+    
+    // Verifica se a locação está no mês atual E se está ativa (dentro do período)
+    return loc.mes === mesAtual && 
+           loc.ano === anoAtual && 
+           hoje >= dataEntrada && 
+           hoje <= dataSaida;
+  });
 
   const apartamentosOcupados = new Set(locacoesAtivas.map(loc => loc.apartamento));
   const todosApartamentos = new Set(locacoes.map(loc => loc.apartamento));
@@ -242,13 +251,13 @@ export const Dashboard = () => {
           <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
             <CardTitle className="flex items-center gap-2 text-white">
               <Calendar className="h-5 w-5" />
-              Locações no Mês ({mesAtual}/{anoAtual}) - {locacoesMesCorrente.length} reservas
+              Locações no Mês ({mesAtual}/{anoAtual}) - {locacoesMesCorrente.length} apartamentos locados
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             {locacoesMesCorrente.length === 0 ? (
               <p className="text-slate-500 text-center py-8">
-                Nenhuma locação cadastrada para este mês.
+                Nenhum apartamento locado neste mês.
               </p>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -300,19 +309,18 @@ export const Dashboard = () => {
                           </div>
                         </div>
 
-                        {/* Detalhes financeiros */}
-                        <div className="bg-slate-50 p-3 rounded-lg space-y-2">
+                        {/* Detalhes de pagamento */}
+                        <div className="bg-slate-50 p-3 rounded-lg space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-slate-600">1º Pagamento:</span>
                             <div className="text-right">
                               <div className="text-sm font-medium">{formatCurrency(locacao.primeiroPagamento)}</div>
-                              <div className="text-xs text-slate-500">{locacao.primeiroPagamentoForma}</div>
                               <div className={`text-xs px-2 py-1 rounded ${
                                 locacao.primeiroPagamentoPago 
                                   ? 'bg-green-100 text-green-700' 
                                   : 'bg-red-100 text-red-700'
                               }`}>
-                                {locacao.primeiroPagamentoPago ? '✓ Pago' : '✗ Pendente'}
+                                {locacao.primeiroPagamentoPago ? '✓ Recebido' : '✗ Pendente'}
                               </div>
                             </div>
                           </div>
@@ -322,13 +330,12 @@ export const Dashboard = () => {
                               <span className="text-sm text-slate-600">2º Pagamento:</span>
                               <div className="text-right">
                                 <div className="text-sm font-medium">{formatCurrency(locacao.segundoPagamento)}</div>
-                                <div className="text-xs text-slate-500">{locacao.segundoPagamentoForma}</div>
                                 <div className={`text-xs px-2 py-1 rounded ${
                                   locacao.segundoPagamentoPago 
                                     ? 'bg-green-100 text-green-700' 
                                     : 'bg-red-100 text-red-700'
                                 }`}>
-                                  {locacao.segundoPagamentoPago ? '✓ Pago' : '✗ Pendente'}
+                                  {locacao.segundoPagamentoPago ? '✓ Recebido' : '✗ Pendente'}
                                 </div>
                               </div>
                             </div>
@@ -341,7 +348,7 @@ export const Dashboard = () => {
                             </div>
                           )}
 
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-center border-t pt-2">
                             <span className="text-sm text-slate-600">Taxa Limpeza:</span>
                             <span className="text-sm font-medium">{formatCurrency(locacao.taxaLimpeza)}</span>
                           </div>
