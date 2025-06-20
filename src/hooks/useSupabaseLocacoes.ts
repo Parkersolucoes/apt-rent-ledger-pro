@@ -67,10 +67,14 @@ export const useSupabaseLocacoes = () => {
 
   const adicionarLocacao = async (locacao: Omit<Locacao, 'id' | 'createdAt'>) => {
     try {
+      // Calcular ano e mes automaticamente a partir da data de entrada
+      const ano = locacao.dataEntrada.getFullYear();
+      const mes = locacao.dataEntrada.getMonth() + 1;
+
       const insertData = {
         apartamento: locacao.apartamento,
-        ano: locacao.ano || null,
-        mes: locacao.mes || null,
+        ano: ano,
+        mes: mes,
         hospede: locacao.hospede,
         telefone: locacao.telefone || null,
         data_entrada: locacao.dataEntrada.toISOString().split('T')[0],
@@ -154,11 +158,13 @@ export const useSupabaseLocacoes = () => {
       const updateData: any = {};
       
       if (locacao.apartamento !== undefined) updateData.apartamento = locacao.apartamento;
-      if (locacao.ano !== undefined) updateData.ano = locacao.ano;
-      if (locacao.mes !== undefined) updateData.mes = locacao.mes;
       if (locacao.hospede !== undefined) updateData.hospede = locacao.hospede;
       if (locacao.telefone !== undefined) updateData.telefone = locacao.telefone || null;
-      if (locacao.dataEntrada !== undefined) updateData.data_entrada = locacao.dataEntrada.toISOString().split('T')[0];
+      if (locacao.dataEntrada !== undefined) {
+        updateData.data_entrada = locacao.dataEntrada.toISOString().split('T')[0];
+        updateData.ano = locacao.dataEntrada.getFullYear();
+        updateData.mes = locacao.dataEntrada.getMonth() + 1;
+      }
       if (locacao.dataSaida !== undefined) updateData.data_saida = locacao.dataSaida.toISOString().split('T')[0];
       if (locacao.valorLocacao !== undefined) updateData.valor_locacao = locacao.valorLocacao;
       if (locacao.primeiroPagamento !== undefined) updateData.primeiro_pagamento = locacao.primeiroPagamento;

@@ -98,7 +98,7 @@ export type Database = {
       }
       locacoes: {
         Row: {
-          ano: number
+          ano: number | null
           apartamento: string
           comissao: number
           created_at: string
@@ -107,7 +107,7 @@ export type Database = {
           data_saida: string
           hospede: string
           id: string
-          mes: number
+          mes: number | null
           observacoes: string | null
           primeiro_pagamento: number
           primeiro_pagamento_forma: string | null
@@ -122,7 +122,7 @@ export type Database = {
           valor_proprietario: number | null
         }
         Insert: {
-          ano: number
+          ano?: number | null
           apartamento: string
           comissao?: number
           created_at?: string
@@ -131,7 +131,7 @@ export type Database = {
           data_saida: string
           hospede: string
           id?: string
-          mes: number
+          mes?: number | null
           observacoes?: string | null
           primeiro_pagamento?: number
           primeiro_pagamento_forma?: string | null
@@ -146,7 +146,7 @@ export type Database = {
           valor_proprietario?: number | null
         }
         Update: {
-          ano?: number
+          ano?: number | null
           apartamento?: string
           comissao?: number
           created_at?: string
@@ -155,7 +155,7 @@ export type Database = {
           data_saida?: string
           hospede?: string
           id?: string
-          mes?: number
+          mes?: number | null
           observacoes?: string | null
           primeiro_pagamento?: number
           primeiro_pagamento_forma?: string | null
