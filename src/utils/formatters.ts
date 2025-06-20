@@ -1,3 +1,4 @@
+
 export const formatCurrency = (value: number): string => {
   return value.toLocaleString('pt-BR', {
     style: 'currency',
@@ -5,7 +6,10 @@ export const formatCurrency = (value: number): string => {
   });
 };
 
-export const formatDate = (date: Date): string => {
+export const formatDate = (date: Date | undefined | null): string => {
+  if (!date) {
+    return '';
+  }
   return date.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',

@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RelatorioDetalhado } from './Relatorios/RelatorioDetalhado';
+import { RelatorioSimplificado } from './Relatorios/RelatorioSimplificado';
 import { useLocacoes } from '@/hooks/useLocacoes';
+import { useDespesas } from '@/hooks/useDespesas';
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { enviarPDFWhatsApp, formatarTelefone } from '@/utils/whatsapp';
@@ -20,6 +21,7 @@ import { FiltrosLocacao } from '@/types/locacao';
 
 export const Relatorios = () => {
   const { locacoes, filtrarLocacoes } = useLocacoes();
+  const { despesas } = useDespesas();
   const { apartamentos } = useApartamentos();
   const { configEvolution } = useConfiguracoes();
   const { toast } = useToast();
@@ -48,6 +50,14 @@ export const Relatorios = () => {
 
   const apartamentosDisponiveis = Array.from(new Set(locacoes.map(l => l.apartamento))).sort();
   const locacoesFiltradas = filtrarLocacoes(filtros);
+  
+  // Filtrar despesas com base nos mesmos critérios
+  const despesasFiltradas = despesas.filter(despesa => {
+    if (filtros.apartamento && despesa.apartamento !== filtros.apartamento) return false;
+    if (filtros.ano && despesa.data.getFullYear() !== filtros.ano) return false;
+    if (filtros.mes && despesa.data.getMonth() + 1 !== filtros.mes) return false;
+    return true;
+  });
 
   const gerarRelatorioPDF = () => {
     const doc = new jsPDF({
@@ -365,7 +375,11 @@ export const Relatorios = () => {
           </CardContent>
         </Card>
 
-        <RelatorioDetalhado locacoes={locacoesFiltradas} filtros={filtros} />
+        <RelatorioSimplificado 
+          locacoes={locacoesFiltradas} 
+          despesas={despesasFiltradas}
+          filtros={filtros}
+        />
 
         <Dialog open={showWhatsAppModal} onOpenChange={setShowWhatsAppModal}>
           <DialogContent className="sm:max-w-md">
