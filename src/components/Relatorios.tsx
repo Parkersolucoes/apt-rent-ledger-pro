@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +11,7 @@ import { useLocacoes } from '@/hooks/useLocacoes';
 import { useDespesas } from '@/hooks/useDespesas';
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
+import { useModelosMensagem } from '@/hooks/useModelosMensagem';
 import { enviarPDFWhatsApp, formatarTelefone } from '@/utils/whatsapp';
 import { CampoTelefone } from './CampoTelefone';
 import { useToast } from '@/hooks/use-toast';
@@ -25,12 +25,14 @@ export const Relatorios = () => {
   const { despesas } = useDespesas();
   const { apartamentos } = useApartamentos();
   const { configEvolution } = useConfiguracoes();
+  const { modelos, processarTemplate } = useModelosMensagem();
   const { toast } = useToast();
 
   const [filtros, setFiltros] = useState<FiltrosLocacao>({});
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [telefoneDestino, setTelefoneDestino] = useState('');
   const [mensagemPersonalizada, setMensagemPersonalizada] = useState('');
+  const [modeloSelecionado, setModeloSelecionado] = useState('');
   const [enviandoWhatsApp, setEnviandoWhatsApp] = useState(false);
 
   const anos = Array.from(new Set(locacoes.map(l => l.ano).filter(Boolean))).sort((a, b) => (b || 0) - (a || 0));
@@ -60,6 +62,37 @@ export const Relatorios = () => {
     return true;
   });
 
+  // Função para gerar variáveis do template
+  const gerarVariaveisTemplate = () => {
+    const valorTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.valorLocacao, 0);
+    const comissaoTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.comissao, 0);
+    const limpezaTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
+    const proprietarioTotal = valorTotal - comissaoTotal - limpezaTotal;
+    
+    let periodo = '';
+    if (filtros.ano && filtros.mes) {
+      const mesNome = meses.find(m => m.valor === filtros.mes)?.nome;
+      periodo = `${mesNome} ${filtros.ano}`;
+    } else if (filtros.ano) {
+      periodo = `Ano ${filtros.ano}`;
+    } else {
+      periodo = 'Todos os períodos';
+    }
+
+    const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
+    
+    return {
+      nome_proprietario: apartamento?.proprietario || 'Proprietário',
+      apartamento: filtros.apartamento || 'Todos',
+      valor_total: formatCurrency(valorTotal),
+      comissao_total: formatCurrency(comissaoTotal),
+      limpeza_total: formatCurrency(limpezaTotal),
+      valor_proprietario: formatCurrency(proprietarioTotal),
+      total_locacoes: locacoesFiltradas.length.toString(),
+      periodo: periodo
+    };
+  };
+
   // Efeito para preencher automaticamente o telefone quando um apartamento for selecionado
   useEffect(() => {
     if (filtros.apartamento && showWhatsAppModal) {
@@ -69,6 +102,20 @@ export const Relatorios = () => {
       }
     }
   }, [filtros.apartamento, showWhatsAppModal, apartamentos, telefoneDestino]);
+
+  // Efeito para atualizar mensagem quando modelo for selecionado
+  useEffect(() => {
+    if (modeloSelecionado && modeloSelecionado !== 'personalizada') {
+      const modelo = modelos.find(m => m.id === modeloSelecionado);
+      if (modelo) {
+        const variaveis = gerarVariaveisTemplate();
+        const mensagemProcessada = processarTemplate(modelo.conteudo, variaveis);
+        setMensagemPersonalizada(mensagemProcessada);
+      }
+    } else if (modeloSelecionado === 'personalizada') {
+      setMensagemPersonalizada('');
+    }
+  }, [modeloSelecionado, modelos, filtros, locacoesFiltradas]);
 
   const gerarRelatorioPDF = () => {
     const doc = new jsPDF({
@@ -394,6 +441,10 @@ export const Relatorios = () => {
 
   const handleAbrirModalWhatsApp = () => {
     setShowWhatsAppModal(true);
+    // Resetar seleções ao abrir modal
+    setModeloSelecionado('');
+    setMensagemPersonalizada('');
+    
     // Preencher automaticamente o telefone se um apartamento estiver selecionado
     if (filtros.apartamento) {
       const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
@@ -447,6 +498,15 @@ export const Relatorios = () => {
       return;
     }
 
+    if (!mensagemPersonalizada.trim()) {
+      toast({
+        title: "Erro",
+        description: "Selecione um modelo ou escreva uma mensagem personalizada.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setEnviandoWhatsApp(true);
 
     try {
@@ -463,28 +523,12 @@ export const Relatorios = () => {
       }
       nomeArquivo += '.pdf';
 
-      // Calcular resumo financeiro para a mensagem
-      const valorTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.valorLocacao, 0);
-      const comissaoTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.comissao, 0);
-      const limpezaTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
-      const proprietarioTotal = valorTotal - comissaoTotal - limpezaTotal;
-
-      let mensagem = mensagemPersonalizada || 
-        `📊 *Relatório Financeiro de Locações*\n\n` +
-        `💰 *Resumo:*\n` +
-        `• Valor total: ${formatCurrency(valorTotal)}\n` +
-        `• Comissão: ${formatCurrency(comissaoTotal)}\n` +
-        `• Taxa limpeza: ${formatCurrency(limpezaTotal)}\n` +
-        `• Valor proprietário: ${formatCurrency(proprietarioTotal)}\n\n` +
-        `📋 Total de locações: ${locacoesFiltradas.length}\n\n` +
-        `📄 Segue em anexo o relatório detalhado.`;
-
       await enviarPDFWhatsApp(
         configEvolution,
         telefoneDestino,
         pdfBlob,
         nomeArquivo,
-        mensagem
+        mensagemPersonalizada
       );
 
       toast({
@@ -495,6 +539,7 @@ export const Relatorios = () => {
       setShowWhatsAppModal(false);
       setTelefoneDestino('');
       setMensagemPersonalizada('');
+      setModeloSelecionado('');
     } catch (error) {
       console.error('Erro ao enviar WhatsApp:', error);
       toast({
@@ -609,7 +654,7 @@ export const Relatorios = () => {
         />
 
         <Dialog open={showWhatsAppModal} onOpenChange={setShowWhatsAppModal}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Enviar Relatório por WhatsApp</DialogTitle>
             </DialogHeader>
@@ -643,14 +688,36 @@ export const Relatorios = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mensagem">Mensagem (opcional)</Label>
+                <Label htmlFor="modelo">Modelo de Mensagem</Label>
+                <Select value={modeloSelecionado} onValueChange={setModeloSelecionado}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um modelo ou escreva personalizada" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="personalizada">Mensagem Personalizada</SelectItem>
+                    {modelos.filter(m => m.ativo).map((modelo) => (
+                      <SelectItem key={modelo.id} value={modelo.id}>
+                        {modelo.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mensagem">Mensagem</Label>
                 <Textarea
                   id="mensagem"
                   value={mensagemPersonalizada}
                   onChange={(e) => setMensagemPersonalizada(e.target.value)}
-                  placeholder="Digite uma mensagem personalizada ou deixe vazio para usar a mensagem padrão"
-                  rows={4}
+                  placeholder="Digite uma mensagem personalizada ou selecione um modelo acima"
+                  rows={6}
                 />
+                {modeloSelecionado && modeloSelecionado !== 'personalizada' && (
+                  <p className="text-sm text-muted-foreground">
+                    Mensagem foi preenchida com base no modelo selecionado. Você pode editá-la se necessário.
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-2 justify-end">

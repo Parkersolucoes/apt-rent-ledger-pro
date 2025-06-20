@@ -1,3 +1,4 @@
+
 import {
   Calendar,
   Home,
@@ -9,6 +10,7 @@ import {
   Plus,
   List,
   FileText,
+  MessageCircle,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -79,6 +81,11 @@ const menuItems = [
     title: "Relatórios",
     url: "/relatorios",
     icon: FileText,
+  },
+  {
+    title: "Modelos de Mensagem",
+    url: "/modelos-mensagem",
+    icon: MessageCircle,
   },
   {
     title: "Configurações",

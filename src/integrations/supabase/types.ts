@@ -174,6 +174,39 @@ export type Database = {
         }
         Relationships: []
       }
+      modelos_mensagem: {
+        Row: {
+          ativo: boolean
+          conteudo: string
+          created_at: string
+          id: string
+          nome: string
+          titulo: string
+          updated_at: string
+          variaveis: string[] | null
+        }
+        Insert: {
+          ativo?: boolean
+          conteudo: string
+          created_at?: string
+          id?: string
+          nome: string
+          titulo: string
+          updated_at?: string
+          variaveis?: string[] | null
+        }
+        Update: {
+          ativo?: boolean
+          conteudo?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          titulo?: string
+          updated_at?: string
+          variaveis?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
