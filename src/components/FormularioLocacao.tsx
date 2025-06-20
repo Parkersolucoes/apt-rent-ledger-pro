@@ -134,7 +134,7 @@ export const FormularioLocacao = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 p-4">
+    <div className="min-h-screen gradient-bg-page p-4">
       <div className="max-w-4xl mx-auto">
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
@@ -189,7 +189,7 @@ export const FormularioLocacao = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 text-lg shadow-lg">
+              <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
                 Cadastrar Locação
               </Button>
             </form>
