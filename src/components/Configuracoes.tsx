@@ -1,29 +1,46 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Webhook, Save, TestTube, Upload } from 'lucide-react';
+import { Webhook, Save, TestTube, Upload, Mail, Eye, EyeOff } from 'lucide-react';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 
 export const Configuracoes = () => {
   const [webhookUrlInput, setWebhookUrlInput] = useState('');
   const [isTesting, setIsTesting] = useState(false);
+  const [mostrarSenhaSMTP, setMostrarSenhaSMTP] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { logoUrl, webhookUrl, salvarLogo, salvarWebhook, isLoading } = useConfiguracoes();
+  const { logoUrl, webhookUrl, configSMTP, salvarLogo, salvarWebhook, salvarConfigSMTP, isLoading } = useConfiguracoes();
 
-  // Sincronizar o input com o valor do hook quando carregado
-  useState(() => {
+  const [smtpForm, setSMTPForm] = useState({
+    host: '',
+    port: 587,
+    usuario: '',
+    senha: '',
+    emailRemetente: '',
+    nomeRemetente: ''
+  });
+
+  // Sincronizar os inputs com os valores dos hooks quando carregados
+  useEffect(() => {
     if (webhookUrl && !webhookUrlInput) {
       setWebhookUrlInput(webhookUrl);
     }
-  });
+    if (configSMTP.host) {
+      setSMTPForm(configSMTP);
+    }
+  }, [webhookUrl, webhookUrlInput, configSMTP]);
 
-  const handleSave = async () => {
+  const handleSaveWebhook = async () => {
     await salvarWebhook(webhookUrlInput);
+  };
+
+  const handleSaveSMTP = async () => {
+    await salvarConfigSMTP(smtpForm);
   };
 
   const handleTest = async () => {
@@ -80,7 +97,6 @@ export const Configuracoes = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validar tipo de arquivo
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
       toast({
@@ -91,7 +107,6 @@ export const Configuracoes = () => {
       return;
     }
 
-    // Validar tamanho (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Erro",
@@ -118,13 +133,13 @@ export const Configuracoes = () => {
               Configurações do Sistema
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="p-6 space-y-8">
             {/* Configuração da Logo */}
             <div className="space-y-4">
               <div>
                 <Label className="font-semibold text-lg">Logo da Empresa</Label>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Faça upload da logo da sua empresa. Será exibida na tela principal do sistema.
+                  Faça upload da logo da sua empresa. Será exibida na tela principal do sistema e nos relatórios.
                 </p>
                 
                 <div className="flex items-center gap-4">
@@ -164,8 +179,120 @@ export const Configuracoes = () => {
               </div>
             </div>
 
+            {/* Configuração SMTP */}
+            <div className="space-y-4 border-t pt-6">
+              <div>
+                <Label className="font-semibold text-lg flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Configurações de Email (SMTP)
+                </Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure seus dados SMTP para envio de relatórios por email.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="smtp-host">Servidor SMTP *</Label>
+                    <Input
+                      id="smtp-host"
+                      value={smtpForm.host}
+                      onChange={(e) => setSMTPForm({...smtpForm, host: e.target.value})}
+                      placeholder="smtp.gmail.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="smtp-port">Porta</Label>
+                    <Input
+                      id="smtp-port"
+                      type="number"
+                      value={smtpForm.port}
+                      onChange={(e) => setSMTPForm({...smtpForm, port: parseInt(e.target.value) || 587})}
+                      placeholder="587"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="smtp-usuario">Usuário/Email *</Label>
+                    <Input
+                      id="smtp-usuario"
+                      value={smtpForm.usuario}
+                      onChange={(e) => setSMTPForm({...smtpForm, usuario: e.target.value})}
+                      placeholder="seu@email.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="smtp-senha">Senha *</Label>
+                    <div className="relative">
+                      <Input
+                        id="smtp-senha"
+                        type={mostrarSenhaSMTP ? "text" : "password"}
+                        value={smtpForm.senha}
+                        onChange={(e) => setSMTPForm({...smtpForm, senha: e.target.value})}
+                        placeholder="Sua senha SMTP"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setMostrarSenhaSMTP(!mostrarSenhaSMTP)}
+                      >
+                        {mostrarSenhaSMTP ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="smtp-email-remetente">Email Remetente *</Label>
+                    <Input
+                      id="smtp-email-remetente"
+                      value={smtpForm.emailRemetente}
+                      onChange={(e) => setSMTPForm({...smtpForm, emailRemetente: e.target.value})}
+                      placeholder="noreply@suaempresa.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="smtp-nome-remetente">Nome do Remetente</Label>
+                    <Input
+                      id="smtp-nome-remetente"
+                      value={smtpForm.nomeRemetente}
+                      onChange={(e) => setSMTPForm({...smtpForm, nomeRemetente: e.target.value})}
+                      placeholder="Sistema de Locações"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Button 
+                    onClick={handleSaveSMTP}
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    Salvar Configurações SMTP
+                  </Button>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg mt-4">
+                  <h4 className="font-semibold mb-2">Configurações comuns:</h4>
+                  <div className="text-sm space-y-1 text-muted-foreground">
+                    <p><strong>Gmail:</strong> smtp.gmail.com:587 (Use senha de app)</p>
+                    <p><strong>Outlook/Hotmail:</strong> smtp-mail.outlook.com:587</p>
+                    <p><strong>Yahoo:</strong> smtp.mail.yahoo.com:587</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Configuração do Webhook */}
-            <div className="space-y-4">
+            <div className="space-y-4 border-t pt-6">
               <div>
                 <Label htmlFor="webhook" className="font-semibold text-lg">
                   URL do Webhook
@@ -195,7 +322,7 @@ export const Configuracoes = () => {
 
               <div className="flex gap-3">
                 <Button 
-                  onClick={handleSave}
+                  onClick={handleSaveWebhook}
                   disabled={isLoading}
                   className="flex items-center gap-2"
                 >

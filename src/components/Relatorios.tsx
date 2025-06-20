@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { useDespesas } from '@/hooks/useDespesas';
+import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { CalendarIcon, FileText, Mail, Download } from 'lucide-react';
 import { RelatorioDetalhado } from './Relatorios/RelatorioDetalhado';
@@ -25,6 +25,7 @@ interface FiltrosRelatorio {
 export const Relatorios = () => {
   const { locacoes, obterApartamentos } = useLocacoes();
   const { despesas } = useDespesas();
+  const { logoUrl } = useConfiguracoes();
   const { toast } = useToast();
   
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({
@@ -47,7 +48,33 @@ export const Relatorios = () => {
   };
 
   const exportarPDF = () => {
+    // Aplicar estilos específicos para impressão
+    const style = document.createElement('style');
+    style.textContent = `
+      @media print {
+        body * { visibility: hidden; }
+        .relatorio-impressao, .relatorio-impressao * { visibility: visible; }
+        .relatorio-impressao { position: absolute; left: 0; top: 0; width: 100%; }
+        @page { size: A4; margin: 1cm; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Adicionar classe para impressão
+    const relatorioElement = document.querySelector('.relatorio-detalhado');
+    if (relatorioElement) {
+      relatorioElement.classList.add('relatorio-impressao');
+    }
+    
     window.print();
+    
+    // Remover estilos após impressão
+    setTimeout(() => {
+      document.head.removeChild(style);
+      if (relatorioElement) {
+        relatorioElement.classList.remove('relatorio-impressao');
+      }
+    }, 1000);
   };
 
   const enviarPorEmail = async () => {
@@ -83,7 +110,7 @@ export const Relatorios = () => {
       console.error('Erro ao enviar email:', error);
       toast({
         title: "Erro ao enviar email",
-        description: "Verifique se o email está correto e tente novamente.",
+        description: "Verifique as configurações de SMTP na aba Configurações.",
         variant: "destructive",
       });
     } finally {
@@ -274,16 +301,19 @@ export const Relatorios = () => {
 
         {/* Relatório Detalhado */}
         {mostrarRelatorio && (
-          <RelatorioDetalhado 
-            apartamento={filtros.apartamento}
-            dataInicio={filtros.dataInicio}
-            dataFim={filtros.dataFim}
-            locacoes={locacoesPeriodo}
-            despesas={despesasPeriodo}
-            totalReceitas={totalReceitas}
-            totalDespesas={totalDespesas}
-            lucroLiquido={lucroLiquido}
-          />
+          <div className="relatorio-detalhado">
+            <RelatorioDetalhado 
+              apartamento={filtros.apartamento}
+              dataInicio={filtros.dataInicio}
+              dataFim={filtros.dataFim}
+              locacoes={locacoesPeriodo}
+              despesas={despesasPeriodo}
+              totalReceitas={totalReceitas}
+              totalDespesas={totalDespesas}
+              lucroLiquido={lucroLiquido}
+              logoUrl={logoUrl}
+            />
+          </div>
         )}
       </div>
     </div>
