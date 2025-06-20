@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -131,11 +132,13 @@ export const Relatorios = () => {
     const contentWidth = pageWidth - (margin * 2);
     
     let yPosition = margin;
+    let currentPage = 1;
 
     // Função auxiliar para adicionar nova página se necessário
     const checkAndAddPage = (requiredSpace: number) => {
       if (yPosition + requiredSpace > pageHeight - 25) {
         doc.addPage();
+        currentPage++;
         yPosition = margin;
         return true;
       }
@@ -523,7 +526,7 @@ export const Relatorios = () => {
     doc.setFont('helvetica', 'normal');
     
     doc.text('Relatório gerado automaticamente pelo Sistema de Gestão de Locações', pageWidth / 2, yPosition + 8, { align: 'center' });
-    doc.text(`${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} | Página ${doc.internal.getNumberOfPages()}`, 
+    doc.text(`${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} | Página ${currentPage}`, 
       pageWidth / 2, yPosition + 15, { align: 'center' });
 
     return doc;
