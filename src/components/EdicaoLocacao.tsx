@@ -25,8 +25,6 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
   const { obterNumerosApartamentos } = useApartamentos();
   const [formData, setFormData] = useState({
     apartamento: '',
-    ano: new Date().getFullYear(),
-    mes: new Date().getMonth() + 1,
     hospede: '',
     telefone: '',
     dataEntrada: '',
@@ -50,8 +48,6 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
     if (locacao) {
       setFormData({
         apartamento: locacao.apartamento,
-        ano: locacao.ano,
-        mes: locacao.mes,
         hospede: locacao.hospede,
         telefone: locacao.telefone || '',
         dataEntrada: formatDateForInput(locacao.dataEntrada),
@@ -142,13 +138,18 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
     const valorFaltando = valorTotal - primeiroPagamento - segundoPagamento;
     const comissao = calcularComissao(valorLocacao, taxaLimpeza);
 
+    // Calculate ano and mes from dataEntrada
+    const dataEntrada = parseDateInput(formData.dataEntrada);
+    const ano = dataEntrada.getFullYear();
+    const mes = dataEntrada.getMonth() + 1;
+
     await atualizarLocacao(locacao.id, {
       apartamento: formData.apartamento,
-      ano: formData.ano,
-      mes: formData.mes,
+      ano: ano,
+      mes: mes,
       hospede: formData.hospede,
       telefone: formData.telefone || undefined,
-      dataEntrada: parseDateInput(formData.dataEntrada),
+      dataEntrada: dataEntrada,
       dataSaida: parseDateInput(formData.dataSaida),
       valorLocacao,
       primeiroPagamento,
@@ -184,14 +185,10 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
         <form onSubmit={handleSubmit} className="space-y-6">
           <CamposBasicos
             apartamento={formData.apartamento}
-            ano={formData.ano}
-            mes={formData.mes}
             hospede={formData.hospede}
             telefone={formData.telefone}
             apartamentosDisponiveis={apartamentosDisponiveis}
             onApartamentoChange={(value) => setFormData({...formData, apartamento: value})}
-            onAnoChange={(value) => setFormData({...formData, ano: value})}
-            onMesChange={(value) => setFormData({...formData, mes: value})}
             onHospedeChange={(value) => setFormData({...formData, hospede: value})}
             onTelefoneChange={(value) => setFormData({...formData, telefone: value})}
           />
