@@ -7,23 +7,23 @@
 
 @layer base {
   :root {
-    --background: 15 23 42; /* slate-900 - fundo escuro */
-    --foreground: 248 250 252; /* slate-50 - texto claro */
+    --background: 219 234 254; /* blue-50 - fundo claro azul */
+    --foreground: 30 58 138; /* blue-900 - texto escuro */
 
-    --card: 30 41 59; /* slate-800 */
-    --card-foreground: 248 250 252; /* slate-50 */
+    --card: 243 244 246; /* gray-100 - cards claros */
+    --card-foreground: 30 58 138; /* blue-900 */
 
-    --popover: 30 41 59; /* slate-800 */
-    --popover-foreground: 248 250 252; /* slate-50 */
+    --popover: 243 244 246; /* gray-100 */
+    --popover-foreground: 30 58 138; /* blue-900 */
 
     --primary: 37 99 235; /* blue-600 */
     --primary-foreground: 248 250 252; /* slate-50 */
 
-    --secondary: 51 65 85; /* slate-700 */
-    --secondary-foreground: 226 232 240; /* slate-200 */
+    --secondary: 186 230 253; /* sky-200 */
+    --secondary-foreground: 30 58 138; /* blue-900 */
 
-    --muted: 51 65 85; /* slate-700 */
-    --muted-foreground: 148 163 184; /* slate-400 */
+    --muted: 186 230 253; /* sky-200 */
+    --muted-foreground: 71 85 105; /* slate-600 */
 
     --accent: 59 130 246; /* blue-500 */
     --accent-foreground: 248 250 252; /* slate-50 */
@@ -31,40 +31,40 @@
     --destructive: 185 28 28; /* red-800 */
     --destructive-foreground: 248 250 252; /* slate-50 */
 
-    --border: 71 85 105; /* slate-600 */
-    --input: 71 85 105; /* slate-600 */
+    --border: 147 197 253; /* blue-300 */
+    --input: 147 197 253; /* blue-300 */
     --ring: 59 130 246; /* blue-500 */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 15 23 42; /* slate-900 */
-    --sidebar-foreground: 248 250 252; /* slate-50 */
+    --sidebar-background: 219 234 254; /* blue-50 */
+    --sidebar-foreground: 30 58 138; /* blue-900 */
     --sidebar-primary: 37 99 235; /* blue-600 */
     --sidebar-primary-foreground: 248 250 252; /* slate-50 */
-    --sidebar-accent: 51 65 85; /* slate-700 */
-    --sidebar-accent-foreground: 226 232 240; /* slate-200 */
-    --sidebar-border: 71 85 105; /* slate-600 */
+    --sidebar-accent: 186 230 253; /* sky-200 */
+    --sidebar-accent-foreground: 30 58 138; /* blue-900 */
+    --sidebar-border: 147 197 253; /* blue-300 */
     --sidebar-ring: 59 130 246; /* blue-500 */
   }
 
   .dark {
-    --background: 2 6 23; /* slate-950 */
-    --foreground: 248 250 252; /* slate-50 */
+    --background: 219 234 254; /* blue-50 - mantém o tom claro mesmo no modo escuro */
+    --foreground: 30 58 138; /* blue-900 */
 
-    --card: 15 23 42; /* slate-900 */
-    --card-foreground: 248 250 252; /* slate-50 */
+    --card: 243 244 246; /* gray-100 */
+    --card-foreground: 30 58 138; /* blue-900 */
 
-    --popover: 15 23 42; /* slate-900 */
-    --popover-foreground: 248 250 252; /* slate-50 */
+    --popover: 243 244 246; /* gray-100 */
+    --popover-foreground: 30 58 138; /* blue-900 */
 
     --primary: 59 130 246; /* blue-500 */
-    --primary-foreground: 2 6 23; /* slate-950 */
+    --primary-foreground: 248 250 252; /* slate-50 */
 
-    --secondary: 30 41 59; /* slate-800 */
-    --secondary-foreground: 248 250 252; /* slate-50 */
+    --secondary: 186 230 253; /* sky-200 */
+    --secondary-foreground: 30 58 138; /* blue-900 */
 
-    --muted: 30 41 59; /* slate-800 */
-    --muted-foreground: 148 163 184; /* slate-400 */
+    --muted: 186 230 253; /* sky-200 */
+    --muted-foreground: 71 85 105; /* slate-600 */
 
     --accent: 37 99 235; /* blue-600 */
     --accent-foreground: 248 250 252; /* slate-50 */
@@ -72,17 +72,17 @@
     --destructive: 185 28 28; /* red-800 */
     --destructive-foreground: 248 250 252; /* slate-50 */
 
-    --border: 30 41 59; /* slate-800 */
-    --input: 30 41 59; /* slate-800 */
+    --border: 147 197 253; /* blue-300 */
+    --input: 147 197 253; /* blue-300 */
     --ring: 59 130 246; /* blue-500 */
 
-    --sidebar-background: 2 6 23; /* slate-950 */
-    --sidebar-foreground: 248 250 252; /* slate-50 */
+    --sidebar-background: 219 234 254; /* blue-50 */
+    --sidebar-foreground: 30 58 138; /* blue-900 */
     --sidebar-primary: 59 130 246; /* blue-500 */
-    --sidebar-primary-foreground: 2 6 23; /* slate-950 */
-    --sidebar-accent: 30 41 59; /* slate-800 */
-    --sidebar-accent-foreground: 248 250 252; /* slate-50 */
-    --sidebar-border: 30 41 59; /* slate-800 */
+    --sidebar-primary-foreground: 248 250 252; /* slate-50 */
+    --sidebar-accent: 186 230 253; /* sky-200 */
+    --sidebar-accent-foreground: 30 58 138; /* blue-900 */
+    --sidebar-border: 147 197 253; /* blue-300 */
     --sidebar-ring: 59 130 246; /* blue-500 */
   }
 }
@@ -99,18 +99,18 @@
 
 /* Custom gradient backgrounds for enhanced visual appeal */
 .gradient-bg-primary {
-  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .gradient-bg-secondary {
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
 }
 
 .gradient-bg-page {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
 }
 
-/* Dark card background with subtle blue tint */
+/* Light card background with subtle blue tint */
 .gradient-bg-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
