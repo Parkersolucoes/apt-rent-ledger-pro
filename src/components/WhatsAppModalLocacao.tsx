@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,75 +7,81 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CampoTelefone } from '@/components/CampoTelefone';
 import { Send } from 'lucide-react';
-import { FiltrosLocacao } from '@/types/locacao';
-import { Apartamento } from '@/types/apartamento';
 import { ModeloMensagem } from '@/types/modeloMensagem';
+import { Locacao } from '@/types/locacao';
+import { Apartamento } from '@/types/apartamento';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 
-interface WhatsAppModalProps {
+interface WhatsAppModalLocacaoProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  filtros: FiltrosLocacao;
+  locacao: Locacao | null;
   apartamentos: Apartamento[];
   modelos: ModeloMensagem[];
+  onProcessarTemplate: (template: string, variaveis: Record<string, string>) => string;
   onEnviar: (telefone: string, mensagem: string) => Promise<void>;
-  onProcessarTemplate: (template: string, variaveis: Record<string, string>) => Promise<string>;
-  gerarVariaveisTemplate: () => Record<string, string>;
   enviando: boolean;
 }
 
-export const WhatsAppModal = ({
+export const WhatsAppModalLocacao = ({
   open,
   onOpenChange,
-  filtros,
+  locacao,
   apartamentos,
   modelos,
-  onEnviar,
   onProcessarTemplate,
-  gerarVariaveisTemplate,
+  onEnviar,
   enviando
-}: WhatsAppModalProps) => {
+}: WhatsAppModalLocacaoProps) => {
   const [telefoneDestino, setTelefoneDestino] = useState('');
   const [mensagemPersonalizada, setMensagemPersonalizada] = useState('');
   const [modeloSelecionado, setModeloSelecionado] = useState('');
 
-  // Efeito para preencher automaticamente o telefone quando um apartamento for selecionado
+  // Preencher automaticamente o telefone do hóspede quando o modal abrir
   useEffect(() => {
-    if (filtros.apartamento && open) {
-      const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
-      if (apartamento?.telefoneProprietario && !telefoneDestino) {
-        setTelefoneDestino(apartamento.telefoneProprietario);
-      }
+    if (open && locacao?.telefone) {
+      setTelefoneDestino(locacao.telefone);
     }
-  }, [filtros.apartamento, open, apartamentos, telefoneDestino]);
+  }, [open, locacao]);
 
-  // Efeito para atualizar mensagem quando modelo for selecionado
-  useEffect(() => {
-    const processarMensagem = async () => {
-      if (modeloSelecionado && modeloSelecionado !== 'personalizada') {
-        const modelo = modelos.find(m => m.id === modeloSelecionado);
-        if (modelo) {
-          const variaveis = gerarVariaveisTemplate();
-          const mensagemProcessada = await onProcessarTemplate(modelo.conteudo, variaveis);
-          setMensagemPersonalizada(mensagemProcessada);
-        }
-      } else if (modeloSelecionado === 'personalizada') {
-        setMensagemPersonalizada('');
-      }
+  // Gerar variáveis do template baseado na locação
+  const gerarVariaveisTemplate = (): Record<string, string> => {
+    if (!locacao) return {};
+
+    const apartamento = apartamentos.find(apt => apt.numero === locacao.apartamento);
+    const valorTotal = locacao.valorLocacao + locacao.taxaLimpeza;
+
+    return {
+      hospede: locacao.hospede || '',
+      apartamento: locacao.apartamento || '',
+      data_entrada: formatDate(locacao.dataEntrada),
+      data_saida: formatDate(locacao.dataSaida),
+      valor_total: formatCurrency(valorTotal),
+      comissao_total: formatCurrency(locacao.comissao || 0),
+      limpeza_total: formatCurrency(locacao.taxaLimpeza || 0),
+      valor_proprietario: formatCurrency(locacao.valorProprietario || 0),
+      descricao_apartamento: apartamento?.descricao || 'Apartamento confortável e bem localizado.',
+      nome_proprietario: apartamento?.proprietario || ''
     };
-
-    processarMensagem();
-  }, [modeloSelecionado, modelos, onProcessarTemplate, gerarVariaveisTemplate]);
-
-  const preencherTelefoneProprietario = () => {
-    if (filtros.apartamento) {
-      const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
-      if (apartamento?.telefoneProprietario) {
-        setTelefoneDestino(apartamento.telefoneProprietario);
-      }
-    }
   };
 
+  // Atualizar mensagem quando modelo for selecionado
+  useEffect(() => {
+    if (modeloSelecionado && modeloSelecionado !== 'personalizada') {
+      const modelo = modelos.find(m => m.id === modeloSelecionado);
+      if (modelo) {
+        const variaveis = gerarVariaveisTemplate();
+        const mensagemProcessada = onProcessarTemplate(modelo.conteudo, variaveis);
+        setMensagemPersonalizada(mensagemProcessada);
+      }
+    } else if (modeloSelecionado === 'personalizada') {
+      setMensagemPersonalizada('');
+    }
+  }, [modeloSelecionado, modelos, onProcessarTemplate, locacao]);
+
   const handleEnviar = async () => {
+    if (!mensagemPersonalizada.trim() || !telefoneDestino.trim()) return;
+    
     await onEnviar(telefoneDestino, mensagemPersonalizada);
     onOpenChange(false);
     setTelefoneDestino('');
@@ -84,18 +91,10 @@ export const WhatsAppModal = ({
 
   const handleOpenChange = (newOpen: boolean) => {
     onOpenChange(newOpen);
-    if (newOpen) {
-      // Resetar seleções ao abrir modal
+    if (!newOpen) {
       setModeloSelecionado('');
       setMensagemPersonalizada('');
-      
-      // Preencher automaticamente o telefone se um apartamento estiver selecionado
-      if (filtros.apartamento) {
-        const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
-        if (apartamento?.telefoneProprietario) {
-          setTelefoneDestino(apartamento.telefoneProprietario);
-        }
-      }
+      setTelefoneDestino('');
     }
   };
 
@@ -103,20 +102,11 @@ export const WhatsAppModal = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Enviar Relatório por WhatsApp</DialogTitle>
+          <DialogTitle>Enviar Confirmação por WhatsApp</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="telefone">Número do WhatsApp</Label>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={preencherTelefoneProprietario}
-              >
-                Usar telefone do proprietário
-              </Button>
-            </div>
+            <Label htmlFor="telefone">Número do WhatsApp</Label>
             <CampoTelefone
               label=""
               value={telefoneDestino}
@@ -124,12 +114,9 @@ export const WhatsAppModal = ({
               placeholder="(00) 00000-0000"
               required
             />
-            {filtros.apartamento && (
+            {locacao?.telefone && (
               <p className="text-sm text-muted-foreground">
-                {apartamentos.find(apt => apt.numero === filtros.apartamento)?.telefoneProprietario
-                  ? `Telefone do proprietário será preenchido automaticamente para o apartamento ${filtros.apartamento}`
-                  : `Apartamento ${filtros.apartamento} não possui telefone do proprietário cadastrado`
-                }
+                Telefone do hóspede preenchido automaticamente
               </p>
             )}
           </div>
@@ -158,7 +145,7 @@ export const WhatsAppModal = ({
               value={mensagemPersonalizada}
               onChange={(e) => setMensagemPersonalizada(e.target.value)}
               placeholder="Digite uma mensagem personalizada ou selecione um modelo acima"
-              rows={6}
+              rows={8}
             />
             {modeloSelecionado && modeloSelecionado !== 'personalizada' && (
               <p className="text-sm text-muted-foreground">
@@ -169,9 +156,12 @@ export const WhatsAppModal = ({
 
           <div className="flex gap-2 justify-end">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              Pular
             </Button>
-            <Button onClick={handleEnviar} disabled={enviando}>
+            <Button 
+              onClick={handleEnviar} 
+              disabled={enviando || !mensagemPersonalizada.trim() || !telefoneDestino.trim()}
+            >
               <Send className="h-4 w-4 mr-2" />
               {enviando ? 'Enviando...' : 'Enviar'}
             </Button>

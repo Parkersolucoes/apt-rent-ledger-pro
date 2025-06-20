@@ -27,4 +27,9 @@ export interface VariaveisTemplate {
   valor_proprietario?: string;
   total_locacoes?: string;
   periodo?: string;
+  despesas_periodo?: string;
+  hospede?: string;
+  data_entrada?: string;
+  data_saida?: string;
+  descricao_apartamento?: string;
 }

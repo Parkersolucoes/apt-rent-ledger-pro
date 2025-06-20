@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { useApartamentos } from '@/hooks/useApartamentos';
+import { useModelosMensagem } from '@/hooks/useModelosMensagem';
 import { useWebhook } from '@/hooks/useWebhook';
 import { parseDateInput, calcularComissao, calcularValorProprietario } from '@/utils/formatters';
 import { toast } from '@/hooks/use-toast';
@@ -16,13 +16,22 @@ import { CamposValores } from './FormularioLocacao/CamposValores';
 import { CamposCalculados } from './FormularioLocacao/CamposCalculados';
 import { CamposPagamento } from './FormularioLocacao/CamposPagamento';
 import { ConfirmacaoNovoRegistro } from './ConfirmacaoNovoRegistro';
+import { WhatsAppModalLocacao } from './WhatsAppModalLocacao';
+import { Locacao } from '@/types/locacao';
+import { enviarPDFWhatsApp, formatarTelefone } from '@/utils/whatsapp';
+import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 
 export const FormularioLocacao = () => {
   const { adicionarLocacao } = useLocacoes();
-  const { obterNumerosApartamentos } = useApartamentos();
+  const { obterNumerosApartamentos, apartamentos } = useApartamentos();
+  const { modelos, processarTemplate } = useModelosMensagem();
+  const { configuracoes } = useConfiguracoes();
   const { sendLocacaoCriada } = useWebhook();
   const navigate = useNavigate();
   const [showConfirmacao, setShowConfirmacao] = useState(false);
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [locacaoCadastrada, setLocacaoCadastrada] = useState<Locacao | null>(null);
+  const [enviandoWhatsApp, setEnviandoWhatsApp] = useState(false);
   
   const [formData, setFormData] = useState({
     apartamento: '',
@@ -110,6 +119,59 @@ export const FormularioLocacao = () => {
     });
   };
 
+  const handleEnviarWhatsApp = async (telefone: string, mensagem: string) => {
+    setEnviandoWhatsApp(true);
+    try {
+      const whatsappConfig = {
+        apiUrl: configuracoes.evolution_api_url || '',
+        apiKey: configuracoes.evolution_api_key || '',
+        instanceName: configuracoes.evolution_instance_name || ''
+      };
+
+      if (!whatsappConfig.apiUrl || !whatsappConfig.apiKey || !whatsappConfig.instanceName) {
+        toast({
+          title: "Configuração Incompleta",
+          description: "Configure a API do WhatsApp nas configurações do sistema",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const telefoneFormatado = formatarTelefone(telefone);
+      
+      // Como não temos PDF neste contexto, enviamos apenas a mensagem
+      const response = await fetch(`${whatsappConfig.apiUrl}/message/sendText/${whatsappConfig.instanceName}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': whatsappConfig.apiKey
+        },
+        body: JSON.stringify({
+          number: telefoneFormatado,
+          text: mensagem
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao enviar mensagem');
+      }
+
+      toast({
+        title: "Sucesso!",
+        description: "Mensagem enviada via WhatsApp",
+      });
+    } catch (error) {
+      console.error('Erro ao enviar WhatsApp:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar mensagem via WhatsApp",
+        variant: "destructive"
+      });
+    } finally {
+      setEnviandoWhatsApp(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -159,7 +221,7 @@ export const FormularioLocacao = () => {
     };
 
     try {
-      await adicionarLocacao(novaLocacao);
+      const locacaoAdicionada = await adicionarLocacao(novaLocacao);
 
       // Enviar webhook de nova locação
       sendLocacaoCriada({
@@ -168,7 +230,8 @@ export const FormularioLocacao = () => {
         createdAt: new Date()
       });
 
-      // Mostrar diálogo de confirmação em vez de toast e reset direto
+      // Armazenar a locação cadastrada e mostrar confirmação
+      setLocacaoCadastrada(locacaoAdicionada);
       setShowConfirmacao(true);
     } catch (error) {
       toast({
@@ -181,6 +244,7 @@ export const FormularioLocacao = () => {
 
   const handleNovoRegistro = () => {
     setShowConfirmacao(false);
+    setLocacaoCadastrada(null);
     resetForm();
     toast({
       title: "Pronto!",
@@ -190,7 +254,13 @@ export const FormularioLocacao = () => {
 
   const handleIrParaLista = () => {
     setShowConfirmacao(false);
+    setLocacaoCadastrada(null);
     navigate('/locacoes');
+  };
+
+  const handleEnviarWhatsAppConfirmacao = () => {
+    setShowConfirmacao(false);
+    setShowWhatsApp(true);
   };
 
   return (
@@ -297,6 +367,19 @@ export const FormularioLocacao = () => {
         descricao="A locação foi salva no sistema e está disponível na lista de locações."
         onNovoRegistro={handleNovoRegistro}
         onIrParaLista={handleIrParaLista}
+        showWhatsAppButton
+        onEnviarWhatsApp={handleEnviarWhatsAppConfirmacao}
+      />
+
+      <WhatsAppModalLocacao
+        open={showWhatsApp}
+        onOpenChange={setShowWhatsApp}
+        locacao={locacaoCadastrada}
+        apartamentos={apartamentos}
+        modelos={modelos}
+        onProcessarTemplate={processarTemplate}
+        onEnviar={handleEnviarWhatsApp}
+        enviando={enviandoWhatsApp}
       />
     </div>
   );

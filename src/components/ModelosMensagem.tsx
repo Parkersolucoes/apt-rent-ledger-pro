@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Eye, Copy } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useModelosMensagem } from '@/hooks/useModelosMensagem';
-import { ModeloMensagem, NovoModeloMensagem, VariaveisTemplate } from '@/types/modeloMensagem';
+import { ModeloMensagem, NovoModeloMensagem } from '@/types/modeloMensagem';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +30,12 @@ const variaveisDisponiveis = [
   'limpeza_total',
   'valor_proprietario',
   'total_locacoes',
-  'periodo'
+  'periodo',
+  'despesas_periodo',
+  'hospede',
+  'data_entrada',
+  'data_saida',
+  'descricao_apartamento'
 ];
 
 export const ModelosMensagem = () => {
