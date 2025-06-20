@@ -28,6 +28,7 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
     ano: new Date().getFullYear(),
     mes: new Date().getMonth() + 1,
     hospede: '',
+    telefone: '',
     dataEntrada: '',
     dataSaida: '',
     valorLocacao: '',
@@ -52,6 +53,7 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
         ano: locacao.ano,
         mes: locacao.mes,
         hospede: locacao.hospede,
+        telefone: locacao.telefone || '',
         dataEntrada: formatDateForInput(locacao.dataEntrada),
         dataSaida: formatDateForInput(locacao.dataSaida),
         valorLocacao: locacao.valorLocacao.toLocaleString('pt-BR', {
@@ -145,6 +147,7 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
       ano: formData.ano,
       mes: formData.mes,
       hospede: formData.hospede,
+      telefone: formData.telefone || undefined,
       dataEntrada: parseDateInput(formData.dataEntrada),
       dataSaida: parseDateInput(formData.dataSaida),
       valorLocacao,
@@ -184,11 +187,13 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
             ano={formData.ano}
             mes={formData.mes}
             hospede={formData.hospede}
+            telefone={formData.telefone}
             apartamentosDisponiveis={apartamentosDisponiveis}
             onApartamentoChange={(value) => setFormData({...formData, apartamento: value})}
             onAnoChange={(value) => setFormData({...formData, ano: value})}
             onMesChange={(value) => setFormData({...formData, mes: value})}
             onHospedeChange={(value) => setFormData({...formData, hospede: value})}
+            onTelefoneChange={(value) => setFormData({...formData, telefone: value})}
           />
 
           <CamposDatas
