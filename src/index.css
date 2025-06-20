@@ -3,86 +3,86 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Sistema de cores profissional com tons azuis discretos */
 
 @layer base {
   :root {
-    --background: 219 234 254; /* blue-50 - fundo claro azul */
-    --foreground: 30 58 138; /* blue-900 - texto escuro */
+    --background: 248 250 252; /* slate-50 - fundo bem claro e limpo */
+    --foreground: 30 41 59; /* slate-700 - texto principal escuro */
 
-    --card: 243 244 246; /* gray-100 - cards claros */
-    --card-foreground: 30 58 138; /* blue-900 */
+    --card: 255 255 255; /* white - cards limpos */
+    --card-foreground: 30 41 59; /* slate-700 */
 
-    --popover: 243 244 246; /* gray-100 */
-    --popover-foreground: 30 58 138; /* blue-900 */
+    --popover: 255 255 255; /* white */
+    --popover-foreground: 30 41 59; /* slate-700 */
 
-    --primary: 37 99 235; /* blue-600 */
+    --primary: 59 130 246; /* blue-500 - azul profissional */
     --primary-foreground: 248 250 252; /* slate-50 */
 
-    --secondary: 186 230 253; /* sky-200 */
-    --secondary-foreground: 30 58 138; /* blue-900 */
+    --secondary: 241 245 249; /* slate-100 - cinza muito suave */
+    --secondary-foreground: 51 65 85; /* slate-600 */
 
-    --muted: 186 230 253; /* sky-200 */
-    --muted-foreground: 71 85 105; /* slate-600 */
+    --muted: 248 250 252; /* slate-50 */
+    --muted-foreground: 100 116 139; /* slate-500 */
 
     --accent: 59 130 246; /* blue-500 */
     --accent-foreground: 248 250 252; /* slate-50 */
 
-    --destructive: 185 28 28; /* red-800 */
+    --destructive: 239 68 68; /* red-500 */
     --destructive-foreground: 248 250 252; /* slate-50 */
 
-    --border: 147 197 253; /* blue-300 */
-    --input: 147 197 253; /* blue-300 */
+    --border: 226 232 240; /* slate-200 - bordas sutis */
+    --input: 226 232 240; /* slate-200 */
     --ring: 59 130 246; /* blue-500 */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 219 234 254; /* blue-50 */
-    --sidebar-foreground: 30 58 138; /* blue-900 */
-    --sidebar-primary: 37 99 235; /* blue-600 */
+    --sidebar-background: 248 250 252; /* slate-50 */
+    --sidebar-foreground: 30 41 59; /* slate-700 */
+    --sidebar-primary: 59 130 246; /* blue-500 */
     --sidebar-primary-foreground: 248 250 252; /* slate-50 */
-    --sidebar-accent: 186 230 253; /* sky-200 */
-    --sidebar-accent-foreground: 30 58 138; /* blue-900 */
-    --sidebar-border: 147 197 253; /* blue-300 */
+    --sidebar-accent: 241 245 249; /* slate-100 */
+    --sidebar-accent-foreground: 30 41 59; /* slate-700 */
+    --sidebar-border: 226 232 240; /* slate-200 */
     --sidebar-ring: 59 130 246; /* blue-500 */
   }
 
   .dark {
-    --background: 219 234 254; /* blue-50 - mantém o tom claro mesmo no modo escuro */
-    --foreground: 30 58 138; /* blue-900 */
+    --background: 15 23 42; /* slate-900 - fundo escuro elegante */
+    --foreground: 248 250 252; /* slate-50 */
 
-    --card: 243 244 246; /* gray-100 */
-    --card-foreground: 30 58 138; /* blue-900 */
+    --card: 30 41 59; /* slate-700 - cards escuros */
+    --card-foreground: 248 250 252; /* slate-50 */
 
-    --popover: 243 244 246; /* gray-100 */
-    --popover-foreground: 30 58 138; /* blue-900 */
+    --popover: 30 41 59; /* slate-700 */
+    --popover-foreground: 248 250 252; /* slate-50 */
 
     --primary: 59 130 246; /* blue-500 */
     --primary-foreground: 248 250 252; /* slate-50 */
 
-    --secondary: 186 230 253; /* sky-200 */
-    --secondary-foreground: 30 58 138; /* blue-900 */
+    --secondary: 51 65 85; /* slate-600 */
+    --secondary-foreground: 248 250 252; /* slate-50 */
 
-    --muted: 186 230 253; /* sky-200 */
-    --muted-foreground: 71 85 105; /* slate-600 */
+    --muted: 51 65 85; /* slate-600 */
+    --muted-foreground: 148 163 184; /* slate-400 */
 
-    --accent: 37 99 235; /* blue-600 */
+    --accent: 59 130 246; /* blue-500 */
     --accent-foreground: 248 250 252; /* slate-50 */
 
-    --destructive: 185 28 28; /* red-800 */
+    --destructive: 239 68 68; /* red-500 */
     --destructive-foreground: 248 250 252; /* slate-50 */
 
-    --border: 147 197 253; /* blue-300 */
-    --input: 147 197 253; /* blue-300 */
+    --border: 51 65 85; /* slate-600 */
+    --input: 51 65 85; /* slate-600 */
     --ring: 59 130 246; /* blue-500 */
 
-    --sidebar-background: 219 234 254; /* blue-50 */
-    --sidebar-foreground: 30 58 138; /* blue-900 */
+    --sidebar-background: 15 23 42; /* slate-900 */
+    --sidebar-foreground: 248 250 252; /* slate-50 */
     --sidebar-primary: 59 130 246; /* blue-500 */
     --sidebar-primary-foreground: 248 250 252; /* slate-50 */
-    --sidebar-accent: 186 230 253; /* sky-200 */
-    --sidebar-accent-foreground: 30 58 138; /* blue-900 */
-    --sidebar-border: 147 197 253; /* blue-300 */
+    --sidebar-accent: 51 65 85; /* slate-600 */
+    --sidebar-accent-foreground: 248 250 252; /* slate-50 */
+    --sidebar-border: 51 65 85; /* slate-600 */
     --sidebar-ring: 59 130 246; /* blue-500 */
   }
 }
@@ -94,23 +94,33 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Custom gradient backgrounds for enhanced visual appeal */
+/* Gradientes profissionais e discretos */
 .gradient-bg-primary {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .gradient-bg-secondary {
-  background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
 .gradient-bg-page {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
 }
 
-/* Light card background with subtle blue tint */
 .gradient-bg-card {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Sombras profissionais */
+.shadow-professional {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.shadow-professional-lg {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }

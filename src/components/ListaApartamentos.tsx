@@ -65,19 +65,19 @@ export const ListaApartamentos = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-slate-50">Gerenciar Apartamentos</h2>
-            <p className="text-slate-300">
+            <h2 className="text-2xl font-bold text-foreground">Gerenciar Apartamentos</h2>
+            <p className="text-muted-foreground">
               Cadastre e gerencie seus apartamentos
             </p>
           </div>
-          <Button onClick={abrirNovoApartamento} className="bg-gradient-to-r from-blue-700 to-blue-800 hover:from-blue-800 hover:to-blue-900">
+          <Button onClick={abrirNovoApartamento}>
             <Plus className="h-4 w-4 mr-2" />
             Novo Apartamento
           </Button>
         </div>
 
-        <Card className="shadow-2xl border-0 bg-slate-800/95 backdrop-blur-sm border border-slate-600">
-          <CardHeader className="bg-gradient-to-r from-blue-700 to-blue-800 text-white rounded-t-lg">
+        <Card className="shadow-professional-lg">
+          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="flex items-center gap-2 text-xl">
               <Building className="h-5 w-5" />
               Lista de Apartamentos ({apartamentos.length})
@@ -85,17 +85,17 @@ export const ListaApartamentos = () => {
           </CardHeader>
           <CardContent className="space-y-4 p-6">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar por número, proprietário ou endereço..."
                 value={filtro}
                 onChange={(e) => setFiltro(e.target.value)}
-                className="pl-10 border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200"
+                className="pl-10"
               />
             </div>
 
             {apartamentosFiltrados.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
+              <div className="text-center py-8 text-muted-foreground">
                 {apartamentos.length === 0 
                   ? "Nenhum apartamento cadastrado ainda."
                   : "Nenhum apartamento encontrado com os filtros aplicados."
@@ -104,14 +104,14 @@ export const ListaApartamentos = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {apartamentosFiltrados.map((apartamento) => (
-                  <Card key={apartamento.id} className="hover:shadow-lg transition-all duration-200 bg-slate-700/50 border-slate-600 hover:border-blue-500">
+                  <Card key={apartamento.id} className="hover:shadow-md transition-all duration-200 border">
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="text-xl font-bold text-blue-400">
+                          <div className="text-xl font-bold text-primary">
                             {apartamento.numero}
                           </div>
-                          <Badge variant={apartamento.ativo ? "default" : "secondary"} className={apartamento.ativo ? "bg-green-600" : "bg-slate-600"}>
+                          <Badge variant={apartamento.ativo ? "default" : "secondary"}>
                             {apartamento.ativo ? "Ativo" : "Inativo"}
                           </Badge>
                         </div>
@@ -120,15 +120,13 @@ export const ListaApartamentos = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEditar(apartamento)}
-                            className="border-slate-500 bg-slate-600 text-slate-200 hover:bg-slate-500"
                           >
                             <Pencil className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
-                            variant="outline"
+                            variant="destructive"
                             onClick={() => handleExcluir(apartamento)}
-                            className="border-red-600 bg-red-700 text-red-100 hover:bg-red-600"
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
@@ -136,20 +134,20 @@ export const ListaApartamentos = () => {
                       </div>
 
                       {apartamento.proprietario && (
-                        <div className="flex items-center gap-2 text-sm text-slate-300 mb-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                           <User className="h-3 w-3" />
                           {apartamento.proprietario}
                         </div>
                       )}
 
                       {apartamento.endereco && (
-                        <div className="text-sm text-slate-400 mb-2">
+                        <div className="text-sm text-muted-foreground mb-2">
                           {apartamento.endereco}
                         </div>
                       )}
 
                       {apartamento.descricao && (
-                        <div className="text-sm text-slate-500 line-clamp-2">
+                        <div className="text-sm text-muted-foreground line-clamp-2">
                           {apartamento.descricao}
                         </div>
                       )}
@@ -162,9 +160,9 @@ export const ListaApartamentos = () => {
         </Card>
 
         <Sheet open={sheetAberto} onOpenChange={setSheetAberto}>
-          <SheetContent className="w-full sm:max-w-2xl bg-slate-800 border-slate-600">
+          <SheetContent className="w-full sm:max-w-2xl bg-background border-border">
             <SheetHeader>
-              <SheetTitle className="text-slate-50">
+              <SheetTitle className="text-foreground">
                 {apartamentoParaEditar ? 'Editar Apartamento' : 'Novo Apartamento'}
               </SheetTitle>
             </SheetHeader>
