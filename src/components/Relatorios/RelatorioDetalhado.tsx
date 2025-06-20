@@ -31,42 +31,44 @@ export const RelatorioDetalhado = ({
 }: RelatorioDetalhadoProps) => {
   return (
     <div className="print:bg-white print:text-black print:shadow-none print:p-4 print:max-w-none print:w-full space-y-4 print:space-y-3">
-      <style jsx>{`
-        @media print {
-          @page { 
-            size: A4; 
-            margin: 1.5cm; 
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media print {
+            @page { 
+              size: A4; 
+              margin: 1.5cm; 
+            }
+            .print\\:break-page {
+              page-break-before: always;
+            }
+            .print\\:avoid-break {
+              page-break-inside: avoid;
+            }
+            .print\\:text-xs {
+              font-size: 10px !important;
+            }
+            .print\\:text-sm {
+              font-size: 12px !important;
+            }
+            .print\\:text-base {
+              font-size: 14px !important;
+            }
+            .print\\:mb-2 {
+              margin-bottom: 8px !important;
+            }
+            .print\\:mb-4 {
+              margin-bottom: 16px !important;
+            }
+            .print\\:p-2 {
+              padding: 8px !important;
+            }
+            .print\\:py-1 {
+              padding-top: 4px !important;
+              padding-bottom: 4px !important;
+            }
           }
-          .print\\:break-page {
-            page-break-before: always;
-          }
-          .print\\:avoid-break {
-            page-break-inside: avoid;
-          }
-          .print\\:text-xs {
-            font-size: 10px !important;
-          }
-          .print\\:text-sm {
-            font-size: 12px !important;
-          }
-          .print\\:text-base {
-            font-size: 14px !important;
-          }
-          .print\\:mb-2 {
-            margin-bottom: 8px !important;
-          }
-          .print\\:mb-4 {
-            margin-bottom: 16px !important;
-          }
-          .print\\:p-2 {
-            padding: 8px !important;
-          }
-          .print\\:py-1 {
-            padding-top: 4px !important;
-            padding-bottom: 4px !important;
-          }
-        }
-      `}</style>
+        `
+      }} />
 
       {/* Cabeçalho do Relatório */}
       <Card className="border-slate-200 print:shadow-none print:border print:border-gray-300 print:avoid-break">
