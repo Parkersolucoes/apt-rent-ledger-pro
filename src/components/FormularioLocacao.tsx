@@ -25,7 +25,9 @@ export const FormularioLocacao = () => {
     dataSaida: '',
     valorLocacao: '',
     primeiroPagamento: '',
+    primeiroPagamentoPago: false,
     segundoPagamento: '',
+    segundoPagamentoPago: false,
     taxaLimpeza: '100,00',
     proprietarioPago: false,
     dataPagamentoProprietario: '',
@@ -102,7 +104,9 @@ export const FormularioLocacao = () => {
       dataSaida: parseDateInput(formData.dataSaida),
       valorLocacao,
       primeiroPagamento,
+      primeiroPagamentoPago: formData.primeiroPagamentoPago,
       segundoPagamento,
+      segundoPagamentoPago: formData.segundoPagamentoPago,
       valorFaltando,
       taxaLimpeza,
       comissao,
@@ -125,12 +129,27 @@ export const FormularioLocacao = () => {
       dataSaida: '',
       valorLocacao: '',
       primeiroPagamento: '',
+      primeiroPagamentoPago: false,
       segundoPagamento: '',
+      segundoPagamentoPago: false,
       taxaLimpeza: '100,00',
       proprietarioPago: false,
       dataPagamentoProprietario: '',
       observacoes: ''
     });
+  };
+
+  const formatCurrencyInput = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    const amount = parseFloat(numbers) / 100;
+    return amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  const parseCurrencyInput = (value: string) => {
+    return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
   };
 
   return (
@@ -164,10 +183,14 @@ export const FormularioLocacao = () => {
               <CamposValores
                 valorLocacao={formData.valorLocacao}
                 primeiroPagamento={formData.primeiroPagamento}
+                primeiroPagamentoPago={formData.primeiroPagamentoPago}
                 segundoPagamento={formData.segundoPagamento}
+                segundoPagamentoPago={formData.segundoPagamentoPago}
                 taxaLimpeza={formData.taxaLimpeza}
                 onValorLocacaoChange={(value) => handleCurrencyChange('valorLocacao', value)}
                 onPrimeiroPagamentoChange={(value) => handleCurrencyChange('primeiroPagamento', value)}
+                onPrimeiroPagamentoPagoChange={(checked) => setFormData({...formData, primeiroPagamentoPago: checked})}
+                onSegundoPagamentoPagoChange={(checked) => setFormData({...formData, segundoPagamentoPago: checked})}
               />
 
               <CamposPagamento

@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency, formatDate, getMesNome } from '@/utils/formatters';
 import { FiltrosLocacao } from '@/types/locacao';
-import { Calendar, House, User } from 'lucide-react';
+import { Calendar, House, User, Flag } from 'lucide-react';
 
 export const ListaLocacoes = () => {
   const { locacoes, obterApartamentos, obterAnos, filtrarLocacoes } = useLocacoes();
@@ -163,11 +163,21 @@ export const ListaLocacoes = () => {
                           </div>
                           <div className="flex justify-between text-muted-foreground">
                             <span>1º Pagto:</span>
-                            <span className="font-medium text-green-600">{formatCurrency(locacao.primeiroPagamento)}</span>
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-green-600">{formatCurrency(locacao.primeiroPagamento)}</span>
+                              {locacao.primeiroPagamentoPago && (
+                                <Flag className="h-3 w-3 text-green-600" />
+                              )}
+                            </div>
                           </div>
                           <div className="flex justify-between text-muted-foreground">
                             <span>2º Pagto:</span>
-                            <span className="font-medium text-green-600">{formatCurrency(locacao.segundoPagamento)}</span>
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-green-600">{formatCurrency(locacao.segundoPagamento)}</span>
+                              {locacao.segundoPagamentoPago && (
+                                <Flag className="h-3 w-3 text-green-600" />
+                              )}
+                            </div>
                           </div>
                           <div className="flex justify-between text-muted-foreground">
                             <span>Faltando:</span>

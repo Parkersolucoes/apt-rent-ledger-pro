@@ -9,7 +9,9 @@ export interface Locacao {
   dataSaida: Date;
   valorLocacao: number;
   primeiroPagamento: number;
+  primeiroPagamentoPago: boolean;
   segundoPagamento: number;
+  segundoPagamentoPago: boolean;
   valorFaltando: number;
   taxaLimpeza: number;
   comissao: number; // 20% do total
