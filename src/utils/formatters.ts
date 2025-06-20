@@ -32,8 +32,7 @@ export const calcularComissao = (valorLocacao: number, taxaLimpeza: number): num
 };
 
 export const calcularValorProprietario = (valorLocacao: number, taxaLimpeza: number, comissao: number): number => {
-  const valorTotal = valorLocacao + taxaLimpeza;
-  return valorTotal - taxaLimpeza - comissao;
+  return valorLocacao - comissao;
 };
 
 export const formatDateForInput = (date: Date): string => {
