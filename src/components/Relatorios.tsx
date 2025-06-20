@@ -67,111 +67,291 @@ export const Relatorios = () => {
       format: 'a4'
     });
 
-    // Configurar margens mínimas
-    const margin = 5;
+    // Configurar margens
+    const margin = 10;
     const pageWidth = 210;
     const pageHeight = 297;
     const contentWidth = pageWidth - (margin * 2);
 
     let yPosition = margin;
 
-    // Header
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RELATÓRIO FINANCEIRO DE LOCAÇÕES', pageWidth / 2, yPosition + 10, { align: 'center' });
-    yPosition += 20;
+    // Gradiente de fundo para o header
+    doc.setFillColor(59, 130, 246); // bg-blue-500
+    doc.rect(0, 0, pageWidth, 40, 'F');
 
-    // Filtros aplicados
-    doc.setFontSize(10);
+    // Título principal
+    doc.setTextColor(255, 255, 255); // texto branco
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RELATÓRIO FINANCEIRO DE LOCAÇÕES', pageWidth / 2, yPosition + 15, { align: 'center' });
+    
+    // Subtítulo
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    let filtrosTexto = 'Filtros aplicados: ';
-    if (filtros.apartamento) filtrosTexto += `Apartamento ${filtros.apartamento} | `;
-    if (filtros.ano) filtrosTexto += `Ano ${filtros.ano} | `;
+    doc.text('Análise Detalhada de Performance', pageWidth / 2, yPosition + 25, { align: 'center' });
+    
+    yPosition = 50;
+
+    // Resetar cor do texto
+    doc.setTextColor(0, 0, 0);
+
+    // Seção de filtros aplicados com background colorido
+    doc.setFillColor(248, 250, 252); // bg-slate-50
+    doc.rect(margin, yPosition, contentWidth, 15, 'F');
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(51, 65, 85); // text-slate-700
+    doc.text('FILTROS APLICADOS', margin + 5, yPosition + 6);
+    
+    yPosition += 10;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105); // text-slate-600
+    
+    let filtrosTexto = '';
+    if (filtros.apartamento) filtrosTexto += `Apartamento ${filtros.apartamento} • `;
+    if (filtros.ano) filtrosTexto += `Ano ${filtros.ano} • `;
     if (filtros.mes) {
       const mesNome = meses.find(m => m.valor === filtros.mes)?.nome;
-      filtrosTexto += `Mês ${mesNome} | `;
+      filtrosTexto += `Mês ${mesNome} • `;
     }
-    if (filtrosTexto === 'Filtros aplicados: ') filtrosTexto = 'Filtros aplicados: Todos os registros';
+    if (!filtrosTexto) filtrosTexto = 'Todos os registros';
     
-    doc.text(filtrosTexto, margin, yPosition);
-    yPosition += 15;
+    doc.text(filtrosTexto, margin + 5, yPosition + 6);
+    yPosition += 20;
 
-    // Resumo financeiro
+    // Calcular valores para os cards do resumo
     const valorTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.valorLocacao, 0);
     const comissaoTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.comissao, 0);
     const limpezaTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
     const proprietarioTotal = valorTotal - comissaoTotal - limpezaTotal;
+    const despesasTotal = despesasFiltradas.reduce((sum, desp) => sum + desp.valor, 0);
+    const lucroLiquido = proprietarioTotal - despesasTotal;
 
-    doc.setFontSize(12);
+    // Cards do resumo financeiro
+    const cardWidth = (contentWidth - 15) / 4; // 4 cards com espaçamento
+    const cardHeight = 25;
+    
+    // Card 1 - Receitas (Verde)
+    doc.setFillColor(34, 197, 94); // bg-green-500
+    doc.rect(margin, yPosition, cardWidth, cardHeight, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text('RESUMO FINANCEIRO', margin, yPosition);
-    yPosition += 8;
-
-    doc.setFontSize(9);
+    doc.text('RECEITAS TOTAIS', margin + 2, yPosition + 6);
+    doc.setFontSize(12);
+    doc.text(formatCurrency(valorTotal), margin + 2, yPosition + 14);
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Valor Total das Locações: ${formatCurrency(valorTotal)}`, margin, yPosition);
-    yPosition += 5;
-    doc.text(`Total de Comissões: ${formatCurrency(comissaoTotal)}`, margin, yPosition);
-    yPosition += 5;
-    doc.text(`Total de Taxa de Limpeza: ${formatCurrency(limpezaTotal)}`, margin, yPosition);
-    yPosition += 5;
-    doc.text(`Valor Total do Proprietário: ${formatCurrency(proprietarioTotal)}`, margin, yPosition);
-    yPosition += 10;
+    doc.text(`${locacoesFiltradas.length} locações`, margin + 2, yPosition + 20);
 
-    // Tabela de locações
+    // Card 2 - Despesas (Vermelho)
+    const card2X = margin + cardWidth + 5;
+    doc.setFillColor(239, 68, 68); // bg-red-500
+    doc.rect(card2X, yPosition, cardWidth, cardHeight, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('DESPESAS TOTAIS', card2X + 2, yPosition + 6);
+    doc.setFontSize(12);
+    doc.text(formatCurrency(despesasTotal), card2X + 2, yPosition + 14);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${despesasFiltradas.length} itens`, card2X + 2, yPosition + 20);
+
+    // Card 3 - Lucro (Azul)
+    const card3X = margin + (cardWidth + 5) * 2;
+    doc.setFillColor(59, 130, 246); // bg-blue-500
+    doc.rect(card3X, yPosition, cardWidth, cardHeight, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('LUCRO LÍQUIDO', card3X + 2, yPosition + 6);
+    doc.setFontSize(12);
+    doc.text(formatCurrency(lucroLiquido), card3X + 2, yPosition + 14);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    const margem = valorTotal > 0 ? `${((lucroLiquido / valorTotal) * 100).toFixed(1)}%` : '0%';
+    doc.text(`Margem: ${margem}`, card3X + 2, yPosition + 20);
+
+    // Card 4 - Proprietário (Roxo)
+    const card4X = margin + (cardWidth + 5) * 3;
+    doc.setFillColor(168, 85, 247); // bg-purple-500
+    doc.rect(card4X, yPosition, cardWidth, cardHeight, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROPRIETÁRIO', card4X + 2, yPosition + 6);
+    doc.setFontSize(12);
+    doc.text(formatCurrency(proprietarioTotal), card4X + 2, yPosition + 14);
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Valor líquido', card4X + 2, yPosition + 20);
+
+    yPosition += cardHeight + 15;
+
+    // Tabela de locações com header colorido
     if (locacoesFiltradas.length > 0) {
-      doc.setFontSize(10);
+      // Header da seção
+      doc.setFillColor(15, 23, 42); // bg-slate-900
+      doc.rect(margin, yPosition, contentWidth, 12, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text('DETALHAMENTO DAS LOCAÇÕES', margin, yPosition);
-      yPosition += 8;
+      doc.text('💰 DETALHAMENTO DAS LOCAÇÕES', margin + 5, yPosition + 8);
+      yPosition += 15;
 
       // Cabeçalho da tabela
-      const colWidths = [15, 40, 25, 25, 25, 25, 25];
-      let xPosition = margin;
+      doc.setFillColor(71, 85, 105); // bg-slate-600
+      doc.rect(margin, yPosition, contentWidth, 10, 'F');
+      
+      const colWidths = [20, 45, 30, 25, 25, 25, 20];
+      let xPosition = margin + 2;
 
       doc.setFontSize(8);
-      doc.text('Apt', xPosition, yPosition);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
+      doc.text('Apt', xPosition, yPosition + 6);
       xPosition += colWidths[0];
-      doc.text('Hóspede', xPosition, yPosition);
+      doc.text('Hóspede', xPosition, yPosition + 6);
       xPosition += colWidths[1];
-      doc.text('Entrada', xPosition, yPosition);
+      doc.text('Entrada', xPosition, yPosition + 6);
       xPosition += colWidths[2];
-      doc.text('Valor', xPosition, yPosition);
+      doc.text('Valor', xPosition, yPosition + 6);
       xPosition += colWidths[3];
-      doc.text('Comissão', xPosition, yPosition);
+      doc.text('Comissão', xPosition, yPosition + 6);
       xPosition += colWidths[4];
-      doc.text('Limpeza', xPosition, yPosition);
+      doc.text('Limpeza', xPosition, yPosition + 6);
       xPosition += colWidths[5];
-      doc.text('Proprietário', xPosition, yPosition);
+      doc.text('Proprietário', xPosition, yPosition + 6);
 
-      yPosition += 5;
+      yPosition += 12;
 
-      // Dados da tabela
+      // Dados da tabela com linhas alternadas
       doc.setFont('helvetica', 'normal');
-      locacoesFiltradas.forEach((locacao) => {
-        if (yPosition > pageHeight - 30) {
+      doc.setTextColor(0, 0, 0);
+      
+      locacoesFiltradas.forEach((locacao, index) => {
+        if (yPosition > pageHeight - 40) {
           doc.addPage();
-          yPosition = margin + 10;
+          yPosition = margin + 20;
         }
 
-        xPosition = margin;
-        doc.text(locacao.apartamento, xPosition, yPosition);
-        xPosition += colWidths[0];
-        doc.text(locacao.hospede.substring(0, 20), xPosition, yPosition);
-        xPosition += colWidths[1];
-        doc.text(locacao.dataEntrada.toLocaleDateString('pt-BR'), xPosition, yPosition);
-        xPosition += colWidths[2];
-        doc.text(formatCurrency(locacao.valorLocacao), xPosition, yPosition);
-        xPosition += colWidths[3];
-        doc.text(formatCurrency(locacao.comissao), xPosition, yPosition);
-        xPosition += colWidths[4];
-        doc.text(formatCurrency(locacao.taxaLimpeza), xPosition, yPosition);
-        xPosition += colWidths[5];
-        doc.text(formatCurrency(locacao.valorProprietario), xPosition, yPosition);
+        // Linha alternada
+        if (index % 2 === 0) {
+          doc.setFillColor(248, 250, 252); // bg-slate-50
+          doc.rect(margin, yPosition - 2, contentWidth, 8, 'F');
+        }
 
-        yPosition += 4;
+        xPosition = margin + 2;
+        doc.setFontSize(7);
+        doc.text(locacao.apartamento, xPosition, yPosition + 3);
+        xPosition += colWidths[0];
+        doc.text(locacao.hospede.substring(0, 25), xPosition, yPosition + 3);
+        xPosition += colWidths[1];
+        doc.text(locacao.dataEntrada.toLocaleDateString('pt-BR'), xPosition, yPosition + 3);
+        xPosition += colWidths[2];
+        doc.text(formatCurrency(locacao.valorLocacao), xPosition, yPosition + 3);
+        xPosition += colWidths[3];
+        doc.text(formatCurrency(locacao.comissao), xPosition, yPosition + 3);
+        xPosition += colWidths[4];
+        doc.text(formatCurrency(locacao.taxaLimpeza), xPosition, yPosition + 3);
+        xPosition += colWidths[5];
+        doc.text(formatCurrency(locacao.valorProprietario), xPosition, yPosition + 3);
+
+        yPosition += 8;
       });
+
+      // Total da tabela com destaque
+      doc.setFillColor(34, 197, 94); // bg-green-500
+      doc.rect(margin, yPosition, contentWidth, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      
+      xPosition = margin + colWidths[0] + colWidths[1] + 2;
+      doc.text('TOTAL:', xPosition, yPosition + 6);
+      xPosition += colWidths[2];
+      doc.text(formatCurrency(valorTotal), xPosition, yPosition + 6);
+      xPosition += colWidths[3];
+      doc.text(formatCurrency(comissaoTotal), xPosition, yPosition + 6);
+      xPosition += colWidths[4];
+      doc.text(formatCurrency(limpezaTotal), xPosition, yPosition + 6);
+      xPosition += colWidths[5];
+      doc.text(formatCurrency(proprietarioTotal), xPosition, yPosition + 6);
+
+      yPosition += 15;
     }
+
+    // Seção de despesas se houver
+    if (despesasFiltradas.length > 0) {
+      if (yPosition > pageHeight - 60) {
+        doc.addPage();
+        yPosition = margin + 20;
+      }
+
+      // Header da seção de despesas
+      doc.setFillColor(220, 38, 38); // bg-red-600
+      doc.rect(margin, yPosition, contentWidth, 12, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('💸 DETALHAMENTO DAS DESPESAS', margin + 5, yPosition + 8);
+      yPosition += 15;
+
+      // Cabeçalho da tabela de despesas
+      doc.setFillColor(185, 28, 28); // bg-red-700
+      doc.rect(margin, yPosition, contentWidth, 10, 'F');
+      
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
+      doc.text('Data', margin + 2, yPosition + 6);
+      doc.text('Descrição', margin + 25, yPosition + 6);
+      doc.text('Valor', margin + 140, yPosition + 6);
+
+      yPosition += 12;
+
+      // Dados das despesas
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      
+      despesasFiltradas.forEach((despesa, index) => {
+        if (yPosition > pageHeight - 40) {
+          doc.addPage();
+          yPosition = margin + 20;
+        }
+
+        if (index % 2 === 0) {
+          doc.setFillColor(254, 242, 242); // bg-red-50
+          doc.rect(margin, yPosition - 2, contentWidth, 8, 'F');
+        }
+
+        doc.setFontSize(7);
+        doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 2, yPosition + 3);
+        doc.text(despesa.descricao.substring(0, 60), margin + 25, yPosition + 3);
+        doc.text(formatCurrency(despesa.valor), margin + 140, yPosition + 3);
+
+        yPosition += 8;
+      });
+
+      // Total das despesas
+      doc.setFillColor(239, 68, 68); // bg-red-500
+      doc.rect(margin, yPosition, contentWidth, 10, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.text('TOTAL DESPESAS:', margin + 80, yPosition + 6);
+      doc.text(formatCurrency(despesasTotal), margin + 140, yPosition + 6);
+    }
+
+    // Footer com informações adicionais
+    doc.setTextColor(100, 116, 139); // text-slate-500
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Relatório gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`, 
+      pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     return doc;
   };
