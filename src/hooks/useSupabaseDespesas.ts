@@ -80,6 +80,47 @@ export const useSupabaseDespesas = () => {
     }
   };
 
+  const atualizarDespesa = async (id: string, despesa: Partial<Despesa>) => {
+    try {
+      const updateData: any = {};
+      
+      if (despesa.apartamento !== undefined) updateData.apartamento = despesa.apartamento;
+      if (despesa.valor !== undefined) updateData.valor = despesa.valor;
+      if (despesa.descricao !== undefined) updateData.descricao = despesa.descricao;
+      if (despesa.data !== undefined) updateData.data = despesa.data.toISOString().split('T')[0];
+
+      const { data, error } = await supabase
+        .from('despesas')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const despesaAtualizada: Despesa = {
+        id: data.id,
+        apartamento: data.apartamento,
+        valor: Number(data.valor),
+        descricao: data.descricao,
+        data: new Date(data.data),
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at)
+      };
+
+      setDespesas(prev => 
+        prev.map(desp => desp.id === id ? despesaAtualizada : desp)
+      );
+    } catch (error) {
+      console.error('Erro ao atualizar despesa:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a despesa.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const removerDespesa = async (id: string) => {
     try {
       const { error } = await supabase
@@ -100,6 +141,21 @@ export const useSupabaseDespesas = () => {
     }
   };
 
+  const filtrarDespesas = (filtros: FiltrosDespesa) => {
+    return despesas.filter(despesa => {
+      if (filtros.apartamento && despesa.apartamento !== filtros.apartamento) {
+        return false;
+      }
+      if (filtros.dataInicio && despesa.data < filtros.dataInicio) {
+        return false;
+      }
+      if (filtros.dataFim && despesa.data > filtros.dataFim) {
+        return false;
+      }
+      return true;
+    });
+  };
+
   const obterDespesasPorApartamento = (apartamento: string) => {
     return despesas.filter(despesa => despesa.apartamento === apartamento);
   };
@@ -110,13 +166,20 @@ export const useSupabaseDespesas = () => {
       .reduce((total, despesa) => total + despesa.valor, 0);
   };
 
+  const obterApartamentos = () => {
+    return Array.from(new Set(despesas.map(desp => desp.apartamento))).sort();
+  };
+
   return {
     despesas,
     loading,
     adicionarDespesa,
+    atualizarDespesa,
     removerDespesa,
+    filtrarDespesas,
     obterDespesasPorApartamento,
     obterTotalDespesasPorApartamento,
+    obterApartamentos,
     carregarDespesas
   };
 };

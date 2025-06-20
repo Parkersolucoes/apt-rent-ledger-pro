@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useDespesas } from '@/hooks/useDespesas';
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { toast } from '@/hooks/use-toast';
+import { parseDateInput } from '@/utils/formatters';
 
 export const FormularioDespesa = () => {
   const { adicionarDespesa } = useDespesas();
@@ -16,7 +18,7 @@ export const FormularioDespesa = () => {
     apartamento: '',
     valor: '',
     descricao: '',
-    data: new Date().toISOString().split('T')[0]
+    data: ''
   });
 
   const apartamentosDisponiveis = obterNumerosApartamentos();
@@ -42,7 +44,7 @@ export const FormularioDespesa = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.apartamento || !formData.valor || !formData.descricao || !formData.data) {
@@ -56,11 +58,20 @@ export const FormularioDespesa = () => {
 
     const valorNum = parseCurrencyInput(formData.valor);
     
-    adicionarDespesa({
+    if (valorNum <= 0) {
+      toast({
+        title: "Erro",
+        description: "O valor deve ser maior que zero.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    await adicionarDespesa({
       apartamento: formData.apartamento,
       valor: valorNum,
       descricao: formData.descricao,
-      data: new Date(formData.data)
+      data: parseDateInput(formData.data)
     });
 
     toast({
@@ -73,7 +84,7 @@ export const FormularioDespesa = () => {
       apartamento: '',
       valor: '',
       descricao: '',
-      data: new Date().toISOString().split('T')[0]
+      data: ''
     });
   };
 
@@ -94,31 +105,34 @@ export const FormularioDespesa = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {apartamentosDisponiveis.map((numero) => (
-                      <SelectItem key={numero} value={numero}>{numero}</SelectItem>
+                      <SelectItem key={numero} value={numero}>
+                        Apartamento {numero}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label htmlFor="valor" className="font-semibold">Valor (R$) *</Label>
+                <Label htmlFor="valor" className="font-semibold">Valor *</Label>
                 <Input
                   id="valor"
                   type="text"
                   value={formData.valor}
                   onChange={(e) => handleCurrencyChange(e.target.value)}
                   placeholder="0,00"
+                  className="text-right"
                 />
               </div>
 
               <div>
                 <Label htmlFor="descricao" className="font-semibold">Descrição *</Label>
-                <Input
+                <Textarea
                   id="descricao"
-                  type="text"
                   value={formData.descricao}
                   onChange={(e) => setFormData({...formData, descricao: e.target.value})}
-                  placeholder="Descrição da despesa"
+                  placeholder="Descrição da despesa..."
+                  rows={3}
                 />
               </div>
 
