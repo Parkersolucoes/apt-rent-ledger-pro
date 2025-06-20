@@ -50,12 +50,12 @@ export const ListaDespesas = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
               <div>
                 <Label htmlFor="apartamento" className="font-semibold">Apartamento</Label>
-                <Select value={filtros.apartamento || ''} onValueChange={(value) => setFiltros({...filtros, apartamento: value || undefined})}>
+                <Select value={filtros.apartamento || 'todos'} onValueChange={(value) => setFiltros({...filtros, apartamento: value === 'todos' ? undefined : value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="todos">Todos</SelectItem>
                     {apartamentosComDespesas.map((numero) => (
                       <SelectItem key={numero} value={numero}>
                         Apartamento {numero}
