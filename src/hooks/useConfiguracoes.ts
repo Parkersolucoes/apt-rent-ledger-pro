@@ -17,6 +17,20 @@ interface ConfiguracaoEvolution {
   instanceName: string;
 }
 
+interface Configuracoes {
+  evolution_api_url: string;
+  evolution_api_key: string;
+  evolution_instance_name: string;
+  smtp_host: string;
+  smtp_port: number;
+  smtp_usuario: string;
+  smtp_senha: string;
+  smtp_email_remetente: string;
+  smtp_nome_remetente: string;
+  webhook_url: string;
+  logo_empresa: string;
+}
+
 export const useConfiguracoes = () => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [webhookUrl, setWebhookUrl] = useState<string>('');
@@ -32,6 +46,19 @@ export const useConfiguracoes = () => {
     apiUrl: '',
     apiKey: '',
     instanceName: ''
+  });
+  const [configuracoes, setConfiguracoes] = useState<Configuracoes>({
+    evolution_api_url: '',
+    evolution_api_key: '',
+    evolution_instance_name: '',
+    smtp_host: '',
+    smtp_port: 587,
+    smtp_usuario: '',
+    smtp_senha: '',
+    smtp_email_remetente: '',
+    smtp_nome_remetente: '',
+    webhook_url: '',
+    logo_empresa: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -66,67 +93,68 @@ export const useConfiguracoes = () => {
         setWebhookUrl(webhookData.valor);
       }
 
-      // Carregar configurações SMTP
-      const smtpKeys = ['smtp_host', 'smtp_port', 'smtp_usuario', 'smtp_senha', 'smtp_email_remetente', 'smtp_nome_remetente'];
-      const { data: smtpData, error: smtpError } = await supabase
+      // Carregar todas as configurações
+      const { data: todasConfigs, error: configError } = await supabase
         .from('configuracoes_sistema')
-        .select('chave, valor')
-        .in('chave', smtpKeys);
+        .select('chave, valor');
 
-      if (smtpError && smtpError.code !== 'PGRST116') {
-        console.error('Erro ao carregar configurações SMTP:', smtpError);
-      } else if (smtpData && smtpData.length > 0) {
+      if (configError && configError.code !== 'PGRST116') {
+        console.error('Erro ao carregar configurações:', configError);
+      } else if (todasConfigs && todasConfigs.length > 0) {
+        const configsObj: Partial<Configuracoes> = {};
         const smtpConfig = { ...configSMTP };
-        smtpData.forEach(config => {
+        const evolutionConfig = { ...configEvolution };
+
+        todasConfigs.forEach(config => {
           switch (config.chave) {
             case 'smtp_host':
               smtpConfig.host = config.valor || '';
+              configsObj.smtp_host = config.valor || '';
               break;
             case 'smtp_port':
               smtpConfig.port = parseInt(config.valor || '587');
+              configsObj.smtp_port = parseInt(config.valor || '587');
               break;
             case 'smtp_usuario':
               smtpConfig.usuario = config.valor || '';
+              configsObj.smtp_usuario = config.valor || '';
               break;
             case 'smtp_senha':
               smtpConfig.senha = config.valor || '';
+              configsObj.smtp_senha = config.valor || '';
               break;
             case 'smtp_email_remetente':
               smtpConfig.emailRemetente = config.valor || '';
+              configsObj.smtp_email_remetente = config.valor || '';
               break;
             case 'smtp_nome_remetente':
               smtpConfig.nomeRemetente = config.valor || '';
+              configsObj.smtp_nome_remetente = config.valor || '';
               break;
-          }
-        });
-        setConfigSMTP(smtpConfig);
-      }
-
-      // Carregar configurações Evolution
-      const evolutionKeys = ['evolution_api_url', 'evolution_api_key', 'evolution_instance_name'];
-      const { data: evolutionData, error: evolutionError } = await supabase
-        .from('configuracoes_sistema')
-        .select('chave, valor')
-        .in('chave', evolutionKeys);
-
-      if (evolutionError && evolutionError.code !== 'PGRST116') {
-        console.error('Erro ao carregar configurações Evolution:', evolutionError);
-      } else if (evolutionData && evolutionData.length > 0) {
-        const evolutionConfig = { ...configEvolution };
-        evolutionData.forEach(config => {
-          switch (config.chave) {
             case 'evolution_api_url':
               evolutionConfig.apiUrl = config.valor || '';
+              configsObj.evolution_api_url = config.valor || '';
               break;
             case 'evolution_api_key':
               evolutionConfig.apiKey = config.valor || '';
+              configsObj.evolution_api_key = config.valor || '';
               break;
             case 'evolution_instance_name':
               evolutionConfig.instanceName = config.valor || '';
+              configsObj.evolution_instance_name = config.valor || '';
+              break;
+            case 'webhook_url':
+              configsObj.webhook_url = config.valor || '';
+              break;
+            case 'logo_empresa':
+              configsObj.logo_empresa = config.valor || '';
               break;
           }
         });
+
+        setConfigSMTP(smtpConfig);
         setConfigEvolution(evolutionConfig);
+        setConfiguracoes(prev => ({ ...prev, ...configsObj }));
       }
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
@@ -346,6 +374,7 @@ export const useConfiguracoes = () => {
     webhookUrl,
     configSMTP,
     configEvolution,
+    configuracoes,
     salvarLogo,
     salvarWebhook,
     salvarConfigSMTP,

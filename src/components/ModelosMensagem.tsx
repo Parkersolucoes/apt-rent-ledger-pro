@@ -50,6 +50,8 @@ export const ModelosMensagem = () => {
   const [previewAberto, setPreviewAberto] = useState(false);
   const [modeloPreview, setModeloPreview] = useState<ModeloMensagem | null>(null);
   const [variaveisPreview, setVariaveisPreview] = useState<Record<string, string>>({});
+  const [mensagemPreview, setMensagemPreview] = useState<string>('');
+  const [processandoPreview, setProcessandoPreview] = useState(false);
 
   const [formulario, setFormulario] = useState<NovoModeloMensagem>({
     nome: '',
@@ -89,7 +91,23 @@ export const ModelosMensagem = () => {
       variaveisIniciais[variavel] = '';
     });
     setVariaveisPreview(variaveisIniciais);
+    setMensagemPreview('');
     setPreviewAberto(true);
+  };
+
+  const atualizarPreview = async () => {
+    if (!modeloPreview) return;
+    
+    setProcessandoPreview(true);
+    try {
+      const mensagemProcessada = await processarTemplate(modeloPreview.conteudo, variaveisPreview);
+      setMensagemPreview(mensagemProcessada);
+    } catch (error) {
+      console.error('Erro ao processar preview:', error);
+      setMensagemPreview(modeloPreview.conteudo);
+    } finally {
+      setProcessandoPreview(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -397,12 +415,18 @@ export const ModelosMensagem = () => {
                 ))}
               </div>
 
+              <div className="flex gap-2">
+                <Button onClick={atualizarPreview} disabled={processandoPreview}>
+                  {processandoPreview ? 'Processando...' : 'Atualizar Preview'}
+                </Button>
+              </div>
+
               <div className="space-y-2">
                 <Label>Preview da Mensagem:</Label>
                 <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
                   <p className="font-medium text-green-800 mb-2">{modeloPreview.titulo}</p>
                   <div className="whitespace-pre-wrap text-sm text-green-700">
-                    {processarTemplate(modeloPreview.conteudo, variaveisPreview)}
+                    {mensagemPreview || 'Clique em "Atualizar Preview" para processar a mensagem'}
                   </div>
                 </div>
               </div>

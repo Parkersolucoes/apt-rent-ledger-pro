@@ -18,7 +18,7 @@ interface WhatsAppModalLocacaoProps {
   locacao: Locacao | null;
   apartamentos: Apartamento[];
   modelos: ModeloMensagem[];
-  onProcessarTemplate: (template: string, variaveis: Record<string, string>) => string;
+  onProcessarTemplate: (template: string, variaveis: Record<string, string>) => Promise<string>;
   onEnviar: (telefone: string, mensagem: string) => Promise<void>;
   enviando: boolean;
 }
@@ -67,16 +67,25 @@ export const WhatsAppModalLocacao = ({
 
   // Atualizar mensagem quando modelo for selecionado
   useEffect(() => {
-    if (modeloSelecionado && modeloSelecionado !== 'personalizada') {
-      const modelo = modelos.find(m => m.id === modeloSelecionado);
-      if (modelo) {
-        const variaveis = gerarVariaveisTemplate();
-        const mensagemProcessada = onProcessarTemplate(modelo.conteudo, variaveis);
-        setMensagemPersonalizada(mensagemProcessada);
+    const processarMensagem = async () => {
+      if (modeloSelecionado && modeloSelecionado !== 'personalizada') {
+        const modelo = modelos.find(m => m.id === modeloSelecionado);
+        if (modelo) {
+          const variaveis = gerarVariaveisTemplate();
+          try {
+            const mensagemProcessada = await onProcessarTemplate(modelo.conteudo, variaveis);
+            setMensagemPersonalizada(mensagemProcessada);
+          } catch (error) {
+            console.error('Erro ao processar template:', error);
+            setMensagemPersonalizada(modelo.conteudo);
+          }
+        }
+      } else if (modeloSelecionado === 'personalizada') {
+        setMensagemPersonalizada('');
       }
-    } else if (modeloSelecionado === 'personalizada') {
-      setMensagemPersonalizada('');
-    }
+    };
+
+    processarMensagem();
   }, [modeloSelecionado, modelos, onProcessarTemplate, locacao]);
 
   const handleEnviar = async () => {
