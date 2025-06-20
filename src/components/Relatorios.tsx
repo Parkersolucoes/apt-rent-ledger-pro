@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -59,6 +58,16 @@ export const Relatorios = () => {
     if (filtros.mes && despesa.data.getMonth() + 1 !== filtros.mes) return false;
     return true;
   });
+
+  // Efeito para preencher automaticamente o telefone quando um apartamento for selecionado
+  useEffect(() => {
+    if (filtros.apartamento && showWhatsAppModal) {
+      const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
+      if (apartamento?.telefoneProprietario && !telefoneDestino) {
+        setTelefoneDestino(apartamento.telefoneProprietario);
+      }
+    }
+  }, [filtros.apartamento, showWhatsAppModal, apartamentos, telefoneDestino]);
 
   const gerarRelatorioPDF = () => {
     const doc = new jsPDF({
@@ -366,6 +375,17 @@ export const Relatorios = () => {
     });
   };
 
+  const handleAbrirModalWhatsApp = () => {
+    setShowWhatsAppModal(true);
+    // Preencher automaticamente o telefone se um apartamento estiver selecionado
+    if (filtros.apartamento) {
+      const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
+      if (apartamento?.telefoneProprietario) {
+        setTelefoneDestino(apartamento.telefoneProprietario);
+      }
+    }
+  };
+
   const preencherTelefoneProprietario = () => {
     if (filtros.apartamento) {
       const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
@@ -485,7 +505,7 @@ export const Relatorios = () => {
               <FileText className="h-4 w-4 mr-2" />
               Exportar PDF
             </Button>
-            <Button onClick={() => setShowWhatsAppModal(true)}>
+            <Button onClick={handleAbrirModalWhatsApp}>
               <MessageCircle className="h-4 w-4 mr-2" />
               Enviar WhatsApp
             </Button>
@@ -595,6 +615,14 @@ export const Relatorios = () => {
                   placeholder="(00) 00000-0000"
                   required
                 />
+                {filtros.apartamento && (
+                  <p className="text-sm text-muted-foreground">
+                    {apartamentos.find(apt => apt.numero === filtros.apartamento)?.telefoneProprietario
+                      ? `Telefone do proprietário será preenchido automaticamente para o apartamento ${filtros.apartamento}`
+                      : `Apartamento ${filtros.apartamento} não possui telefone do proprietário cadastrado`
+                    }
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
