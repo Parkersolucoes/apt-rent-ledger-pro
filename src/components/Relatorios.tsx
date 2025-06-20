@@ -124,8 +124,8 @@ export const Relatorios = () => {
       format: 'a4'
     });
 
-    // Configurações básicas
-    const margin = 15;
+    // Configurações básicas melhoradas
+    const margin = 20;
     const pageWidth = 210;
     const pageHeight = 297;
     const contentWidth = pageWidth - (margin * 2);
@@ -134,7 +134,7 @@ export const Relatorios = () => {
 
     // Função auxiliar para adicionar nova página se necessário
     const checkAndAddPage = (requiredSpace: number) => {
-      if (yPosition + requiredSpace > pageHeight - 30) {
+      if (yPosition + requiredSpace > pageHeight - 25) {
         doc.addPage();
         yPosition = margin;
         return true;
@@ -142,61 +142,58 @@ export const Relatorios = () => {
       return false;
     };
 
-    // HEADER MODERNO COM GRADIENTE
-    // Background do header
-    doc.setFillColor(37, 99, 235); // bg-blue-600
-    doc.rect(0, 0, pageWidth, 50, 'F');
+    // CABEÇALHO PROFISSIONAL MODERNO
+    // Fundo do cabeçalho com gradiente simulado
+    doc.setFillColor(30, 58, 138); // bg-blue-900
+    doc.rect(0, 0, pageWidth, 60, 'F');
     
-    // Overlay com transparência
-    doc.setFillColor(59, 130, 246, 0.1); // bg-blue-500 com transparência
-    doc.rect(0, 0, pageWidth, 50, 'F');
+    // Adicionar efeito de profundidade
+    doc.setFillColor(59, 130, 246); // bg-blue-500 com overlay
+    doc.rect(0, 50, pageWidth, 10, 'F');
+
+    // Logo placeholder (se disponível)
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin, 15, 30, 25, 3, 3, 'F');
+    doc.setTextColor(30, 58, 138);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('LOGO', margin + 15, 30, { align: 'center' });
 
     // Título principal
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
+    doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
-    doc.text('RELATÓRIO FINANCEIRO', pageWidth / 2, 20, { align: 'center' });
+    doc.text('RELATÓRIO FINANCEIRO', margin + 40, 25);
     
-    // Subtítulo
+    // Subtítulo elegante
     doc.setFontSize(14);
     doc.setFont('helvetica', 'normal');
-    doc.text('Análise Completa de Locações e Despesas', pageWidth / 2, 30, { align: 'center' });
+    doc.text('Análise Completa de Locações e Despesas', margin + 40, 35);
     
-    // Data de geração
-    doc.setFontSize(10);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}`, 
-      pageWidth / 2, 40, { align: 'center' });
-
-    yPosition = 60;
-
-    // SEÇÃO DE FILTROS APLICADOS
-    doc.setFillColor(248, 250, 252); // bg-slate-50
-    doc.roundedRect(margin, yPosition, contentWidth, 20, 3, 3, 'F');
-    
-    doc.setDrawColor(226, 232, 240); // border-slate-200
-    doc.setLineWidth(0.5);
-    doc.roundedRect(margin, yPosition, contentWidth, 20, 3, 3, 'S');
-    
-    doc.setTextColor(71, 85, 105); // text-slate-600
+    // Informações do período
     doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('📊 FILTROS APLICADOS', margin + 5, yPosition + 8);
+    doc.setFont('helvetica', 'italic');
+    let periodoTexto = '';
+    if (filtros.apartamento) periodoTexto += `Apartamento ${filtros.apartamento} • `;
+    if (filtros.ano && filtros.mes) {
+      const mesNome = meses.find(m => m.valor === filtros.mes)?.nome;
+      periodoTexto += `${mesNome}/${filtros.ano}`;
+    } else if (filtros.ano) {
+      periodoTexto += `Ano ${filtros.ano}`;
+    } else {
+      periodoTexto += 'Todos os períodos';
+    }
+    doc.text(periodoTexto, margin + 40, 45);
     
+    // Data de geração no canto direito
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    let filtrosTexto = '';
-    if (filtros.apartamento) filtrosTexto += `Apartamento: ${filtros.apartamento} • `;
-    if (filtros.ano) filtrosTexto += `Ano: ${filtros.ano} • `;
-    if (filtros.mes) {
-      const mesNome = meses.find(m => m.valor === filtros.mes)?.nome;
-      filtrosTexto += `Mês: ${mesNome} • `;
-    }
-    if (!filtrosTexto) filtrosTexto = 'Nenhum filtro aplicado - Mostrando todos os registros';
-    
-    doc.text(filtrosTexto.replace(/ • $/, ''), margin + 5, yPosition + 15);
-    yPosition += 30;
+    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth - margin, 25, { align: 'right' });
+    doc.text(`${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`, pageWidth - margin, 32, { align: 'right' });
 
-    // CALCULAR TODOS OS VALORES
+    yPosition = 80;
+
+    // CALCULAR VALORES FINANCEIROS
     const valorTotalLocacao = locacoesFiltradas.reduce((sum, loc) => sum + loc.valorLocacao, 0);
     const comissaoTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.comissao, 0);
     const limpezaTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
@@ -204,336 +201,330 @@ export const Relatorios = () => {
     const despesasTotal = despesasFiltradas.reduce((sum, desp) => sum + desp.valor, 0);
     const lucroLiquido = proprietarioTotal - despesasTotal;
     const margemLucro = valorTotalLocacao > 0 ? ((lucroLiquido / valorTotalLocacao) * 100) : 0;
-    const roi = despesasTotal > 0 ? ((lucroLiquido / despesasTotal) * 100) : 0;
 
-    // CARDS DE RESUMO FINANCEIRO MODERNOS
-    const cardWidth = (contentWidth - 15) / 4;
-    const cardHeight = 35;
-    
-    // Card 1 - Receitas
-    doc.setFillColor(240, 253, 244); // bg-green-50
-    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(34, 197, 94); // border-green-500
+    // SEÇÃO DE RESUMO EXECUTIVO COM CARDS GRANDES
+    doc.setFillColor(248, 250, 252); // bg-slate-50
+    doc.roundedRect(margin, yPosition, contentWidth, 15, 3, 3, 'F');
+    doc.setDrawColor(203, 213, 225);
     doc.setLineWidth(1);
-    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 2, 2, 'S');
+    doc.roundedRect(margin, yPosition, contentWidth, 15, 3, 3, 'S');
     
-    doc.setTextColor(21, 128, 61); // text-green-700
-    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('💰 RECEITAS TOTAIS', margin + 3, yPosition + 8);
-    doc.setFontSize(14);
-    doc.text(formatCurrency(valorTotalLocacao), margin + 3, yPosition + 18);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${locacoesFiltradas.length} locações`, margin + 3, yPosition + 25);
-    doc.text(`Média: ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'}`, margin + 3, yPosition + 30);
+    doc.text('💼 RESUMO EXECUTIVO', margin + 8, yPosition + 10);
+    yPosition += 25;
 
-    // Card 2 - Despesas
-    const card2X = margin + cardWidth + 5;
+    // Cards financeiros maiores e mais espaçados
+    const cardWidth = (contentWidth - 10) / 2;
+    const cardHeight = 45;
+    
+    // Card 1 - Receitas (lado esquerdo, superior)
+    doc.setFillColor(240, 253, 244); // bg-green-50
+    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 4, 4, 'F');
+    doc.setDrawColor(34, 197, 94);
+    doc.setLineWidth(2);
+    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 4, 4, 'S');
+    
+    doc.setTextColor(21, 128, 61);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('💰 RECEITAS TOTAIS', margin + 5, yPosition + 12);
+    doc.setFontSize(22);
+    doc.text(formatCurrency(valorTotalLocacao), margin + 5, yPosition + 25);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${locacoesFiltradas.length} locações realizadas`, margin + 5, yPosition + 33);
+    doc.text(`Ticket médio: ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'}`, margin + 5, yPosition + 40);
+
+    // Card 2 - Despesas (lado direito, superior)
+    const card2X = margin + cardWidth + 10;
     doc.setFillColor(254, 242, 242); // bg-red-50
-    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(239, 68, 68); // border-red-500
-    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
+    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 4, 4, 'F');
+    doc.setDrawColor(239, 68, 68);
+    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 4, 4, 'S');
     
-    doc.setTextColor(185, 28, 28); // text-red-700
-    doc.setFontSize(9);
+    doc.setTextColor(185, 28, 28);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('💸 DESPESAS TOTAIS', card2X + 3, yPosition + 8);
-    doc.setFontSize(14);
-    doc.text(formatCurrency(despesasTotal), card2X + 3, yPosition + 18);
-    doc.setFontSize(8);
+    doc.text('💸 DESPESAS TOTAIS', card2X + 5, yPosition + 12);
+    doc.setFontSize(22);
+    doc.text(formatCurrency(despesasTotal), card2X + 5, yPosition + 25);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${despesasFiltradas.length} itens`, card2X + 3, yPosition + 25);
-    doc.text(`Média: ${despesasFiltradas.length > 0 ? formatCurrency(despesasTotal / despesasFiltradas.length) : 'R$ 0,00'}`, card2X + 3, yPosition + 30);
+    doc.text(`${despesasFiltradas.length} itens de despesa`, card2X + 5, yPosition + 33);
+    doc.text(`Custo médio: ${despesasFiltradas.length > 0 ? formatCurrency(despesasTotal / despesasFiltradas.length) : 'R$ 0,00'}`, card2X + 5, yPosition + 40);
 
-    // Card 3 - Lucro
-    const card3X = margin + (cardWidth + 5) * 2;
+    yPosition += cardHeight + 15;
+
+    // Card 3 - Lucro (lado esquerdo, inferior)
     if (lucroLiquido >= 0) {
       doc.setFillColor(219, 234, 254); // bg-blue-50
-      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-      doc.setDrawColor(29, 78, 216); // border-blue-600
-      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
-      doc.setTextColor(29, 78, 216); // text-blue-600
+      doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 4, 4, 'F');
+      doc.setDrawColor(29, 78, 216);
+      doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 4, 4, 'S');
+      doc.setTextColor(29, 78, 216);
     } else {
       doc.setFillColor(254, 242, 242); // bg-red-50
-      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-      doc.setDrawColor(185, 28, 28); // border-red-700
-      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
-      doc.setTextColor(185, 28, 28); // text-red-700
+      doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 4, 4, 'F');
+      doc.setDrawColor(185, 28, 28);
+      doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 4, 4, 'S');
+      doc.setTextColor(185, 28, 28);
     }
     
-    doc.setFontSize(9);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(lucroLiquido >= 0 ? '📈 LUCRO LÍQUIDO' : '📉 PREJUÍZO', card3X + 3, yPosition + 8);
-    doc.setFontSize(14);
-    doc.text(formatCurrency(lucroLiquido), card3X + 3, yPosition + 18);
-    doc.setFontSize(8);
+    doc.text(lucroLiquido >= 0 ? '📈 LUCRO LÍQUIDO' : '📉 PREJUÍZO', margin + 5, yPosition + 12);
+    doc.setFontSize(22);
+    doc.text(formatCurrency(Math.abs(lucroLiquido)), margin + 5, yPosition + 25);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Margem: ${margemLucro.toFixed(1)}%`, card3X + 3, yPosition + 25);
-    doc.text(`ROI: ${roi.toFixed(1)}%`, card3X + 3, yPosition + 30);
+    doc.text(`Margem: ${margemLucro.toFixed(1)}%`, margin + 5, yPosition + 33);
+    doc.text(`ROI: ${despesasTotal > 0 ? ((lucroLiquido / despesasTotal) * 100).toFixed(1) : '0'}%`, margin + 5, yPosition + 40);
 
-    // Card 4 - Proprietário
-    const card4X = margin + (cardWidth + 5) * 3;
+    // Card 4 - Proprietário (lado direito, inferior)
     doc.setFillColor(237, 233, 254); // bg-violet-50
-    doc.roundedRect(card4X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(139, 69, 193); // border-purple-500
-    doc.roundedRect(card4X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
+    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 4, 4, 'F');
+    doc.setDrawColor(139, 69, 193);
+    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 4, 4, 'S');
     
-    doc.setTextColor(109, 40, 217); // text-violet-700
-    doc.setFontSize(9);
+    doc.setTextColor(109, 40, 217);
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('👤 PROPRIETÁRIO', card4X + 3, yPosition + 8);
-    doc.setFontSize(14);
-    doc.text(formatCurrency(proprietarioTotal), card4X + 3, yPosition + 18);
-    doc.setFontSize(8);
+    doc.text('👤 VALOR PROPRIETÁRIO', card2X + 5, yPosition + 12);
+    doc.setFontSize(22);
+    doc.text(formatCurrency(proprietarioTotal), card2X + 5, yPosition + 25);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Valor líquido', card4X + 3, yPosition + 25);
+    doc.text('Valor líquido total', card2X + 5, yPosition + 33);
     const percentualProprietario = valorTotalLocacao > 0 ? ((proprietarioTotal / valorTotalLocacao) * 100) : 0;
-    doc.text(`${percentualProprietario.toFixed(1)}% do total`, card4X + 3, yPosition + 30);
+    doc.text(`${percentualProprietario.toFixed(1)}% do faturamento`, card2X + 5, yPosition + 40);
 
-    yPosition += cardHeight + 20;
+    yPosition += cardHeight + 25;
 
-    // TABELA DE LOCAÇÕES DETALHADA
+    // TABELA DE LOCAÇÕES MELHORADA
     if (locacoesFiltradas.length > 0) {
-      checkAndAddPage(60);
+      checkAndAddPage(80);
       
-      // Header da seção
-      doc.setFillColor(37, 99, 235); // bg-blue-600
-      doc.roundedRect(margin, yPosition, contentWidth, 15, 2, 2, 'F');
+      // Título da seção
+      doc.setFillColor(37, 99, 235);
+      doc.roundedRect(margin, yPosition, contentWidth, 18, 3, 3, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(12);
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('🏠 DETALHAMENTO COMPLETO DAS LOCAÇÕES', margin + 5, yPosition + 10);
-      yPosition += 20;
+      doc.text('🏠 DETALHAMENTO DAS LOCAÇÕES', margin + 8, yPosition + 12);
+      yPosition += 25;
 
-      // Cabeçalho da tabela
-      doc.setFillColor(59, 130, 246); // bg-blue-500
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
+      // Cabeçalho da tabela mais espaçado
+      doc.setFillColor(59, 130, 246);
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 2, 2, 'F');
       
-      const colWidths = [18, 38, 22, 22, 22, 22, 22, 22, 12];
-      let xPosition = margin + 2;
-
-      doc.setFontSize(8);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(255, 255, 255);
       
-      const headers = ['Apt', 'Hóspede', 'Check-in', 'Check-out', 'Valor', 'Limpeza', 'Comissão', 'Proprietário', 'Dias'];
-      headers.forEach((header, index) => {
-        doc.text(header, xPosition, yPosition + 7);
-        xPosition += colWidths[index];
+      // Colunas otimizadas para melhor legibilidade
+      const colPositions = [
+        { x: margin + 3, width: 25, header: 'Apartamento' },
+        { x: margin + 30, width: 40, header: 'Hóspede' },
+        { x: margin + 72, width: 25, header: 'Check-in' },
+        { x: margin + 99, width: 25, header: 'Check-out' },
+        { x: margin + 126, width: 22, header: 'Valor' },
+        { x: margin + 150, width: 18, header: 'Limpeza' },
+        { x: margin + 170, width: 20, header: 'Proprietário' }
+      ];
+
+      colPositions.forEach(col => {
+        doc.text(col.header, col.x, yPosition + 10);
       });
 
-      yPosition += 14;
+      yPosition += 20;
 
-      // Dados da tabela
+      // Dados da tabela com melhor espaçamento
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(31, 41, 55); // text-gray-800
+      doc.setTextColor(31, 41, 55);
       
       locacoesFiltradas.forEach((locacao, index) => {
-        checkAndAddPage(10);
+        checkAndAddPage(14);
 
-        // Linha alternada
+        // Linha zebrada
         if (index % 2 === 0) {
-          doc.setFillColor(249, 250, 251); // bg-gray-50
-          doc.roundedRect(margin, yPosition - 1, contentWidth, 9, 0.5, 0.5, 'F');
+          doc.setFillColor(249, 250, 251);
+          doc.roundedRect(margin, yPosition - 2, contentWidth, 12, 1, 1, 'F');
         }
 
-        xPosition = margin + 2;
-        doc.setFontSize(7);
-        
-        // Calcular dias de estadia
-        const diasEstadia = Math.ceil((locacao.dataSaida.getTime() - locacao.dataEntrada.getTime()) / (1000 * 60 * 60 * 24));
+        doc.setFontSize(9);
         
         const valores = [
           locacao.apartamento,
-          locacao.hospede.substring(0, 20) + (locacao.hospede.length > 20 ? '...' : ''),
+          locacao.hospede.length > 25 ? locacao.hospede.substring(0, 22) + '...' : locacao.hospede,
           locacao.dataEntrada.toLocaleDateString('pt-BR'),
           locacao.dataSaida.toLocaleDateString('pt-BR'),
           formatCurrency(locacao.valorLocacao),
           formatCurrency(locacao.taxaLimpeza),
-          formatCurrency(locacao.comissao),
-          formatCurrency(locacao.valorProprietario),
-          diasEstadia.toString()
+          formatCurrency(locacao.valorProprietario)
         ];
 
         valores.forEach((valor, colIndex) => {
-          if (colIndex >= 4 && colIndex <= 7) { // Valores monetários
-            if (colIndex === 4) {
-              doc.setTextColor(34, 197, 94); // verde
-            } else if (colIndex === 7) {
-              doc.setTextColor(139, 69, 193); // roxo
-            } else {
-              doc.setTextColor(239, 68, 68); // vermelho
-            }
+          if (colIndex >= 4) { // Valores monetários
+            doc.setTextColor(34, 197, 94);
             doc.setFont('helvetica', 'bold');
           } else {
             doc.setTextColor(31, 41, 55);
             doc.setFont('helvetica', 'normal');
           }
-          doc.text(valor, xPosition, yPosition + 5);
-          xPosition += colWidths[colIndex];
+          doc.text(valor, colPositions[colIndex].x, yPosition + 7);
         });
 
-        yPosition += 9;
+        yPosition += 12;
       });
 
-      // Total da tabela
-      checkAndAddPage(15);
-      doc.setFillColor(240, 253, 244); // bg-green-50
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
+      // Linha de totais destacada
+      checkAndAddPage(18);
+      doc.setFillColor(240, 253, 244);
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 2, 2, 'F');
       doc.setDrawColor(34, 197, 94);
       doc.setLineWidth(1);
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 2, 2, 'S');
       
-      doc.setTextColor(21, 128, 61); // text-green-700
+      doc.setTextColor(21, 128, 61);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
+      doc.setFontSize(11);
       
-      xPosition = margin + colWidths[0] + colWidths[1] + 2;
-      doc.text('TOTAIS:', xPosition, yPosition + 7);
-      xPosition += colWidths[2] + colWidths[3];
-      doc.text(formatCurrency(valorTotalLocacao), xPosition, yPosition + 7);
-      xPosition += colWidths[4];
-      doc.text(formatCurrency(limpezaTotal), xPosition, yPosition + 7);
-      xPosition += colWidths[5];
-      doc.text(formatCurrency(comissaoTotal), xPosition, yPosition + 7);
-      xPosition += colWidths[6];
-      doc.text(formatCurrency(proprietarioTotal), xPosition, yPosition + 7);
+      doc.text('TOTAIS GERAIS:', margin + 72, yPosition + 10);
+      doc.text(formatCurrency(valorTotalLocacao), margin + 126, yPosition + 10);
+      doc.text(formatCurrency(limpezaTotal), margin + 150, yPosition + 10);
+      doc.text(formatCurrency(proprietarioTotal), margin + 170, yPosition + 10);
 
-      yPosition += 20;
+      yPosition += 25;
     }
 
-    // TABELA DE DESPESAS DETALHADA
+    // TABELA DE DESPESAS MELHORADA
     if (despesasFiltradas.length > 0) {
-      checkAndAddPage(60);
+      checkAndAddPage(80);
 
-      // Header da seção de despesas
-      doc.setFillColor(239, 68, 68); // bg-red-500
-      doc.roundedRect(margin, yPosition, contentWidth, 15, 2, 2, 'F');
+      // Título da seção de despesas
+      doc.setFillColor(239, 68, 68);
+      doc.roundedRect(margin, yPosition, contentWidth, 18, 3, 3, 'F');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(12);
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('💰 DETALHAMENTO COMPLETO DAS DESPESAS', margin + 5, yPosition + 10);
-      yPosition += 20;
+      doc.text('💰 DETALHAMENTO DAS DESPESAS', margin + 8, yPosition + 12);
+      yPosition += 25;
 
       // Cabeçalho da tabela de despesas
-      doc.setFillColor(248, 113, 113); // bg-red-400
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
+      doc.setFillColor(248, 113, 113);
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 2, 2, 'F');
       
-      doc.setFontSize(8);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(255, 255, 255);
-      doc.text('Data', margin + 2, yPosition + 7);
-      doc.text('Apartamento', margin + 25, yPosition + 7);
-      doc.text('Descrição', margin + 50, yPosition + 7);
-      doc.text('Valor', margin + 140, yPosition + 7);
+      doc.text('Data', margin + 5, yPosition + 10);
+      doc.text('Apartamento', margin + 35, yPosition + 10);
+      doc.text('Descrição', margin + 70, yPosition + 10);
+      doc.text('Valor', margin + 150, yPosition + 10);
 
-      yPosition += 14;
+      yPosition += 20;
 
       // Dados das despesas
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(31, 41, 55); // text-gray-800
+      doc.setTextColor(31, 41, 55);
       
       despesasFiltradas.forEach((despesa, index) => {
-        checkAndAddPage(10);
+        checkAndAddPage(14);
 
         if (index % 2 === 0) {
-          doc.setFillColor(254, 242, 242); // bg-red-50
-          doc.roundedRect(margin, yPosition - 1, contentWidth, 9, 0.5, 0.5, 'F');
+          doc.setFillColor(254, 242, 242);
+          doc.roundedRect(margin, yPosition - 2, contentWidth, 12, 1, 1, 'F');
         }
 
-        doc.setFontSize(7);
+        doc.setFontSize(9);
         doc.setTextColor(31, 41, 55);
-        doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 2, yPosition + 5);
-        doc.text(despesa.apartamento || 'N/A', margin + 25, yPosition + 5);
-        doc.text(despesa.descricao.substring(0, 50) + (despesa.descricao.length > 50 ? '...' : ''), margin + 50, yPosition + 5);
+        doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 5, yPosition + 7);
+        doc.text(despesa.apartamento || 'N/A', margin + 35, yPosition + 7);
+        doc.text(despesa.descricao.length > 40 ? despesa.descricao.substring(0, 37) + '...' : despesa.descricao, margin + 70, yPosition + 7);
         
-        doc.setTextColor(239, 68, 68); // text-red-500
+        doc.setTextColor(239, 68, 68);
         doc.setFont('helvetica', 'bold');
-        doc.text(formatCurrency(despesa.valor), margin + 140, yPosition + 5);
+        doc.text(formatCurrency(despesa.valor), margin + 150, yPosition + 7);
 
-        yPosition += 9;
+        yPosition += 12;
       });
 
       // Total das despesas
-      checkAndAddPage(15);
-      doc.setFillColor(254, 242, 242); // bg-red-50
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
+      checkAndAddPage(18);
+      doc.setFillColor(254, 242, 242);
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 2, 2, 'F');
       doc.setDrawColor(239, 68, 68);
       doc.setLineWidth(1);
-      doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'S');
+      doc.roundedRect(margin, yPosition, contentWidth, 16, 2, 2, 'S');
       
-      doc.setTextColor(185, 28, 28); // text-red-700
+      doc.setTextColor(185, 28, 28);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('TOTAL DESPESAS:', margin + 90, yPosition + 7);
-      doc.text(formatCurrency(despesasTotal), margin + 140, yPosition + 7);
+      doc.setFontSize(11);
+      doc.text('TOTAL DAS DESPESAS:', margin + 100, yPosition + 10);
+      doc.text(formatCurrency(despesasTotal), margin + 150, yPosition + 10);
 
-      yPosition += 20;
+      yPosition += 25;
     }
 
-    // SEÇÃO DE ANÁLISE E INSIGHTS
-    checkAndAddPage(50);
+    // ANÁLISE PROFISSIONAL
+    checkAndAddPage(60);
     
-    doc.setFillColor(79, 70, 229); // bg-indigo-600
-    doc.roundedRect(margin, yPosition, contentWidth, 15, 2, 2, 'F');
+    doc.setFillColor(79, 70, 229);
+    doc.roundedRect(margin, yPosition, contentWidth, 18, 3, 3, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('📊 ANÁLISE E INSIGHTS FINANCEIROS', margin + 5, yPosition + 10);
-    yPosition += 20;
+    doc.text('📊 ANÁLISE E INDICADORES FINANCEIROS', margin + 8, yPosition + 12);
+    yPosition += 25;
 
-    // Background da análise
-    doc.setFillColor(250, 250, 255); // bg-indigo-50
-    doc.roundedRect(margin, yPosition, contentWidth, 40, 2, 2, 'F');
+    // Caixa de análise
+    doc.setFillColor(250, 250, 255);
+    doc.roundedRect(margin, yPosition, contentWidth, 50, 3, 3, 'F');
     doc.setDrawColor(165, 180, 252);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(margin, yPosition, contentWidth, 40, 2, 2, 'S');
+    doc.setLineWidth(1);
+    doc.roundedRect(margin, yPosition, contentWidth, 50, 3, 3, 'S');
 
-    doc.setTextColor(55, 65, 81); // text-gray-700
-    doc.setFontSize(10);
+    doc.setTextColor(55, 65, 81);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
 
     const insights = [
-      `• Performance Geral: ${lucroLiquido >= 0 ? 'POSITIVA' : 'NEGATIVA'} com ${lucroLiquido >= 0 ? 'lucro' : 'prejuízo'} de ${formatCurrency(Math.abs(lucroLiquido))}`,
-      `• Margem de Lucro: ${margemLucro.toFixed(1)}% sobre o faturamento total`,
-      `• Retorno sobre Investimento (ROI): ${roi.toFixed(1)}% sobre as despesas`,
-      `• Ticket Médio por Locação: ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'}`,
-      `• Custo Médio por Despesa: ${despesasFiltradas.length > 0 ? formatCurrency(despesasTotal / despesasFiltradas.length) : 'R$ 0,00'}`,
-      `• Taxa de Ocupação: ${locacoesFiltradas.length} locações no período analisado`,
-      `• Distribuição: ${((comissaoTotal / valorTotalLocacao) * 100).toFixed(1)}% comissão | ${((limpezaTotal / valorTotalLocacao) * 100).toFixed(1)}% limpeza | ${((proprietarioTotal / valorTotalLocacao) * 100).toFixed(1)}% proprietário`
+      `• Status Financeiro: ${lucroLiquido >= 0 ? 'POSITIVO' : 'NEGATIVO'} com resultado de ${formatCurrency(Math.abs(lucroLiquido))}`,
+      `• Margem de Lucro: ${margemLucro.toFixed(1)}% sobre o faturamento bruto`,
+      `• Eficiência Operacional: ${locacoesFiltradas.length} locações geraram ${formatCurrency(valorTotalLocacao)}`,
+      `• Controle de Custos: ${despesasFiltradas.length} despesas totalizaram ${formatCurrency(despesasTotal)}`,
+      `• Performance por Locação: Ticket médio de ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'}`,
+      `• Distribuição de Receitas: ${((proprietarioTotal / valorTotalLocacao) * 100).toFixed(1)}% proprietário | ${((comissaoTotal / valorTotalLocacao) * 100).toFixed(1)}% comissão | ${((limpezaTotal / valorTotalLocacao) * 100).toFixed(1)}% limpeza`
     ];
 
     insights.forEach((insight, index) => {
-      doc.text(insight, margin + 5, yPosition + 8 + (index * 5));
+      doc.text(insight, margin + 8, yPosition + 10 + (index * 7));
     });
 
-    yPosition += 50;
+    yPosition += 60;
 
-    // FOOTER MODERNO
-    checkAndAddPage(30);
+    // RODAPÉ PROFISSIONAL
+    checkAndAddPage(35);
     
-    // Linha separadora
-    doc.setDrawColor(203, 213, 225); // border-slate-300
-    doc.setLineWidth(0.5);
+    // Linha separadora elegante
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(1);
     doc.line(margin, yPosition, pageWidth - margin, yPosition);
     yPosition += 10;
 
-    // Informações do footer
-    doc.setTextColor(148, 163, 184); // text-slate-400
-    doc.setFontSize(8);
+    // Informações do rodapé
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(margin, yPosition, contentWidth, 20, 2, 2, 'F');
+
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     
-    doc.text('Relatório gerado automaticamente pelo sistema de gestão de locações', pageWidth / 2, yPosition, { align: 'center' });
-    doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')} - Hora: ${new Date().toLocaleTimeString('pt-BR')}`, 
-      pageWidth / 2, yPosition + 5, { align: 'center' });
-    
-    if (filtros.apartamento) {
-      const apartamento = apartamentos.find(apt => apt.numero === filtros.apartamento);
-      if (apartamento?.proprietario) {
-        doc.text(`Proprietário: ${apartamento.proprietario}`, pageWidth / 2, yPosition + 10, { align: 'center' });
-      }
-    }
+    doc.text('Relatório gerado automaticamente pelo Sistema de Gestão de Locações', pageWidth / 2, yPosition + 8, { align: 'center' });
+    doc.text(`${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} | Página ${doc.internal.getNumberOfPages()}`, 
+      pageWidth / 2, yPosition + 15, { align: 'center' });
 
     return doc;
   };
