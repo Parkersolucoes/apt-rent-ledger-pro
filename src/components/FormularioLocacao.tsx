@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -195,14 +194,19 @@ export const FormularioLocacao = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-4">
       <div className="max-w-4xl mx-auto">
-        <Card className="shadow-lg">
-          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
-            <CardTitle className="text-2xl font-bold text-center">Nova Locação</CardTitle>
+        <Card className="shadow-2xl bg-white/5 backdrop-blur-md border-white/10">
+          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-t-lg">
+            <CardTitle className="text-3xl font-bold text-center flex items-center justify-center gap-3">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-lg">🏠</span>
+              </div>
+              Nova Locação
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <CardContent className="p-8 space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
               <CamposBasicos
                 apartamento={formData.apartamento}
                 ano={formData.ano}
@@ -217,56 +221,72 @@ export const FormularioLocacao = () => {
                 onTelefoneChange={(value) => setFormData({...formData, telefone: value})}
               />
 
-              <CamposDatas
-                dataEntrada={formData.dataEntrada}
-                dataSaida={formData.dataSaida}
-                onDataEntradaChange={(value) => setFormData({...formData, dataEntrada: value})}
-                onDataSaidaChange={(value) => setFormData({...formData, dataSaida: value})}
-              />
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-4">Datas da Estadia</h3>
+                <CamposDatas
+                  dataEntrada={formData.dataEntrada}
+                  dataSaida={formData.dataSaida}
+                  onDataEntradaChange={(value) => setFormData({...formData, dataEntrada: value})}
+                  onDataSaidaChange={(value) => setFormData({...formData, dataSaida: value})}
+                />
+              </div>
 
-              <CamposValores
-                valorLocacao={formData.valorLocacao}
-                primeiroPagamento={formData.primeiroPagamento}
-                primeiroPagamentoPago={formData.primeiroPagamentoPago}
-                primeiroPagamentoForma={formData.primeiroPagamentoForma}
-                segundoPagamento={formData.segundoPagamento}
-                segundoPagamentoPago={formData.segundoPagamentoPago}
-                segundoPagamentoForma={formData.segundoPagamentoForma}
-                taxaLimpeza={formData.taxaLimpeza}
-                onValorLocacaoChange={(value) => handleCurrencyChange('valorLocacao', value)}
-                onPrimeiroPagamentoChange={(value) => handleCurrencyChange('primeiroPagamento', value)}
-                onPrimeiroPagamentoPagoChange={(checked) => setFormData({...formData, primeiroPagamentoPago: checked})}
-                onPrimeiroPagamentoFormaChange={(value) => setFormData({...formData, primeiroPagamentoForma: value})}
-                onSegundoPagamentoPagoChange={(checked) => setFormData({...formData, segundoPagamentoPago: checked})}
-                onSegundoPagamentoFormaChange={(value) => setFormData({...formData, segundoPagamentoForma: value})}
-              />
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-4">Valores e Pagamentos</h3>
+                <CamposValores
+                  valorLocacao={formData.valorLocacao}
+                  primeiroPagamento={formData.primeiroPagamento}
+                  primeiroPagamentoPago={formData.primeiroPagamentoPago}
+                  primeiroPagamentoForma={formData.primeiroPagamentoForma}
+                  segundoPagamento={formData.segundoPagamento}
+                  segundoPagamentoPago={formData.segundoPagamentoPago}
+                  segundoPagamentoForma={formData.segundoPagamentoForma}
+                  taxaLimpeza={formData.taxaLimpeza}
+                  onValorLocacaoChange={(value) => handleCurrencyChange('valorLocacao', value)}
+                  onPrimeiroPagamentoChange={(value) => handleCurrencyChange('primeiroPagamento', value)}
+                  onPrimeiroPagamentoPagoChange={(checked) => setFormData({...formData, primeiroPagamentoPago: checked})}
+                  onPrimeiroPagamentoFormaChange={(value) => setFormData({...formData, primeiroPagamentoForma: value})}
+                  onSegundoPagamentoPagoChange={(checked) => setFormData({...formData, segundoPagamentoPago: checked})}
+                  onSegundoPagamentoFormaChange={(value) => setFormData({...formData, segundoPagamentoForma: value})}
+                />
+              </div>
 
-              <CamposCalculados
-                valorLocacao={formData.valorLocacao}
-                taxaLimpeza={formData.taxaLimpeza}
-                comissao={comissao}
-                valorProprietario={valorProprietario}
-              />
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-4">Resumo Financeiro</h3>
+                <CamposCalculados
+                  valorLocacao={formData.valorLocacao}
+                  taxaLimpeza={formData.taxaLimpeza}
+                  comissao={comissao}
+                  valorProprietario={valorProprietario}
+                />
+              </div>
 
-              <div>
-                <Label htmlFor="observacoes" className="font-semibold">Observações</Label>
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <Label htmlFor="observacoes" className="font-semibold text-white">Observações</Label>
                 <Textarea
                   id="observacoes"
                   value={formData.observacoes}
                   onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
                   placeholder="Observações adicionais..."
                   rows={3}
+                  className="mt-2 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20"
                 />
               </div>
 
-              <CamposPagamento
-                proprietarioPago={formData.proprietarioPago}
-                dataPagamentoProprietario={formData.dataPagamentoProprietario}
-                onProprietarioPagoChange={(checked) => setFormData({...formData, proprietarioPago: checked})}
-                onDataPagamentoProprietarioChange={(value) => setFormData({...formData, dataPagamentoProprietario: value})}
-              />
+              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-4">Pagamento do Proprietário</h3>
+                <CamposPagamento
+                  proprietarioPago={formData.proprietarioPago}
+                  dataPagamentoProprietario={formData.dataPagamentoProprietario}
+                  onProprietarioPagoChange={(checked) => setFormData({...formData, proprietarioPago: checked})}
+                  onDataPagamentoProprietarioChange={(value) => setFormData({...formData, dataPagamentoProprietario: value})}
+                />
+              </div>
 
-              <Button type="submit" className="w-full font-semibold py-3 text-lg">
+              <Button 
+                type="submit" 
+                className="w-full font-semibold py-4 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg transform transition-all duration-200 hover:scale-[1.02]"
+              >
                 Cadastrar Locação
               </Button>
             </form>
