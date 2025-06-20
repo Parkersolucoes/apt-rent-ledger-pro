@@ -172,16 +172,16 @@ export const ListaLocacoes = () => {
                 <House className="h-5 w-5 text-blue-600" />
                 Apartamentos
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {apartamentos.map((apartamento) => (
                   <Button
                     key={apartamento}
-                    size="lg"
+                    size="sm"
                     variant={filtros.apartamento === apartamento ? "default" : "outline"}
                     onClick={() => aplicarFiltroRapido('apartamento', apartamento)}
-                    className="h-16 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    className="h-10 text-sm font-bold shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <House className="h-6 w-6 mr-2" />
+                    <House className="h-4 w-4 mr-1" />
                     {apartamento}
                   </Button>
                 ))}
@@ -194,16 +194,16 @@ export const ListaLocacoes = () => {
                 <Calendar className="h-5 w-5 text-green-600" />
                 Anos
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
                 {anos.map((ano) => (
                   <Button
                     key={ano}
-                    size="lg"
+                    size="sm"
                     variant={filtros.ano === ano ? "default" : "outline"}
                     onClick={() => aplicarFiltroRapido('ano', ano)}
-                    className="h-16 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    className="h-10 text-sm font-bold shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <Calendar className="h-6 w-6 mr-2" />
+                    <Calendar className="h-4 w-4 mr-1" />
                     {ano}
                   </Button>
                 ))}
@@ -216,16 +216,16 @@ export const ListaLocacoes = () => {
                 <User className="h-5 w-5 text-purple-600" />
                 Meses
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                 {meses.map((mes) => (
                   <Button
                     key={mes.value}
-                    size="lg"
+                    size="sm"
                     variant={filtros.mes === mes.value ? "default" : "outline"}
                     onClick={() => aplicarFiltroRapido('mes', mes.value)}
-                    className="h-16 text-base font-bold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                    className="h-10 text-xs font-bold shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <Calendar className="h-5 w-5 mr-2" />
+                    <Calendar className="h-4 w-4 mr-1" />
                     {mes.label}
                   </Button>
                 ))}
