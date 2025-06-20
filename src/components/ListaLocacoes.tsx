@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -66,18 +65,20 @@ export const ListaLocacoes = () => {
   // Calcular totais por apartamento
   const totaisPorApartamento = apartamentos.reduce((acc, apartamento) => {
     const locacoesApartamento = locacoesFiltradas.filter(loc => loc.apartamento === apartamento);
-    const valorTotal = locacoesApartamento.reduce((sum, loc) => sum + loc.valorLocacao + loc.taxaLimpeza, 0);
+    const valorTotal = locacoesApartamento.reduce((sum, loc) => sum + loc.valorLocacao, 0);
+    const totalLimpeza = locacoesApartamento.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
     const comissaoTotal = locacoesApartamento.reduce((sum, loc) => sum + loc.comissao, 0);
-    const valorProprietario = valorTotal - comissaoTotal;
+    const valorProprietario = valorTotal - totalLimpeza - comissaoTotal;
     
     acc[apartamento] = {
       valorTotal,
+      totalLimpeza,
       comissaoTotal,
       valorProprietario,
       quantidade: locacoesApartamento.length
     };
     return acc;
-  }, {} as Record<string, { valorTotal: number; comissaoTotal: number; valorProprietario: number; quantidade: number }>);
+  }, {} as Record<string, { valorTotal: number; totalLimpeza: number; comissaoTotal: number; valorProprietario: number; quantidade: number }>);
 
   const meses = [
     { value: 1, label: 'Janeiro' },
@@ -262,6 +263,10 @@ export const ListaLocacoes = () => {
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Valor Total:</span>
                           <span className="font-medium text-green-600">{formatCurrency(totais.valorTotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Total Limpeza:</span>
+                          <span className="font-medium text-orange-600">{formatCurrency(totais.totalLimpeza)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Comissão:</span>
