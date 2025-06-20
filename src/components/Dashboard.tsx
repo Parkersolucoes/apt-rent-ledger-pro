@@ -1,15 +1,17 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency } from '@/utils/formatters';
-import { Calendar, House, User, Wallet } from 'lucide-react';
+import { Calendar, House, User, Wallet, Database, Trash2 } from 'lucide-react';
 import { ApartamentoModal } from './ApartamentoModal';
+import { migrarDadosParaSupabase, limparLocalStorage } from '@/utils/migration';
 
 export const Dashboard = () => {
   const { locacoes } = useLocacoes();
   const [apartamentoSelecionado, setApartamentoSelecionado] = useState<string | null>(null);
   const [modalAberto, setModalAberto] = useState(false);
+  const [migrandoDados, setMigrandoDados] = useState(false);
 
   const estatisticas = {
     totalLocacoes: locacoes.length,
@@ -29,8 +31,54 @@ export const Dashboard = () => {
     setModalAberto(true);
   };
 
+  const handleMigrarDados = async () => {
+    setMigrandoDados(true);
+    await migrarDadosParaSupabase();
+    setMigrandoDados(false);
+    // Recarregar a página para mostrar os dados migrados
+    window.location.reload();
+  };
+
+  const temDadosLocalStorage = () => {
+    return localStorage.getItem('apartamentos') || localStorage.getItem('locacoes');
+  };
+
   return (
     <div className="space-y-6">
+      {temDadosLocalStorage() && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-700">
+              <Database className="h-5 w-5" />
+              Migração de Dados
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-blue-600">
+              Detectamos dados no localStorage. Migre-os para o Supabase para garantir que não sejam perdidos.
+            </p>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleMigrarDados}
+                disabled={migrandoDados}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Database className="h-4 w-4 mr-2" />
+                {migrandoDados ? 'Migrando...' : 'Migrar para Supabase'}
+              </Button>
+              <Button 
+                onClick={limparLocalStorage}
+                variant="outline"
+                className="text-red-600 border-red-200 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Limpar Cache Local
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

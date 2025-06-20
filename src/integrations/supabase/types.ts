@@ -9,7 +9,96 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      apartamentos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          endereco: string | null
+          id: string
+          numero: string
+          proprietario: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          endereco?: string | null
+          id?: string
+          numero: string
+          proprietario?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          endereco?: string | null
+          id?: string
+          numero?: string
+          proprietario?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      locacoes: {
+        Row: {
+          ano: number
+          apartamento: string
+          comissao: number
+          created_at: string
+          data_entrada: string
+          data_pagamento_proprietario: string | null
+          data_saida: string
+          hospede: string
+          id: string
+          mes: number
+          observacoes: string | null
+          primeiro_pagamento: number
+          segundo_pagamento: number
+          taxa_limpeza: number
+          valor_faltando: number
+          valor_locacao: number
+        }
+        Insert: {
+          ano: number
+          apartamento: string
+          comissao?: number
+          created_at?: string
+          data_entrada: string
+          data_pagamento_proprietario?: string | null
+          data_saida: string
+          hospede: string
+          id?: string
+          mes: number
+          observacoes?: string | null
+          primeiro_pagamento?: number
+          segundo_pagamento?: number
+          taxa_limpeza?: number
+          valor_faltando?: number
+          valor_locacao: number
+        }
+        Update: {
+          ano?: number
+          apartamento?: string
+          comissao?: number
+          created_at?: string
+          data_entrada?: string
+          data_pagamento_proprietario?: string | null
+          data_saida?: string
+          hospede?: string
+          id?: string
+          mes?: number
+          observacoes?: string | null
+          primeiro_pagamento?: number
+          segundo_pagamento?: number
+          taxa_limpeza?: number
+          valor_faltando?: number
+          valor_locacao?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
