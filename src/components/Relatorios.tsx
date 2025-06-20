@@ -69,11 +69,11 @@ export const Relatorios = () => {
         color: black !important;
         width: 210mm !important;
         min-height: 297mm !important;
-        padding: 20mm !important;
+        padding: 5mm !important;
         box-shadow: none !important;
         border: none !important;
-        font-size: 12px !important;
-        line-height: 1.4 !important;
+        font-size: 10px !important;
+        line-height: 1.3 !important;
       `;
 
       // Apply specific styles to nested elements for PDF
@@ -82,6 +82,7 @@ export const Relatorios = () => {
         (card as HTMLElement).style.border = '1px solid #ccc';
         (card as HTMLElement).style.boxShadow = 'none';
         (card as HTMLElement).style.background = 'white';
+        (card as HTMLElement).style.marginBottom = '6px';
       });
 
       const headers = relatorioElement.querySelectorAll('[class*="bg-gradient"]');
@@ -89,6 +90,14 @@ export const Relatorios = () => {
         (header as HTMLElement).style.background = '#f8f9fa !important';
         (header as HTMLElement).style.color = '#000 !important';
         (header as HTMLElement).style.border = '1px solid #ccc';
+        (header as HTMLElement).style.padding = '6px';
+      });
+
+      // Optimize table styles for PDF
+      const tables = relatorioElement.querySelectorAll('table');
+      tables.forEach(table => {
+        (table as HTMLElement).style.fontSize = '9px';
+        (table as HTMLElement).style.lineHeight = '1.2';
       });
 
       // Capture the element as canvas
@@ -101,25 +110,25 @@ export const Relatorios = () => {
         height: 1123, // A4 height in pixels at 96 DPI
       });
 
-      // Create PDF
+      // Create PDF with minimal margins
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+      const imgWidth = 200; // Reduced width for minimal margins (5mm each side)
+      const pageHeight = 287; // Reduced height for minimal margins (5mm each side)
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-      let position = 0;
+      let position = 5; // Start with 5mm margin
 
       // Add first page
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
       // Add additional pages if needed
       while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+        position = heightLeft - imgHeight + 5;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', 5, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
 
@@ -136,6 +145,9 @@ export const Relatorios = () => {
       });
       headers.forEach(header => {
         (header as HTMLElement).style.cssText = '';
+      });
+      tables.forEach(table => {
+        (table as HTMLElement).style.cssText = '';
       });
 
       toast({
