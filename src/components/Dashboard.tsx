@@ -210,31 +210,31 @@ export const Dashboard = () => {
                       key={apartamento}
                       className={`cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 border ${
                         estaOcupado 
-                          ? 'bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-300' 
-                          : 'bg-gradient-to-br from-slate-50 to-slate-100 border-slate-300'
+                          ? 'bg-gradient-to-br from-pink-50 to-pink-100 border-pink-300' 
+                          : 'bg-gradient-to-br from-green-50 to-green-100 border-green-300'
                       }`}
                       onClick={() => handleApartamentoClick(apartamento)}
                     >
                       <CardContent className="p-6 text-center">
                         <div className={`text-3xl font-bold mb-2 ${
-                          estaOcupado ? 'text-emerald-700' : 'text-slate-600'
+                          estaOcupado ? 'text-pink-700' : 'text-green-700'
                         }`}>
                           {apartamento}
                         </div>
                         <div className={`text-sm mb-1 ${
-                          estaOcupado ? 'text-emerald-600' : 'text-slate-500'
+                          estaOcupado ? 'text-pink-600' : 'text-green-600'
                         }`}>
                           {locacoesApt.length} locações
                         </div>
                         <div className={`text-sm font-medium ${
-                          estaOcupado ? 'text-emerald-700' : 'text-slate-600'
+                          estaOcupado ? 'text-pink-700' : 'text-green-700'
                         }`}>
                           {formatCurrency(faturamentoApt)}
                         </div>
                         <div className={`text-xs mt-2 px-2 py-1 rounded-full ${
                           estaOcupado 
-                            ? 'bg-emerald-200 text-emerald-800' 
-                            : 'bg-amber-200 text-amber-800'
+                            ? 'bg-pink-200 text-pink-800' 
+                            : 'bg-green-200 text-green-800'
                         }`}>
                           {estaOcupado ? 'Ocupado' : 'Disponível'}
                         </div>
