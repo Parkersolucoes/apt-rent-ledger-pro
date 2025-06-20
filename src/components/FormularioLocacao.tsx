@@ -194,10 +194,10 @@ export const FormularioLocacao = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 p-4">
+    <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
-        <Card className="shadow-2xl bg-white/5 backdrop-blur-md border-white/10">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-t-lg">
+        <Card className="shadow-lg">
+          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="text-3xl font-bold text-center flex items-center justify-center gap-3">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                 <span className="text-lg">🏠</span>
@@ -221,8 +221,8 @@ export const FormularioLocacao = () => {
                 onTelefoneChange={(value) => setFormData({...formData, telefone: value})}
               />
 
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Datas da Estadia</h3>
+              <div className="bg-gray-50 rounded-xl p-6 border">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Datas da Estadia</h3>
                 <CamposDatas
                   dataEntrada={formData.dataEntrada}
                   dataSaida={formData.dataSaida}
@@ -231,8 +231,8 @@ export const FormularioLocacao = () => {
                 />
               </div>
 
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Valores e Pagamentos</h3>
+              <div className="bg-gray-50 rounded-xl p-6 border">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Valores e Pagamentos</h3>
                 <CamposValores
                   valorLocacao={formData.valorLocacao}
                   primeiroPagamento={formData.primeiroPagamento}
@@ -251,8 +251,8 @@ export const FormularioLocacao = () => {
                 />
               </div>
 
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Resumo Financeiro</h3>
+              <div className="bg-gray-50 rounded-xl p-6 border">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Resumo Financeiro</h3>
                 <CamposCalculados
                   valorLocacao={formData.valorLocacao}
                   taxaLimpeza={formData.taxaLimpeza}
@@ -261,20 +261,20 @@ export const FormularioLocacao = () => {
                 />
               </div>
 
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <Label htmlFor="observacoes" className="font-semibold text-white">Observações</Label>
+              <div className="bg-gray-50 rounded-xl p-6 border">
+                <Label htmlFor="observacoes" className="font-semibold text-gray-800">Observações</Label>
                 <Textarea
                   id="observacoes"
                   value={formData.observacoes}
                   onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
                   placeholder="Observações adicionais..."
                   rows={3}
-                  className="mt-2 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20"
+                  className="mt-2"
                 />
               </div>
 
-              <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-                <h3 className="text-lg font-semibold text-white mb-4">Pagamento do Proprietário</h3>
+              <div className="bg-gray-50 rounded-xl p-6 border">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Pagamento do Proprietário</h3>
                 <CamposPagamento
                   proprietarioPago={formData.proprietarioPago}
                   dataPagamentoProprietario={formData.dataPagamentoProprietario}
@@ -285,7 +285,7 @@ export const FormularioLocacao = () => {
 
               <Button 
                 type="submit" 
-                className="w-full font-semibold py-4 text-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg transform transition-all duration-200 hover:scale-[1.02]"
+                className="w-full font-semibold py-4 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform transition-all duration-200 hover:scale-[1.02]"
               >
                 Cadastrar Locação
               </Button>

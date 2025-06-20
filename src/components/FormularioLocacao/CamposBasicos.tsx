@@ -34,13 +34,13 @@ export const CamposBasicos = ({
   return (
     <div className="space-y-6">
       {/* Seção Principal */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-        <h3 className="text-lg font-semibold text-white mb-4">Informações Principais</h3>
+      <div className="bg-gray-50 rounded-xl p-6 border">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Informações Principais</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="apartamento" className="font-semibold text-white">Apartamento *</Label>
+            <Label htmlFor="apartamento" className="font-semibold text-gray-700">Apartamento *</Label>
             <Select value={apartamento} onValueChange={onApartamentoChange}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger>
                 <SelectValue placeholder="Selecione o apartamento" />
               </SelectTrigger>
               <SelectContent>
@@ -54,7 +54,7 @@ export const CamposBasicos = ({
           </div>
 
           <div>
-            <Label htmlFor="hospede" className="font-semibold text-white">Hóspede *</Label>
+            <Label htmlFor="hospede" className="font-semibold text-gray-700">Hóspede *</Label>
             <Input
               id="hospede"
               type="text"
@@ -62,15 +62,14 @@ export const CamposBasicos = ({
               onChange={(e) => onHospedeChange(e.target.value)}
               placeholder="Nome do hóspede"
               required
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20"
             />
           </div>
         </div>
       </div>
 
       {/* Seção Contato e Período */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
-        <h3 className="text-lg font-semibold text-white mb-4">Contato e Período</h3>
+      <div className="bg-gray-50 rounded-xl p-6 border">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Contato e Período</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <CampoTelefone
             value={telefone}
@@ -78,9 +77,9 @@ export const CamposBasicos = ({
           />
 
           <div>
-            <Label htmlFor="mes" className="font-semibold text-white">Mês</Label>
+            <Label htmlFor="mes" className="font-semibold text-gray-700">Mês</Label>
             <Select value={mes.toString()} onValueChange={(value) => onMesChange(parseInt(value))}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -94,7 +93,7 @@ export const CamposBasicos = ({
           </div>
 
           <div>
-            <Label htmlFor="ano" className="font-semibold text-white">Ano</Label>
+            <Label htmlFor="ano" className="font-semibold text-gray-700">Ano</Label>
             <Input
               id="ano"
               type="number"
@@ -103,7 +102,6 @@ export const CamposBasicos = ({
               placeholder="Ano"
               min="2020"
               max="2030"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20"
             />
           </div>
         </div>

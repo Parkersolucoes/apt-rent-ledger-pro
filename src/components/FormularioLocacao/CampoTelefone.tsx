@@ -34,14 +34,13 @@ export const CampoTelefone = ({ value, onChange }: CampoTelefoneProps) => {
 
   return (
     <div>
-      <Label htmlFor="telefone" className="font-semibold text-white">Telefone</Label>
+      <Label htmlFor="telefone" className="font-semibold text-gray-700">Telefone</Label>
       <Input
         id="telefone"
         type="tel"
         value={value}
         onChange={handleChange}
         placeholder="(00) 00000-0000"
-        className="bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20"
       />
     </div>
   );
