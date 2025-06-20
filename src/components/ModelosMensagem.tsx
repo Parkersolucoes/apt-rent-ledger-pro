@@ -209,7 +209,7 @@ export const ModelosMensagem = () => {
                   required
                 />
                 <p className="text-sm text-gray-500">
-                  Use variáveis como {{`{nome_proprietario}`}} para inserir dados dinâmicos
+                  Use variáveis como {`{{nome_proprietario}}`} para inserir dados dinâmicos
                 </p>
               </div>
 
