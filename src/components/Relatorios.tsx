@@ -13,6 +13,8 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { CalendarIcon, FileText, Mail, Download } from 'lucide-react';
 import { RelatorioDetalhado } from './Relatorios/RelatorioDetalhado';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FiltrosRelatorio {
   apartamento: string;
@@ -23,6 +25,7 @@ interface FiltrosRelatorio {
 export const Relatorios = () => {
   const { locacoes, obterApartamentos } = useLocacoes();
   const { despesas } = useDespesas();
+  const { toast } = useToast();
   
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({
     apartamento: '',
@@ -52,11 +55,37 @@ export const Relatorios = () => {
     
     setEnviandoEmail(true);
     try {
-      // Aqui implementaremos o envio por email posteriormente
-      console.log('Enviando relatório por email para:', emailDestino);
-      alert('Funcionalidade de envio por email será implementada em breve!');
+      const { data, error } = await supabase.functions.invoke('send-report-email', {
+        body: {
+          email: emailDestino,
+          apartamento: filtros.apartamento,
+          dataInicio: filtros.dataInicio.toISOString(),
+          dataFim: filtros.dataFim.toISOString(),
+          totalReceitas,
+          totalDespesas,
+          lucroLiquido,
+          locacoes: locacoesPeriodo,
+          despesas: despesasPeriodo
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Email enviado com sucesso!",
+        description: `O relatório foi enviado para ${emailDestino}`,
+      });
+
+      setEmailDestino('');
     } catch (error) {
       console.error('Erro ao enviar email:', error);
+      toast({
+        title: "Erro ao enviar email",
+        description: "Verifique se o email está correto e tente novamente.",
+        variant: "destructive",
+      });
     } finally {
       setEnviandoEmail(false);
     }
@@ -117,7 +146,6 @@ export const Relatorios = () => {
                 </Select>
               </div>
 
-              {/* Data Início */}
               <div className="space-y-2">
                 <Label>Data Início</Label>
                 <Popover>
@@ -144,7 +172,6 @@ export const Relatorios = () => {
                 </Popover>
               </div>
 
-              {/* Data Fim */}
               <div className="space-y-2">
                 <Label>Data Fim</Label>
                 <Popover>
