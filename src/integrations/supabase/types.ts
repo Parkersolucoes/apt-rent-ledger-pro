@@ -94,6 +94,7 @@ export type Database = {
           taxa_limpeza: number
           valor_faltando: number
           valor_locacao: number
+          valor_proprietario: number | null
         }
         Insert: {
           ano: number
@@ -116,6 +117,7 @@ export type Database = {
           taxa_limpeza?: number
           valor_faltando?: number
           valor_locacao: number
+          valor_proprietario?: number | null
         }
         Update: {
           ano?: number
@@ -138,6 +140,7 @@ export type Database = {
           taxa_limpeza?: number
           valor_faltando?: number
           valor_locacao?: number
+          valor_proprietario?: number | null
         }
         Relationships: []
       }

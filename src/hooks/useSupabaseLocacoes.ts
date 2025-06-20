@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Locacao, FiltrosLocacao } from '@/types/locacao';
 import { toast } from '@/hooks/use-toast';
-import { calcularComissao, calcularValorProprietario } from '@/utils/formatters';
+import { useWebhook } from '@/hooks/useWebhook';
 
 export const useSupabaseLocacoes = () => {
   const [locacoes, setLocacoes] = useState<Locacao[]>([]);
   const [loading, setLoading] = useState(true);
+  const { sendLocacaoAtualizada, sendLocacaoExcluida, sendPagamentoAtualizado } = useWebhook();
 
   // Carregar locações do Supabase
   const carregarLocacoes = async () => {
@@ -19,36 +20,29 @@ export const useSupabaseLocacoes = () => {
 
       if (error) throw error;
 
-      const locacoesFormatadas = data.map(loc => {
-        const valorLocacao = Number(loc.valor_locacao);
-        const taxaLimpeza = Number(loc.taxa_limpeza);
-        const comissao = Number(loc.comissao);
-        const valorProprietario = calcularValorProprietario(valorLocacao, taxaLimpeza, comissao);
-
-        return {
-          id: loc.id,
-          apartamento: loc.apartamento,
-          ano: loc.ano,
-          mes: loc.mes,
-          hospede: loc.hospede,
-          dataEntrada: new Date(loc.data_entrada),
-          dataSaida: new Date(loc.data_saida),
-          valorLocacao,
-          primeiroPagamento: Number(loc.primeiro_pagamento),
-          primeiroPagamentoPago: loc.primeiro_pagamento_pago || false,
-          primeiroPagamentoForma: loc.primeiro_pagamento_forma || 'Dinheiro',
-          segundoPagamento: Number(loc.segundo_pagamento),
-          segundoPagamentoPago: loc.segundo_pagamento_pago || false,
-          segundoPagamentoForma: loc.segundo_pagamento_forma || 'Dinheiro',
-          valorFaltando: Number(loc.valor_faltando),
-          taxaLimpeza,
-          comissao,
-          valorProprietario,
-          dataPagamentoProprietario: loc.data_pagamento_proprietario ? new Date(loc.data_pagamento_proprietario) : undefined,
-          observacoes: loc.observacoes || undefined,
-          createdAt: new Date(loc.created_at)
-        };
-      });
+      const locacoesFormatadas = data.map(loc => ({
+        id: loc.id,
+        apartamento: loc.apartamento,
+        ano: loc.ano,
+        mes: loc.mes,
+        hospede: loc.hospede,
+        dataEntrada: new Date(loc.data_entrada),
+        dataSaida: new Date(loc.data_saida),
+        valorLocacao: Number(loc.valor_locacao),
+        primeiroPagamento: Number(loc.primeiro_pagamento),
+        primeiroPagamentoPago: loc.primeiro_pagamento_pago || false,
+        primeiroPagamentoForma: loc.primeiro_pagamento_forma || 'Dinheiro',
+        segundoPagamento: Number(loc.segundo_pagamento),
+        segundoPagamentoPago: loc.segundo_pagamento_pago || false,
+        segundoPagamentoForma: loc.segundo_pagamento_forma || 'Dinheiro',
+        valorFaltando: Number(loc.valor_faltando),
+        taxaLimpeza: Number(loc.taxa_limpeza),
+        comissao: Number(loc.comissao),
+        valorProprietario: Number(loc.valor_proprietario || 0),
+        dataPagamentoProprietario: loc.data_pagamento_proprietario ? new Date(loc.data_pagamento_proprietario) : undefined,
+        observacoes: loc.observacoes || undefined,
+        createdAt: new Date(loc.created_at)
+      }));
 
       setLocacoes(locacoesFormatadas);
     } catch (error) {
@@ -88,6 +82,7 @@ export const useSupabaseLocacoes = () => {
           valor_faltando: locacao.valorFaltando,
           taxa_limpeza: locacao.taxaLimpeza,
           comissao: locacao.comissao,
+          valor_proprietario: locacao.valorProprietario,
           data_pagamento_proprietario: locacao.dataPagamentoProprietario?.toISOString().split('T')[0] || null,
           observacoes: locacao.observacoes || null
         })
@@ -95,12 +90,6 @@ export const useSupabaseLocacoes = () => {
         .single();
 
       if (error) throw error;
-
-      const valorProprietario = calcularValorProprietario(
-        Number(data.valor_locacao), 
-        Number(data.taxa_limpeza), 
-        Number(data.comissao)
-      );
 
       const novaLocacao: Locacao = {
         id: data.id,
@@ -120,20 +109,26 @@ export const useSupabaseLocacoes = () => {
         valorFaltando: Number(data.valor_faltando),
         taxaLimpeza: Number(data.taxa_limpeza),
         comissao: Number(data.comissao),
-        valorProprietario,
+        valorProprietario: Number(data.valor_proprietario || 0),
         dataPagamentoProprietario: data.data_pagamento_proprietario ? new Date(data.data_pagamento_proprietario) : undefined,
         observacoes: data.observacoes || undefined,
         createdAt: new Date(data.created_at)
       };
 
       setLocacoes(prev => [novaLocacao, ...prev]);
+      
+      toast({
+        title: "Sucesso!",
+        description: "Locação cadastrada com sucesso.",
+      });
     } catch (error) {
       console.error('Erro ao adicionar locação:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível adicionar a locação.",
+        description: "Não foi possível cadastrar a locação.",
         variant: "destructive"
       });
+      throw error;
     }
   };
 
@@ -157,6 +152,7 @@ export const useSupabaseLocacoes = () => {
       if (locacao.valorFaltando !== undefined) updateData.valor_faltando = locacao.valorFaltando;
       if (locacao.taxaLimpeza !== undefined) updateData.taxa_limpeza = locacao.taxaLimpeza;
       if (locacao.comissao !== undefined) updateData.comissao = locacao.comissao;
+      if (locacao.valorProprietario !== undefined) updateData.valor_proprietario = locacao.valorProprietario;
       if (locacao.dataPagamentoProprietario !== undefined) {
         updateData.data_pagamento_proprietario = locacao.dataPagamentoProprietario?.toISOString().split('T')[0] || null;
       }
@@ -170,12 +166,6 @@ export const useSupabaseLocacoes = () => {
         .single();
 
       if (error) throw error;
-
-      const valorProprietario = calcularValorProprietario(
-        Number(data.valor_locacao), 
-        Number(data.taxa_limpeza), 
-        Number(data.comissao)
-      );
 
       const locacaoAtualizada: Locacao = {
         id: data.id,
@@ -195,7 +185,7 @@ export const useSupabaseLocacoes = () => {
         valorFaltando: Number(data.valor_faltando),
         taxaLimpeza: Number(data.taxa_limpeza),
         comissao: Number(data.comissao),
-        valorProprietario,
+        valorProprietario: Number(data.valor_proprietario || 0),
         dataPagamentoProprietario: data.data_pagamento_proprietario ? new Date(data.data_pagamento_proprietario) : undefined,
         observacoes: data.observacoes || undefined,
         createdAt: new Date(data.created_at)
@@ -204,6 +194,20 @@ export const useSupabaseLocacoes = () => {
       setLocacoes(prev => 
         prev.map(loc => loc.id === id ? locacaoAtualizada : loc)
       );
+
+      // Enviar webhook de atualização
+      sendLocacaoAtualizada(locacaoAtualizada);
+
+      // Verificar se houve mudança nos pagamentos para webhook específico
+      const locacaoOriginal = locacoes.find(l => l.id === id);
+      if (locacaoOriginal) {
+        if (locacao.primeiroPagamentoPago !== undefined && locacao.primeiroPagamentoPago !== locacaoOriginal.primeiroPagamentoPago) {
+          sendPagamentoAtualizado(locacaoAtualizada, 'Primeiro Pagamento', locacao.primeiroPagamentoPago);
+        }
+        if (locacao.segundoPagamentoPago !== undefined && locacao.segundoPagamentoPago !== locacaoOriginal.segundoPagamentoPago) {
+          sendPagamentoAtualizado(locacaoAtualizada, 'Segundo Pagamento', locacao.segundoPagamentoPago);
+        }
+      }
     } catch (error) {
       console.error('Erro ao atualizar locação:', error);
       toast({
@@ -211,11 +215,14 @@ export const useSupabaseLocacoes = () => {
         description: "Não foi possível atualizar a locação.",
         variant: "destructive"
       });
+      throw error;
     }
   };
 
   const removerLocacao = async (id: string) => {
     try {
+      const locacaoParaExcluir = locacoes.find(l => l.id === id);
+      
       const { error } = await supabase
         .from('locacoes')
         .delete()
@@ -224,6 +231,11 @@ export const useSupabaseLocacoes = () => {
       if (error) throw error;
 
       setLocacoes(prev => prev.filter(loc => loc.id !== id));
+
+      // Enviar webhook de exclusão
+      if (locacaoParaExcluir) {
+        sendLocacaoExcluida(locacaoParaExcluir);
+      }
     } catch (error) {
       console.error('Erro ao remover locação:', error);
       toast({
@@ -231,6 +243,7 @@ export const useSupabaseLocacoes = () => {
         description: "Não foi possível remover a locação.",
         variant: "destructive"
       });
+      throw error;
     }
   };
 
@@ -245,22 +258,31 @@ export const useSupabaseLocacoes = () => {
       if (filtros.mes && locacao.mes !== filtros.mes) {
         return false;
       }
-      if (filtros.proprietarioPago !== undefined) {
-        const foiPago = !!locacao.dataPagamentoProprietario;
-        if (filtros.proprietarioPago !== foiPago) {
-          return false;
-        }
+      if (filtros.hospede && !locacao.hospede.toLowerCase().includes(filtros.hospede.toLowerCase())) {
+        return false;
+      }
+      if (filtros.dataInicio && locacao.dataEntrada < filtros.dataInicio) {
+        return false;
+      }
+      if (filtros.dataFim && locacao.dataSaida > filtros.dataFim) {
+        return false;
       }
       return true;
     });
   };
 
+  const obterLocacoesPorApartamento = (apartamento: string) => {
+    return locacoes.filter(loc => loc.apartamento === apartamento);
+  };
+
   const obterApartamentos = () => {
-    return Array.from(new Set(locacoes.map(loc => loc.apartamento))).sort();
+    const apartamentos = Array.from(new Set(locacoes.map(loc => loc.apartamento)));
+    return apartamentos.sort();
   };
 
   const obterAnos = () => {
-    return Array.from(new Set(locacoes.map(loc => loc.ano))).sort((a, b) => b - a);
+    const anos = Array.from(new Set(locacoes.map(loc => loc.ano)));
+    return anos.sort((a, b) => b - a);
   };
 
   return {
@@ -270,6 +292,7 @@ export const useSupabaseLocacoes = () => {
     atualizarLocacao,
     removerLocacao,
     filtrarLocacoes,
+    obterLocacoesPorApartamento,
     obterApartamentos,
     obterAnos,
     carregarLocacoes
