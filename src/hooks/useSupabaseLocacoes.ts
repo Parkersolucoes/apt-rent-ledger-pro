@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Locacao, FiltrosLocacao } from '@/types/locacao';
 import { toast } from '@/hooks/use-toast';
+import { calcularComissao, calcularValorProprietario } from '@/utils/formatters';
 
 export const useSupabaseLocacoes = () => {
   const [locacoes, setLocacoes] = useState<Locacao[]>([]);
@@ -17,26 +18,34 @@ export const useSupabaseLocacoes = () => {
 
       if (error) throw error;
 
-      const locacoesFormatadas = data.map(loc => ({
-        id: loc.id,
-        apartamento: loc.apartamento,
-        ano: loc.ano,
-        mes: loc.mes,
-        hospede: loc.hospede,
-        dataEntrada: new Date(loc.data_entrada),
-        dataSaida: new Date(loc.data_saida),
-        valorLocacao: Number(loc.valor_locacao),
-        primeiroPagamento: Number(loc.primeiro_pagamento),
-        primeiroPagamentoPago: loc.primeiro_pagamento_pago || false,
-        segundoPagamento: Number(loc.segundo_pagamento),
-        segundoPagamentoPago: loc.segundo_pagamento_pago || false,
-        valorFaltando: Number(loc.valor_faltando),
-        taxaLimpeza: Number(loc.taxa_limpeza),
-        comissao: Number(loc.comissao),
-        dataPagamentoProprietario: loc.data_pagamento_proprietario ? new Date(loc.data_pagamento_proprietario) : undefined,
-        observacoes: loc.observacoes || undefined,
-        createdAt: new Date(loc.created_at)
-      }));
+      const locacoesFormatadas = data.map(loc => {
+        const valorLocacao = Number(loc.valor_locacao);
+        const taxaLimpeza = Number(loc.taxa_limpeza);
+        const comissao = Number(loc.comissao);
+        const valorProprietario = calcularValorProprietario(valorLocacao, taxaLimpeza, comissao);
+
+        return {
+          id: loc.id,
+          apartamento: loc.apartamento,
+          ano: loc.ano,
+          mes: loc.mes,
+          hospede: loc.hospede,
+          dataEntrada: new Date(loc.data_entrada),
+          dataSaida: new Date(loc.data_saida),
+          valorLocacao,
+          primeiroPagamento: Number(loc.primeiro_pagamento),
+          primeiroPagamentoPago: loc.primeiro_pagamento_pago || false,
+          segundoPagamento: Number(loc.segundo_pagamento),
+          segundoPagamentoPago: loc.segundo_pagamento_pago || false,
+          valorFaltando: Number(loc.valor_faltando),
+          taxaLimpeza,
+          comissao,
+          valorProprietario,
+          dataPagamentoProprietario: loc.data_pagamento_proprietario ? new Date(loc.data_pagamento_proprietario) : undefined,
+          observacoes: loc.observacoes || undefined,
+          createdAt: new Date(loc.created_at)
+        };
+      });
 
       setLocacoes(locacoesFormatadas);
     } catch (error) {
@@ -82,6 +91,12 @@ export const useSupabaseLocacoes = () => {
 
       if (error) throw error;
 
+      const valorProprietario = calcularValorProprietario(
+        Number(data.valor_locacao), 
+        Number(data.taxa_limpeza), 
+        Number(data.comissao)
+      );
+
       const novaLocacao: Locacao = {
         id: data.id,
         apartamento: data.apartamento,
@@ -98,6 +113,7 @@ export const useSupabaseLocacoes = () => {
         valorFaltando: Number(data.valor_faltando),
         taxaLimpeza: Number(data.taxa_limpeza),
         comissao: Number(data.comissao),
+        valorProprietario,
         dataPagamentoProprietario: data.data_pagamento_proprietario ? new Date(data.data_pagamento_proprietario) : undefined,
         observacoes: data.observacoes || undefined,
         createdAt: new Date(data.created_at)
@@ -146,6 +162,12 @@ export const useSupabaseLocacoes = () => {
 
       if (error) throw error;
 
+      const valorProprietario = calcularValorProprietario(
+        Number(data.valor_locacao), 
+        Number(data.taxa_limpeza), 
+        Number(data.comissao)
+      );
+
       const locacaoAtualizada: Locacao = {
         id: data.id,
         apartamento: data.apartamento,
@@ -162,6 +184,7 @@ export const useSupabaseLocacoes = () => {
         valorFaltando: Number(data.valor_faltando),
         taxaLimpeza: Number(data.taxa_limpeza),
         comissao: Number(data.comissao),
+        valorProprietario,
         dataPagamentoProprietario: data.data_pagamento_proprietario ? new Date(data.data_pagamento_proprietario) : undefined,
         observacoes: data.observacoes || undefined,
         createdAt: new Date(data.created_at)
