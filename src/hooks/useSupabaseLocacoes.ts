@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Locacao, FiltrosLocacao } from '@/types/locacao';
@@ -258,14 +257,11 @@ export const useSupabaseLocacoes = () => {
       if (filtros.mes && locacao.mes !== filtros.mes) {
         return false;
       }
-      if (filtros.hospede && !locacao.hospede.toLowerCase().includes(filtros.hospede.toLowerCase())) {
-        return false;
-      }
-      if (filtros.dataInicio && locacao.dataEntrada < filtros.dataInicio) {
-        return false;
-      }
-      if (filtros.dataFim && locacao.dataSaida > filtros.dataFim) {
-        return false;
+      if (filtros.proprietarioPago !== undefined && filtros.proprietarioPago !== 'todos') {
+        const proprietarioPago = !!locacao.dataPagamentoProprietario;
+        if (proprietarioPago !== filtros.proprietarioPago) {
+          return false;
+        }
       }
       return true;
     });
