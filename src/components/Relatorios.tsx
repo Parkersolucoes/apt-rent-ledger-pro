@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -125,50 +124,62 @@ export const Relatorios = () => {
       format: 'a4'
     });
 
-    // Configurações profissionais otimizadas
-    const margin = 15;
+    // Configurações do layout moderno
+    const colors = {
+      primary: [37, 99, 235], // Blue-600
+      primaryLight: [219, 234, 254], // Blue-100
+      success: [34, 197, 94], // Green-500
+      successLight: [240, 253, 244], // Green-50
+      danger: [239, 68, 68], // Red-500
+      dangerLight: [254, 242, 242], // Red-50
+      gray: [107, 114, 128], // Gray-500
+      grayLight: [249, 250, 251], // Gray-50
+      dark: [17, 24, 39], // Gray-900
+      border: [229, 231, 235] // Gray-200
+    };
+
+    const margin = 20;
     const pageWidth = 210;
     const pageHeight = 297;
     const contentWidth = pageWidth - (margin * 2);
-    
     let yPosition = margin;
-    let currentPage = 1;
 
-    // Função auxiliar para adicionar nova página se necessário
+    // Função para adicionar nova página
     const checkAndAddPage = (requiredSpace: number) => {
-      if (yPosition + requiredSpace > pageHeight - 20) {
+      if (yPosition + requiredSpace > pageHeight - 30) {
         doc.addPage();
-        currentPage++;
         yPosition = margin;
         return true;
       }
       return false;
     };
 
-    // Função para desenhar linha separadora
-    const drawSeparator = (y: number, color = [200, 200, 200]) => {
-      doc.setDrawColor(color[0], color[1], color[2]);
+    // Função para desenhar card moderno
+    const drawCard = (x: number, y: number, width: number, height: number, color = colors.grayLight) => {
+      doc.setFillColor(color[0], color[1], color[2]);
+      doc.roundedRect(x, y, width, height, 3, 3, 'F');
+      doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
       doc.setLineWidth(0.5);
-      doc.line(margin, y, pageWidth - margin, y);
+      doc.roundedRect(x, y, width, height, 3, 3, 'S');
     };
 
-    // CABEÇALHO ELEGANTE E COMPACTO
-    // Fundo azul elegante
-    doc.setFillColor(30, 64, 175); // Blue-800
-    doc.rect(0, 0, pageWidth, 45, 'F');
+    // === CABEÇALHO MODERNO ===
+    // Fundo principal azul
+    doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.rect(0, 0, pageWidth, 55, 'F');
     
-    // Accent strip
-    doc.setFillColor(59, 130, 246); // Blue-500
-    doc.rect(0, 40, pageWidth, 5, 'F');
+    // Linha de accent
+    doc.setFillColor(59, 130, 246);
+    doc.rect(0, 50, pageWidth, 5, 'F');
 
-    // Título principal
+    // Logo e título
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(20);
+    doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text('RELATÓRIO FINANCEIRO', margin, 18);
+    doc.text('RELATÓRIO FINANCEIRO', margin, 25);
     
-    // Subtítulo
-    doc.setFontSize(11);
+    // Período e apartamento
+    doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     let periodoTexto = '';
     if (filtros.apartamento) periodoTexto += `Apartamento ${filtros.apartamento} • `;
@@ -180,467 +191,297 @@ export const Relatorios = () => {
     } else {
       periodoTexto += 'Todos os períodos';
     }
-    doc.text(periodoTexto, margin, 28);
+    doc.text(periodoTexto, margin, 35);
     
     // Data de geração
-    doc.setFontSize(9);
-    doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`, 
-      pageWidth - margin, 18, { align: 'right' });
+    doc.setFontSize(10);
+    const dataGeracao = `Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+    doc.text(dataGeracao, pageWidth - margin, 25, { align: 'right' });
 
-    yPosition = 55;
+    yPosition = 70;
 
-    // CALCULAR VALORES FINANCEIROS
+    // === CÁLCULOS FINANCEIROS ===
     const valorTotalLocacao = locacoesFiltradas.reduce((sum, loc) => sum + loc.valorLocacao, 0);
     const comissaoTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.comissao, 0);
     const limpezaTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.taxaLimpeza, 0);
     const proprietarioTotal = locacoesFiltradas.reduce((sum, loc) => sum + loc.valorProprietario, 0);
     const despesasTotal = despesasFiltradas.reduce((sum, desp) => sum + desp.valor, 0);
     const lucroLiquido = proprietarioTotal - despesasTotal;
-    const margemLucro = valorTotalLocacao > 0 ? ((lucroLiquido / valorTotalLocacao) * 100) : 0;
 
-    // RESUMO EXECUTIVO EM GRID COMPACTO
-    doc.setTextColor(51, 65, 85); // Slate-700
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RESUMO EXECUTIVO', margin, yPosition);
-    yPosition += 8;
+    // === SEÇÃO DE MÉTRICAS ===
+    const metricas = [
+      { 
+        titulo: 'Receita Total', 
+        valor: formatCurrency(valorTotalLocacao), 
+        subtitulo: `${locacoesFiltradas.length} locações`,
+        cor: colors.success,
+        corFundo: colors.successLight
+      },
+      { 
+        titulo: 'Despesas', 
+        valor: formatCurrency(despesasTotal), 
+        subtitulo: `${despesasFiltradas.length} itens`,
+        cor: colors.danger,
+        corFundo: colors.dangerLight
+      },
+      { 
+        titulo: 'Lucro Líquido', 
+        valor: formatCurrency(Math.abs(lucroLiquido)), 
+        subtitulo: lucroLiquido >= 0 ? 'Positivo' : 'Negativo',
+        cor: lucroLiquido >= 0 ? colors.success : colors.danger,
+        corFundo: lucroLiquido >= 0 ? colors.successLight : colors.dangerLight
+      },
+      { 
+        titulo: 'Proprietário', 
+        valor: formatCurrency(proprietarioTotal), 
+        subtitulo: `${valorTotalLocacao > 0 ? ((proprietarioTotal / valorTotalLocacao) * 100).toFixed(1) : '0'}% do total`,
+        cor: colors.primary,
+        corFundo: colors.primaryLight
+      }
+    ];
 
-    drawSeparator(yPosition);
-    yPosition += 5;
+    const cardWidth = (contentWidth - 15) / 2;
+    const cardHeight = 28;
 
-    // Grid 2x2 de métricas
-    const cardWidth = (contentWidth - 5) / 2;
-    const cardHeight = 25;
-    
-    // Card 1 - Receitas
-    doc.setFillColor(240, 253, 244); // Green-50
-    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(34, 197, 94); // Green-500
-    doc.setLineWidth(1);
-    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 2, 2, 'S');
-    
-    doc.setTextColor(21, 128, 61); // Green-700
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RECEITAS TOTAIS', margin + 3, yPosition + 7);
-    doc.setFontSize(16);
-    doc.text(formatCurrency(valorTotalLocacao), margin + 3, yPosition + 15);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${locacoesFiltradas.length} locações | Média: ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'}`, margin + 3, yPosition + 21);
+    metricas.forEach((metrica, index) => {
+      const isEven = index % 2 === 0;
+      const x = margin + (isEven ? 0 : cardWidth + 5);
+      const y = yPosition + (Math.floor(index / 2) * (cardHeight + 5));
 
-    // Card 2 - Despesas
-    const card2X = margin + cardWidth + 5;
-    doc.setFillColor(254, 242, 242); // Red-50
-    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(239, 68, 68); // Red-500
-    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
-    
-    doc.setTextColor(185, 28, 28); // Red-700
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('DESPESAS TOTAIS', card2X + 3, yPosition + 7);
-    doc.setFontSize(16);
-    doc.text(formatCurrency(despesasTotal), card2X + 3, yPosition + 15);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${despesasFiltradas.length} despesas | Média: ${despesasFiltradas.length > 0 ? formatCurrency(despesasTotal / despesasFiltradas.length) : 'R$ 0,00'}`, card2X + 3, yPosition + 21);
+      // Card background
+      drawCard(x, y, cardWidth, cardHeight, metrica.corFundo);
+      
+      // Ícone/indicador colorido
+      doc.setFillColor(metrica.cor[0], metrica.cor[1], metrica.cor[2]);
+      doc.circle(x + 6, y + 8, 2, 'F');
+      
+      // Título
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(metrica.titulo.toUpperCase(), x + 12, y + 6);
+      
+      // Valor principal
+      doc.setTextColor(metrica.cor[0], metrica.cor[1], metrica.cor[2]);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(metrica.valor, x + 12, y + 15);
+      
+      // Subtítulo
+      doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(metrica.subtitulo, x + 12, y + 22);
+    });
 
-    yPosition += cardHeight + 5;
+    yPosition += (cardHeight * 2) + 25;
 
-    // Card 3 - Lucro/Prejuízo
-    const lucroColor = lucroLiquido >= 0 ? [219, 234, 254] : [254, 242, 242]; // Blue-50 ou Red-50
-    const lucroBorder = lucroLiquido >= 0 ? [59, 130, 246] : [239, 68, 68]; // Blue-500 ou Red-500
-    const lucroText = lucroLiquido >= 0 ? [30, 64, 175] : [185, 28, 28]; // Blue-800 ou Red-700
-    
-    doc.setFillColor(lucroColor[0], lucroColor[1], lucroColor[2]);
-    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(lucroBorder[0], lucroBorder[1], lucroBorder[2]);
-    doc.roundedRect(margin, yPosition, cardWidth, cardHeight, 2, 2, 'S');
-    
-    doc.setTextColor(lucroText[0], lucroText[1], lucroText[2]);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text(lucroLiquido >= 0 ? 'LUCRO LÍQUIDO' : 'PREJUÍZO', margin + 3, yPosition + 7);
-    doc.setFontSize(16);
-    doc.text(formatCurrency(Math.abs(lucroLiquido)), margin + 3, yPosition + 15);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Margem: ${margemLucro.toFixed(1)}% | ROI: ${despesasTotal > 0 ? ((lucroLiquido / despesasTotal) * 100).toFixed(1) : '0'}%`, margin + 3, yPosition + 21);
-
-    // Card 4 - Proprietário
-    doc.setFillColor(237, 233, 254); // Violet-50
-    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(139, 69, 193); // Purple-600
-    doc.roundedRect(card2X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
-    
-    doc.setTextColor(109, 40, 217); // Purple-700
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.text('VALOR PROPRIETÁRIO', card2X + 3, yPosition + 7);
-    doc.setFontSize(16);
-    doc.text(formatCurrency(proprietarioTotal), card2X + 3, yPosition + 15);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
-    const percentualProprietario = valorTotalLocacao > 0 ? ((proprietarioTotal / valorTotalLocacao) * 100) : 0;
-    doc.text(`${percentualProprietario.toFixed(1)}% do faturamento bruto`, card2X + 3, yPosition + 21);
-
-    yPosition += cardHeight + 15;
-
-    // TABELA DE LOCAÇÕES REDESENHADA COM MELHOR ALINHAMENTO
+    // === TABELA DE LOCAÇÕES MODERNA ===
     if (locacoesFiltradas.length > 0) {
-      checkAndAddPage(60);
+      checkAndAddPage(80);
       
       // Título da seção
-      doc.setTextColor(51, 65, 85);
-      doc.setFontSize(12);
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('DETALHAMENTO DAS LOCAÇÕES', margin, yPosition);
-      yPosition += 8;
+      doc.text('Detalhamento das Locações', margin, yPosition);
+      yPosition += 12;
 
-      drawSeparator(yPosition, [51, 65, 85]);
-      yPosition += 5;
-
-      // Cabeçalho da tabela otimizado com larguras precisas
-      doc.setFillColor(248, 250, 252); // Slate-50
-      doc.roundedRect(margin, yPosition, contentWidth, 16, 1, 1, 'F');
-      doc.setDrawColor(203, 213, 225); // Slate-300
-      doc.setLineWidth(0.5);
-      doc.roundedRect(margin, yPosition, contentWidth, 16, 1, 1, 'S');
+      // Container da tabela
+      const tableHeight = Math.min(locacoesFiltradas.length * 12 + 25, 120);
+      drawCard(margin, yPosition, contentWidth, tableHeight, [255, 255, 255]);
       
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(51, 65, 85);
+      // Cabeçalho da tabela
+      doc.setFillColor(colors.grayLight[0], colors.grayLight[1], colors.grayLight[2]);
+      doc.rect(margin + 2, yPosition + 2, contentWidth - 4, 16, 'F');
       
-      // Definição das colunas com larguras balanceadas
-      const cols = [
-        { x: margin + 2, w: 16, h: 'Apartamento', align: 'center' as const },
-        { x: margin + 20, w: 40, h: 'Hóspede', align: 'left' as const },
-        { x: margin + 62, w: 20, h: 'Check-in', align: 'center' as const },
-        { x: margin + 84, w: 20, h: 'Check-out', align: 'center' as const },
-        { x: margin + 106, w: 22, h: 'Valor Locação', align: 'right' as const },
-        { x: margin + 130, w: 18, h: 'Limpeza', align: 'right' as const },
-        { x: margin + 150, w: 20, h: 'Comissão', align: 'right' as const },
-        { x: margin + 172, w: 23, h: 'Proprietário', align: 'right' as const }
+      // Colunas otimizadas
+      const colunas = [
+        { label: 'Apto', x: margin + 5, width: 18, align: 'center' as const },
+        { label: 'Hóspede', x: margin + 25, width: 45, align: 'left' as const },
+        { label: 'Check-in', x: margin + 72, width: 22, align: 'center' as const },
+        { label: 'Check-out', x: margin + 96, width: 22, align: 'center' as const },
+        { label: 'Valor', x: margin + 120, width: 25, align: 'right' as const },
+        { label: 'Comissão', x: margin + 147, width: 25, align: 'right' as const },
+        { label: 'Líquido', x: margin + 174, width: 25, align: 'right' as const }
       ];
 
-      // Desenhar linhas verticais dos cabeçalhos
-      doc.setDrawColor(203, 213, 225);
-      cols.forEach((col, index) => {
-        if (index > 0) {
-          doc.line(col.x - 1, yPosition + 1, col.x - 1, yPosition + 15);
-        }
-        
-        // Posicionar texto do cabeçalho conforme alinhamento
-        let textX = col.x + 2; // padrão left
-        if (col.align === 'center') {
-          textX = col.x + (col.w / 2);
-        } else if (col.align === 'right') {
-          textX = col.x + col.w - 2;
-        }
-        
-        doc.text(col.h, textX, yPosition + 10, { align: col.align });
+      // Headers
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      
+      colunas.forEach(col => {
+        const textX = col.align === 'center' ? col.x + col.width/2 : 
+                     col.align === 'right' ? col.x + col.width - 3 : col.x + 3;
+        doc.text(col.label, textX, yPosition + 12, { align: col.align });
       });
 
-      yPosition += 19;
+      yPosition += 20;
 
-      // Dados da tabela com melhor formatação
+      // Dados das locações
+      doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(31, 41, 55);
       
-      locacoesFiltradas.forEach((locacao, index) => {
-        checkAndAddPage(12);
-
-        const rowHeight = 11;
-
-        // Fundo alternado para linhas
+      locacoesFiltradas.slice(0, 8).forEach((locacao, index) => {
+        const rowY = yPosition + (index * 12);
+        
+        // Fundo alternado
         if (index % 2 === 0) {
-          doc.setFillColor(249, 250, 251); // Gray-50
-          doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'F');
+          doc.setFillColor(250, 250, 250);
+          doc.rect(margin + 2, rowY - 2, contentWidth - 4, 12, 'F');
         }
 
-        // Bordas da linha
-        doc.setDrawColor(229, 231, 235); // Gray-200
-        doc.setLineWidth(0.3);
-        doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'S');
-
-        // Linhas verticais
-        cols.forEach((col, colIndex) => {
-          if (colIndex > 0) {
-            doc.line(col.x - 1, yPosition - 1, col.x - 1, yPosition + rowHeight - 1);
-          }
-        });
-
-        doc.setFontSize(7.5);
+        doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
         
-        // Função para truncar texto mantendo qualidade
-        const truncateText = (text: string, maxWidth: number, fontSize: number = 7.5) => {
-          const textWidth = doc.getTextWidth(text);
-          if (textWidth <= maxWidth) return text;
-          
-          const avgCharWidth = textWidth / text.length;
-          const maxChars = Math.floor(maxWidth / avgCharWidth) - 3;
-          return text.substring(0, Math.max(1, maxChars)) + '...';
-        };
-
-        // Preparar valores com formatação adequada
-        const valores = [
+        const dados = [
           locacao.apartamento,
-          truncateText(locacao.hospede, cols[1].w - 4),
+          locacao.hospede.length > 25 ? locacao.hospede.substring(0, 22) + '...' : locacao.hospede,
           locacao.dataEntrada.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
           locacao.dataSaida.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
           formatCurrency(locacao.valorLocacao),
-          formatCurrency(locacao.taxaLimpeza),
           formatCurrency(locacao.comissao),
           formatCurrency(locacao.valorProprietario)
         ];
 
-        // Renderizar cada valor na sua respectiva coluna
-        valores.forEach((valor, colIndex) => {
-          const col = cols[colIndex];
-          let textX = col.x + 2; // padrão left
+        dados.forEach((dado, colIndex) => {
+          const col = colunas[colIndex];
+          const textX = col.align === 'center' ? col.x + col.width/2 : 
+                       col.align === 'right' ? col.x + col.width - 3 : col.x + 3;
           
-          if (col.align === 'center') {
-            textX = col.x + (col.w / 2);
-          } else if (col.align === 'right') {
-            textX = col.x + col.w - 2;
-          }
-
-          // Cor diferenciada para valores monetários
+          // Destaque para valores monetários
           if (colIndex >= 4) {
-            doc.setTextColor(21, 128, 61); // Green-700
+            doc.setTextColor(colors.success[0], colors.success[1], colors.success[2]);
             doc.setFont('helvetica', 'bold');
           } else {
-            doc.setTextColor(31, 41, 55);
+            doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
             doc.setFont('helvetica', 'normal');
           }
-
-          doc.text(valor, textX, yPosition + 7, { align: col.align });
+          
+          doc.text(dado, textX, rowY + 5, { align: col.align });
         });
-
-        yPosition += rowHeight;
       });
 
-      // Linha de totais redesenhada
-      checkAndAddPage(16);
-      yPosition += 3;
+      // Footer da tabela com totais
+      const footerY = yPosition + Math.min(locacoesFiltradas.length, 8) * 12 + 5;
+      doc.setFillColor(colors.successLight[0], colors.successLight[1], colors.successLight[2]);
+      doc.rect(margin + 2, footerY, contentWidth - 4, 14, 'F');
       
-      const totalRowHeight = 14;
-      doc.setFillColor(240, 253, 244); // Green-50
-      doc.roundedRect(margin, yPosition, contentWidth, totalRowHeight, 1, 1, 'F');
-      doc.setDrawColor(34, 197, 94); // Green-500
-      doc.setLineWidth(1);
-      doc.roundedRect(margin, yPosition, contentWidth, totalRowHeight, 1, 1, 'S');
-      
-      // Linhas verticais na linha de totais (apenas nas colunas de valores)
-      for (let i = 4; i < cols.length; i++) {
-        doc.setDrawColor(34, 197, 94);
-        doc.line(cols[i].x - 1, yPosition + 1, cols[i].x - 1, yPosition + totalRowHeight - 1);
-      }
-      
-      doc.setTextColor(21, 128, 61);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8.5);
-      
-      // Label "TOTAIS:" posicionada corretamente
-      doc.text('TOTAIS:', cols[3].x + cols[3].w - 2, yPosition + 8, { align: 'right' });
-      
-      // Calcular totais
-      const totalValorLocacao = locacoesFiltradas.reduce((acc, loc) => acc + loc.valorLocacao, 0);
-      const totalLimpeza = locacoesFiltradas.reduce((acc, loc) => acc + loc.taxaLimpeza, 0);
-      const totalComissao = locacoesFiltradas.reduce((acc, loc) => acc + loc.comissao, 0);
-      const totalProprietario = locacoesFiltradas.reduce((acc, loc) => acc + loc.valorProprietario, 0);
-      
-      // Valores totais alinhados corretamente
-      doc.text(formatCurrency(totalValorLocacao), cols[4].x + cols[4].w - 2, yPosition + 8, { align: 'right' });
-      doc.text(formatCurrency(totalLimpeza), cols[5].x + cols[5].w - 2, yPosition + 8, { align: 'right' });
-      doc.text(formatCurrency(totalComissao), cols[6].x + cols[6].w - 2, yPosition + 8, { align: 'right' });
-      doc.text(formatCurrency(totalProprietario), cols[7].x + cols[7].w - 2, yPosition + 8, { align: 'right' });
-
-      yPosition += totalRowHeight + 15;
-    }
-
-    // TABELA DE DESPESAS OTIMIZADA
-    if (despesasFiltradas.length > 0) {
-      checkAndAddPage(60);
-
-      // Título da seção
-      doc.setTextColor(51, 65, 85);
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('DETALHAMENTO DAS DESPESAS', margin, yPosition);
-      yPosition += 8;
-
-      drawSeparator(yPosition, [51, 65, 85]);
-      yPosition += 5;
-
-      // Cabeçalho da tabela
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'F');
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(margin, yPosition, contentWidth, 14, 1, 1, 'S');
-      
+      doc.setTextColor(colors.success[0], colors.success[1], colors.success[2]);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(51, 65, 85);
       
-      // Colunas para despesas
-      const despCols = [
-        { x: margin + 2, w: 20, h: 'Data', align: 'center' as const },
-        { x: margin + 24, w: 25, h: 'Apartamento', align: 'center' as const },
-        { x: margin + 51, w: 95, h: 'Descrição', align: 'left' as const },
-        { x: margin + 148, w: 27, h: 'Valor', align: 'right' as const }
-      ];
+      // Totais
+      doc.text('TOTAIS', colunas[3].x + colunas[3].width - 3, footerY + 9, { align: 'right' });
+      doc.text(formatCurrency(valorTotalLocacao), colunas[4].x + colunas[4].width - 3, footerY + 9, { align: 'right' });
+      doc.text(formatCurrency(comissaoTotal), colunas[5].x + colunas[5].width - 3, footerY + 9, { align: 'right' });
+      doc.text(formatCurrency(proprietarioTotal), colunas[6].x + colunas[6].width - 3, footerY + 9, { align: 'right' });
 
-      despCols.forEach((col, index) => {
-        if (index > 0) {
-          doc.line(col.x - 1, yPosition, col.x - 1, yPosition + 14);
-        }
-        
-        let textX = col.x + 2; // padrão left
-        if (col.align === 'center') {
-          textX = col.x + (col.w / 2);
-        } else if (col.align === 'right') {
-          textX = col.x + col.w - 2;
-        }
-        
-        doc.text(col.h, textX, yPosition + 9, { align: col.align });
-      });
+      yPosition = footerY + 25;
+    }
 
-      yPosition += 17;
+    // === DESPESAS ===
+    if (despesasFiltradas.length > 0) {
+      checkAndAddPage(60);
+      
+      // Título
+      doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Despesas do Período', margin, yPosition);
+      yPosition += 12;
+
+      // Container
+      const despesasHeight = Math.min(despesasFiltradas.length * 10 + 20, 80);
+      drawCard(margin, yPosition, contentWidth, despesasHeight, [255, 255, 255]);
+      
+      // Cabeçalho
+      doc.setFillColor(colors.dangerLight[0], colors.dangerLight[1], colors.dangerLight[2]);
+      doc.rect(margin + 2, yPosition + 2, contentWidth - 4, 14, 'F');
+      
+      doc.setTextColor(colors.danger[0], colors.danger[1], colors.danger[2]);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Data', margin + 15, yPosition + 11, { align: 'center' });
+      doc.text('Descrição', margin + 40, yPosition + 11);
+      doc.text('Apartamento', margin + 120, yPosition + 11, { align: 'center' });
+      doc.text('Valor', margin + contentWidth - 15, yPosition + 11, { align: 'right' });
+
+      yPosition += 18;
 
       // Dados das despesas
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(31, 41, 55);
-      
-      despesasFiltradas.forEach((despesa, index) => {
-        checkAndAddPage(12);
-
-        const rowHeight = 10;
-
+      doc.setFontSize(8);
+      despesasFiltradas.slice(0, 6).forEach((despesa, index) => {
+        const rowY = yPosition + (index * 10);
+        
         if (index % 2 === 0) {
-          doc.setFillColor(254, 242, 242); // Red-50
-          doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'F');
+          doc.setFillColor(254, 248, 248);
+          doc.rect(margin + 2, rowY - 2, contentWidth - 4, 10, 'F');
         }
 
-        doc.setDrawColor(229, 231, 235);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(margin, yPosition - 1, contentWidth, rowHeight, 0.5, 0.5, 'S');
-
-        despCols.forEach((col, colIndex) => {
-          if (colIndex > 0) {
-            doc.line(col.x - 1, yPosition - 1, col.x - 1, yPosition + rowHeight - 1);
-          }
-        });
-
-        doc.setFontSize(8);
+        doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+        doc.setFont('helvetica', 'normal');
         
-        const despesaValues = [
-          despesa.data.toLocaleDateString('pt-BR'),
-          despesa.apartamento || 'Geral',
-          despesa.descricao.length > 55 ? despesa.descricao.substring(0, 52) + '...' : despesa.descricao,
-          formatCurrency(despesa.valor)
-        ];
-
-        despesaValues.forEach((valor, colIndex) => {
-          const col = despCols[colIndex];
-          let textX = col.x + 2; // padrão left
-          
-          if (col.align === 'center') {
-            textX = col.x + (col.w / 2);
-          } else if (col.align === 'right') {
-            textX = col.x + col.w - 2;
-          }
-
-          if (colIndex === 3) { // Valor
-            doc.setTextColor(185, 28, 28); // Red-700
-            doc.setFont('helvetica', 'bold');
-          } else {
-            doc.setTextColor(31, 41, 55);
-            doc.setFont('helvetica', 'normal');
-          }
-
-          doc.text(valor, textX, yPosition + 6, { align: col.align });
-        });
-
-        yPosition += rowHeight;
+        doc.text(despesa.data.toLocaleDateString('pt-BR'), margin + 15, rowY + 5, { align: 'center' });
+        doc.text(despesa.descricao.length > 40 ? despesa.descricao.substring(0, 37) + '...' : despesa.descricao, margin + 32, rowY + 5);
+        doc.text(despesa.apartamento || 'Geral', margin + 120, rowY + 5, { align: 'center' });
+        
+        doc.setTextColor(colors.danger[0], colors.danger[1], colors.danger[2]);
+        doc.setFont('helvetica', 'bold');
+        doc.text(formatCurrency(despesa.valor), margin + contentWidth - 15, rowY + 5, { align: 'right' });
       });
 
       // Total das despesas
-      checkAndAddPage(14);
-      yPosition += 2;
+      const totalY = yPosition + Math.min(despesasFiltradas.length, 6) * 10 + 3;
+      doc.setFillColor(colors.danger[0], colors.danger[1], colors.danger[2]);
+      doc.rect(margin + 2, totalY, contentWidth - 4, 12, 'F');
       
-      const totalDespHeight = 12;
-      doc.setFillColor(254, 242, 242);
-      doc.roundedRect(margin, yPosition, contentWidth, totalDespHeight, 1, 1, 'F');
-      doc.setDrawColor(239, 68, 68);
-      doc.setLineWidth(1);
-      doc.roundedRect(margin, yPosition, contentWidth, totalDespHeight, 1, 1, 'S');
-      
-      doc.setTextColor(185, 28, 28);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('TOTAL DAS DESPESAS:', despCols[2].x + despCols[2].w - 2, yPosition + 7, { align: 'right' });
-      doc.text(formatCurrency(despesasTotal), despCols[3].x + despCols[3].w - 2, yPosition + 7, { align: 'right' });
+      doc.text('TOTAL DAS DESPESAS', margin + contentWidth/2, totalY + 7, { align: 'center' });
+      doc.text(formatCurrency(despesasTotal), margin + contentWidth - 15, totalY + 7, { align: 'right' });
 
-      yPosition += totalDespHeight + 15;
+      yPosition = totalY + 20;
     }
 
-    // ANÁLISE COMPACTA E PROFISSIONAL
-    checkAndAddPage(35);
+    // === ANÁLISE FINAL ===
+    checkAndAddPage(40);
     
-    doc.setTextColor(51, 65, 85);
-    doc.setFontSize(12);
+    drawCard(margin, yPosition, contentWidth, 35, colors.primaryLight);
+    
+    doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('ANÁLISE E INDICADORES', margin, yPosition);
-    yPosition += 8;
-
-    drawSeparator(yPosition, [51, 65, 85]);
-    yPosition += 5;
-
-    // Box de análise compacto
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(margin, yPosition, contentWidth, 30, 2, 2, 'F');
-    doc.setDrawColor(203, 213, 225);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(margin, yPosition, contentWidth, 30, 2, 2, 'S');
-
-    doc.setTextColor(55, 65, 81);
-    doc.setFontSize(9);
+    doc.text('Resumo Executivo', margin + 5, yPosition + 8);
+    
+    doc.setTextColor(colors.dark[0], colors.dark[1], colors.dark[2]);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-
-    const insights = [
-      `• Status: ${lucroLiquido >= 0 ? 'POSITIVO' : 'NEGATIVO'} com ${formatCurrency(Math.abs(lucroLiquido))}`,
-      `• Margem de Lucro: ${margemLucro.toFixed(1)}% sobre faturamento`,
-      `• Eficiência: ${locacoesFiltradas.length} locações geraram ${formatCurrency(valorTotalLocacao)}`,
-      `• Controle de Custos: ${despesasFiltradas.length} despesas = ${formatCurrency(despesasTotal)}`,
-      `• Ticket Médio: ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'} por locação`,
-      `• Distribuição: ${((proprietarioTotal / valorTotalLocacao) * 100).toFixed(1)}% proprietário | ${((comissaoTotal / valorTotalLocacao) * 100).toFixed(1)}% comissão | ${((limpezaTotal / valorTotalLocacao) * 100).toFixed(1)}% limpeza`
+    
+    const resumo = [
+      `→ Resultado: ${lucroLiquido >= 0 ? 'LUCRO' : 'PREJUÍZO'} de ${formatCurrency(Math.abs(lucroLiquido))}`,
+      `→ Margem de lucro: ${valorTotalLocacao > 0 ? ((lucroLiquido / valorTotalLocacao) * 100).toFixed(1) : '0'}%`,
+      `→ Ticket médio por locação: ${locacoesFiltradas.length > 0 ? formatCurrency(valorTotalLocacao / locacoesFiltradas.length) : 'R$ 0,00'}`,
+      `→ Taxa de despesas: ${valorTotalLocacao > 0 ? ((despesasTotal / valorTotalLocacao) * 100).toFixed(1) : '0'}% sobre receita`
     ];
 
-    insights.forEach((insight, index) => {
-      doc.text(insight, margin + 3, yPosition + 5 + (index * 4));
+    resumo.forEach((linha, index) => {
+      doc.text(linha, margin + 5, yPosition + 16 + (index * 5));
     });
 
-    yPosition += 40;
-
-    // RODAPÉ ELEGANTE
+    // === RODAPÉ ===
+    yPosition += 50;
     checkAndAddPage(15);
     
-    drawSeparator(yPosition, [51, 65, 85]);
-    yPosition += 5;
-
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(margin, yPosition, contentWidth, 12, 1, 1, 'F');
-
-    doc.setTextColor(100, 116, 139);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
+    doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
+    doc.setLineWidth(0.5);
+    doc.line(margin, yPosition, pageWidth - margin, yPosition);
     
-    doc.text('Relatório gerado automaticamente pelo Sistema de Gestão de Locações', pageWidth / 2, yPosition + 5, { align: 'center' });
-    doc.text(`${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')} | Página ${currentPage}`, 
-      pageWidth / 2, yPosition + 9, { align: 'center' });
+    doc.setTextColor(colors.gray[0], colors.gray[1], colors.gray[2]);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Sistema de Gestão de Locações - Relatório gerado automaticamente', pageWidth/2, yPosition + 8, { align: 'center' });
 
     return doc;
   };
