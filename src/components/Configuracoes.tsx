@@ -1,16 +1,20 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Webhook, Save, TestTube } from 'lucide-react';
+import { Webhook, Save, TestTube, Upload, Image } from 'lucide-react';
+import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 
 export const Configuracoes = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { logoUrl, salvarLogo, isLoading: logoLoading } = useConfiguracoes();
 
   useEffect(() => {
     // Carregar webhook salvo do localStorage
@@ -94,9 +98,41 @@ export const Configuracoes = () => {
     }
   };
 
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de arquivo
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Erro",
+        description: "Tipo de arquivo não suportado. Use JPG, PNG ou WebP.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validar tamanho (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "O arquivo deve ter no máximo 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    salvarLogo(file);
+  };
+
+  const handleLogoButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="min-h-screen bg-background p-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
         <Card className="shadow-lg">
           <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
             <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
@@ -105,6 +141,52 @@ export const Configuracoes = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
+            {/* Configuração da Logo */}
+            <div className="space-y-4">
+              <div>
+                <Label className="font-semibold text-lg">Logo da Empresa</Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Faça upload da logo da sua empresa. Será exibida na tela principal do sistema.
+                </p>
+                
+                <div className="flex items-center gap-4">
+                  {logoUrl && (
+                    <div className="border rounded-lg p-2 bg-muted">
+                      <img 
+                        src={logoUrl} 
+                        alt="Logo da empresa" 
+                        className="h-16 w-auto max-w-32 object-contain"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col gap-2">
+                    <Button 
+                      onClick={handleLogoButtonClick}
+                      disabled={logoLoading}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      {logoLoading ? 'Salvando...' : 'Escolher Arquivo'}
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      JPG, PNG ou WebP (máx. 5MB)
+                    </p>
+                  </div>
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                />
+              </div>
+            </div>
+
+            {/* Configuração do Webhook */}
             <div className="space-y-4">
               <div>
                 <Label htmlFor="webhook" className="font-semibold text-lg">

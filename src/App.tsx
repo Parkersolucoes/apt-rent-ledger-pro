@@ -9,6 +9,7 @@ import { NotFound } from './components/NotFound';
 import { FormularioDespesa } from './components/FormularioDespesa';
 import { ListaDespesas } from './components/ListaDespesas';
 import { Configuracoes } from './components/Configuracoes';
+import { Logo } from './components/Logo';
 
 function AppContent() {
   const location = useLocation();
@@ -17,7 +18,10 @@ function AppContent() {
     <div className="min-h-screen bg-background">
       <nav className="bg-primary text-primary-foreground p-4 shadow-lg">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Sistema de Locações</h1>
+          <div className="flex items-center gap-4">
+            <Logo size="sm" showFallback={false} />
+            <h1 className="text-2xl font-bold">Sistema de Locações</h1>
+          </div>
           <div className="flex gap-4">
             <Link 
               to="/" 

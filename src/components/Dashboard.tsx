@@ -5,6 +5,7 @@ import { useLocacoes } from '@/hooks/useLocacoes';
 import { formatCurrency } from '@/utils/formatters';
 import { House, User, Wallet, Database, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { ApartamentoModal } from './ApartamentoModal';
+import { Logo } from './Logo';
 import { migrarDadosParaSupabase, limparLocalStorage } from '@/utils/migration';
 
 export const Dashboard = () => {
@@ -71,6 +72,9 @@ export const Dashboard = () => {
     <div className="min-h-screen gradient-bg-page p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <Logo size="lg" />
+          </div>
           <h2 className="text-3xl font-bold text-slate-50 mb-2">Dashboard Executivo</h2>
           <p className="text-slate-300">Visão geral do seu negócio de locações</p>
         </div>
