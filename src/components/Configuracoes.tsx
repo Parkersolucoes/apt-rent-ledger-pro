@@ -1,57 +1,35 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Webhook, Save, TestTube, Upload, Image } from 'lucide-react';
+import { Webhook, Save, TestTube, Upload } from 'lucide-react';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 
 export const Configuracoes = () => {
-  const [webhookUrl, setWebhookUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [webhookUrlInput, setWebhookUrlInput] = useState('');
   const [isTesting, setIsTesting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { logoUrl, salvarLogo, isLoading: logoLoading } = useConfiguracoes();
+  const { logoUrl, webhookUrl, salvarLogo, salvarWebhook, isLoading } = useConfiguracoes();
 
-  useEffect(() => {
-    // Carregar webhook salvo do localStorage
-    const savedWebhook = localStorage.getItem('webhook_url');
-    if (savedWebhook) {
-      setWebhookUrl(savedWebhook);
+  // Sincronizar o input com o valor do hook quando carregado
+  useState(() => {
+    if (webhookUrl && !webhookUrlInput) {
+      setWebhookUrlInput(webhookUrl);
     }
-  }, []);
+  });
 
-  const handleSave = () => {
-    if (!webhookUrl.trim()) {
-      toast({
-        title: "Erro",
-        description: "Por favor, insira uma URL válida para o webhook.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      new URL(webhookUrl);
-      localStorage.setItem('webhook_url', webhookUrl);
-      toast({
-        title: "Sucesso!",
-        description: "Webhook configurado com sucesso."
-      });
-    } catch (error) {
-      toast({
-        title: "Erro",
-        description: "URL inválida. Por favor, verifique o formato.",
-        variant: "destructive"
-      });
-    }
+  const handleSave = async () => {
+    await salvarWebhook(webhookUrlInput);
   };
 
   const handleTest = async () => {
-    if (!webhookUrl.trim()) {
+    const urlToTest = webhookUrlInput || webhookUrl;
+    
+    if (!urlToTest.trim()) {
       toast({
         title: "Erro",
         description: "Configure o webhook antes de testá-lo.",
@@ -73,7 +51,7 @@ export const Configuracoes = () => {
         }
       };
 
-      await fetch(webhookUrl, {
+      await fetch(urlToTest, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -163,12 +141,12 @@ export const Configuracoes = () => {
                   <div className="flex flex-col gap-2">
                     <Button 
                       onClick={handleLogoButtonClick}
-                      disabled={logoLoading}
+                      disabled={isLoading}
                       variant="outline"
                       className="flex items-center gap-2"
                     >
                       <Upload className="h-4 w-4" />
-                      {logoLoading ? 'Salvando...' : 'Escolher Arquivo'}
+                      {isLoading ? 'Salvando...' : 'Escolher Arquivo'}
                     </Button>
                     <p className="text-xs text-muted-foreground">
                       JPG, PNG ou WebP (máx. 5MB)
@@ -198,9 +176,9 @@ export const Configuracoes = () => {
                 <Input
                   id="webhook"
                   type="url"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  placeholder="https://exemplo.com/webhook"
+                  value={webhookUrlInput}
+                  onChange={(e) => setWebhookUrlInput(e.target.value)}
+                  placeholder={webhookUrl || "https://exemplo.com/webhook"}
                   className="text-base"
                 />
               </div>
@@ -228,7 +206,7 @@ export const Configuracoes = () => {
                 <Button 
                   variant="outline"
                   onClick={handleTest}
-                  disabled={isTesting || !webhookUrl.trim()}
+                  disabled={isTesting || (!webhookUrlInput.trim() && !webhookUrl.trim())}
                   className="flex items-center gap-2"
                 >
                   <TestTube className="h-4 w-4" />

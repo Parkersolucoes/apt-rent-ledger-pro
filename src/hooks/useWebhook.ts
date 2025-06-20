@@ -1,5 +1,6 @@
 
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WebhookData {
   type: 'locacao_criada' | 'locacao_atualizada' | 'locacao_excluida' | 'pagamento_atualizado';
@@ -8,8 +9,28 @@ interface WebhookData {
 }
 
 export const useWebhook = () => {
+  const getWebhookUrl = async (): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('configuracoes_sistema')
+        .select('valor')
+        .eq('chave', 'webhook_url')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Erro ao buscar webhook URL:', error);
+        return null;
+      }
+
+      return data?.valor || null;
+    } catch (error) {
+      console.error('Erro ao buscar webhook URL:', error);
+      return null;
+    }
+  };
+
   const sendWebhook = async (webhookData: WebhookData) => {
-    const webhookUrl = localStorage.getItem('webhook_url');
+    const webhookUrl = await getWebhookUrl();
     
     if (!webhookUrl) {
       console.log('Webhook não configurado');
