@@ -9,6 +9,7 @@ import { NotFound } from './components/NotFound';
 import { FormularioDespesa } from './components/FormularioDespesa';
 import { ListaDespesas } from './components/ListaDespesas';
 import { Configuracoes } from './components/Configuracoes';
+import { Relatorios } from './components/Relatorios';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from './components/ui/sidebar';
 import { AppSidebar } from './components/AppSidebar';
 
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/locacoes" element={<ListaLocacoes />} />
                 <Route path="/despesas/novo" element={<FormularioDespesa />} />
                 <Route path="/despesas" element={<ListaDespesas />} />
+                <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
