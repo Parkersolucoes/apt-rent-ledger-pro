@@ -5,7 +5,8 @@ import { Dashboard } from '@/components/Dashboard';
 import { FormularioLocacao } from '@/components/FormularioLocacao';
 import { ListaLocacoes } from '@/components/ListaLocacoes';
 import { ListaApartamentos } from '@/components/ListaApartamentos';
-import { House, Calendar, User, Receipt } from 'lucide-react';
+import { Configuracoes } from '@/components/Configuracoes';
+import { House, Calendar, User, Receipt, Settings } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -21,7 +22,7 @@ const Index = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-6 mb-8">
             <TabsTrigger 
               value="dashboard" 
               className="flex items-center gap-2"
@@ -57,6 +58,13 @@ const Index = () => {
               <User className="h-4 w-4" />
               Relatórios
             </TabsTrigger>
+            <TabsTrigger 
+              value="configuracoes" 
+              className="flex items-center gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Configurações
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -82,6 +90,10 @@ const Index = () => {
                 Funcionalidade de relatórios em desenvolvimento.
               </p>
             </div>
+          </TabsContent>
+
+          <TabsContent value="configuracoes">
+            <Configuracoes />
           </TabsContent>
         </Tabs>
       </div>

@@ -8,6 +8,7 @@ import { Dashboard as Index } from './components/Dashboard';
 import { NotFound } from './components/NotFound';
 import { FormularioDespesa } from './components/FormularioDespesa';
 import { ListaDespesas } from './components/ListaDespesas';
+import { Configuracoes } from './components/Configuracoes';
 
 function AppContent() {
   const location = useLocation();
@@ -66,6 +67,14 @@ function AppContent() {
             >
               Despesas
             </Link>
+            <Link 
+              to="/configuracoes" 
+              className={`px-3 py-2 rounded transition-colors hover:bg-primary-foreground hover:text-primary ${
+                location.pathname === '/configuracoes' ? 'bg-primary-foreground text-primary' : ''
+              }`}
+            >
+              Configurações
+            </Link>
           </div>
         </div>
       </nav>
@@ -77,6 +86,7 @@ function AppContent() {
         <Route path="/locacoes" element={<ListaLocacoes />} />
         <Route path="/despesas/novo" element={<FormularioDespesa />} />
         <Route path="/despesas" element={<ListaDespesas />} />
+        <Route path="/configuracoes" element={<Configuracoes />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

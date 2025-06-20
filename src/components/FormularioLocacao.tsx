@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useLocacoes } from '@/hooks/useLocacoes';
 import { useApartamentos } from '@/hooks/useApartamentos';
+import { useWebhook } from '@/hooks/useWebhook';
 import { parseDateInput, calcularComissao, calcularValorProprietario } from '@/utils/formatters';
 import { toast } from '@/hooks/use-toast';
 import { CamposBasicos } from './FormularioLocacao/CamposBasicos';
@@ -18,6 +19,7 @@ import { ConfirmacaoNovoRegistro } from './ConfirmacaoNovoRegistro';
 export const FormularioLocacao = () => {
   const { adicionarLocacao } = useLocacoes();
   const { obterNumerosApartamentos } = useApartamentos();
+  const { sendLocacaoCriada } = useWebhook();
   const navigate = useNavigate();
   const [showConfirmacao, setShowConfirmacao] = useState(false);
   
@@ -131,27 +133,36 @@ export const FormularioLocacao = () => {
     const comissaoCalculada = calcularComissao(valorLocacaoNum, taxaLimpezaNum);
     const valorProprietarioCalculado = calcularValorProprietario(valorLocacaoNum, taxaLimpezaNum, comissaoCalculada);
 
+    const novaLocacao = {
+      apartamento: formData.apartamento,
+      ano: formData.ano,
+      mes: formData.mes,
+      hospede: formData.hospede,
+      dataEntrada: parseDateInput(formData.dataEntrada),
+      dataSaida: parseDateInput(formData.dataSaida),
+      valorLocacao: valorLocacaoNum,
+      primeiroPagamento,
+      primeiroPagamentoPago: formData.primeiroPagamentoPago,
+      primeiroPagamentoForma: formData.primeiroPagamentoForma,
+      segundoPagamento,
+      segundoPagamentoPago: formData.segundoPagamentoPago,
+      segundoPagamentoForma: formData.segundoPagamentoForma,
+      valorFaltando,
+      taxaLimpeza: taxaLimpezaNum,
+      comissao: comissaoCalculada,
+      valorProprietario: valorProprietarioCalculado,
+      dataPagamentoProprietario: formData.dataPagamentoProprietario ? parseDateInput(formData.dataPagamentoProprietario) : undefined,
+      observacoes: formData.observacoes || undefined
+    };
+
     try {
-      await adicionarLocacao({
-        apartamento: formData.apartamento,
-        ano: formData.ano,
-        mes: formData.mes,
-        hospede: formData.hospede,
-        dataEntrada: parseDateInput(formData.dataEntrada),
-        dataSaida: parseDateInput(formData.dataSaida),
-        valorLocacao: valorLocacaoNum,
-        primeiroPagamento,
-        primeiroPagamentoPago: formData.primeiroPagamentoPago,
-        primeiroPagamentoForma: formData.primeiroPagamentoForma,
-        segundoPagamento,
-        segundoPagamentoPago: formData.segundoPagamentoPago,
-        segundoPagamentoForma: formData.segundoPagamentoForma,
-        valorFaltando,
-        taxaLimpeza: taxaLimpezaNum,
-        comissao: comissaoCalculada,
-        valorProprietario: valorProprietarioCalculado,
-        dataPagamentoProprietario: formData.dataPagamentoProprietario ? parseDateInput(formData.dataPagamentoProprietario) : undefined,
-        observacoes: formData.observacoes || undefined
+      const locacaoCriada = await adicionarLocacao(novaLocacao);
+
+      // Enviar webhook de nova locação
+      sendLocacaoCriada({
+        ...novaLocacao,
+        id: locacaoCriada?.id || 'novo',
+        createdAt: new Date()
       });
 
       // Mostrar diálogo de confirmação em vez de toast e reset direto
