@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ModelosMensagem from "./pages/ModelosMensagem";
 import Configuracoes from "./pages/Configuracoes";
+import Relatorios from "./pages/Relatorios";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/modelos-mensagem" element={<ModelosMensagem />} />
                 <Route path="/configuracoes" element={<Configuracoes />} />
+                <Route path="/relatorios" element={<Relatorios />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
