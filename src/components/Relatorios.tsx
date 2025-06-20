@@ -248,13 +248,20 @@ export const Relatorios = () => {
 
     // Card 3 - Lucro
     const card3X = margin + (cardWidth + 5) * 2;
-    const lucroColor = lucroLiquido >= 0 ? [219, 234, 254, 29, 78, 216] : [254, 242, 242, 185, 28, 28]; // blue ou red
-    doc.setFillColor(lucroColor[0], lucroColor[1], lucroColor[2]); 
-    doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
-    doc.setDrawColor(lucroColor[3], lucroColor[4], lucroColor[5]);
-    doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
+    if (lucroLiquido >= 0) {
+      doc.setFillColor(219, 234, 254); // bg-blue-50
+      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
+      doc.setDrawColor(29, 78, 216); // border-blue-600
+      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
+      doc.setTextColor(29, 78, 216); // text-blue-600
+    } else {
+      doc.setFillColor(254, 242, 242); // bg-red-50
+      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'F');
+      doc.setDrawColor(185, 28, 28); // border-red-700
+      doc.roundedRect(card3X, yPosition, cardWidth, cardHeight, 2, 2, 'S');
+      doc.setTextColor(185, 28, 28); // text-red-700
+    }
     
-    doc.setTextColor(lucroColor[3], lucroColor[4], lucroColor[5]);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
     doc.text(lucroLiquido >= 0 ? '📈 LUCRO LÍQUIDO' : '📉 PREJUÍZO', card3X + 3, yPosition + 8);
@@ -351,7 +358,13 @@ export const Relatorios = () => {
 
         valores.forEach((valor, colIndex) => {
           if (colIndex >= 4 && colIndex <= 7) { // Valores monetários
-            doc.setTextColor(colIndex === 4 ? [34, 197, 94] : colIndex === 7 ? [139, 69, 193] : [239, 68, 68]);
+            if (colIndex === 4) {
+              doc.setTextColor(34, 197, 94); // verde
+            } else if (colIndex === 7) {
+              doc.setTextColor(139, 69, 193); // roxo
+            } else {
+              doc.setTextColor(239, 68, 68); // vermelho
+            }
             doc.setFont('helvetica', 'bold');
           } else {
             doc.setTextColor(31, 41, 55);
