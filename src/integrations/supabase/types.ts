@@ -56,7 +56,9 @@ export type Database = {
           mes: number
           observacoes: string | null
           primeiro_pagamento: number
+          primeiro_pagamento_pago: boolean | null
           segundo_pagamento: number
+          segundo_pagamento_pago: boolean | null
           taxa_limpeza: number
           valor_faltando: number
           valor_locacao: number
@@ -74,7 +76,9 @@ export type Database = {
           mes: number
           observacoes?: string | null
           primeiro_pagamento?: number
+          primeiro_pagamento_pago?: boolean | null
           segundo_pagamento?: number
+          segundo_pagamento_pago?: boolean | null
           taxa_limpeza?: number
           valor_faltando?: number
           valor_locacao: number
@@ -92,7 +96,9 @@ export type Database = {
           mes?: number
           observacoes?: string | null
           primeiro_pagamento?: number
+          primeiro_pagamento_pago?: boolean | null
           segundo_pagamento?: number
+          segundo_pagamento_pago?: boolean | null
           taxa_limpeza?: number
           valor_faltando?: number
           valor_locacao?: number

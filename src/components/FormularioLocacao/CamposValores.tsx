@@ -51,8 +51,9 @@ export const CamposValores = ({
             id="primeiroPagamentoPago"
             checked={primeiroPagamentoPago}
             onCheckedChange={onPrimeiroPagamentoPagoChange}
+            className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           />
-          <Label htmlFor="primeiroPagamentoPago" className="text-sm text-slate-200 font-medium flex items-center gap-1">
+          <Label htmlFor="primeiroPagamentoPago" className="text-sm text-black font-medium flex items-center gap-1">
             <Flag className="h-3 w-3" />
             PAGO
           </Label>
@@ -71,8 +72,9 @@ export const CamposValores = ({
             id="segundoPagamentoPago"
             checked={segundoPagamentoPago}
             onCheckedChange={onSegundoPagamentoPagoChange}
+            className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           />
-          <Label htmlFor="segundoPagamentoPago" className="text-sm text-slate-200 font-medium flex items-center gap-1">
+          <Label htmlFor="segundoPagamentoPago" className="text-sm text-black font-medium flex items-center gap-1">
             <Flag className="h-3 w-3" />
             PAGO
           </Label>

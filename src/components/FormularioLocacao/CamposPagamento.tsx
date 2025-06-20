@@ -23,21 +23,21 @@ export const CamposPagamento = ({
           id="proprietarioPago"
           checked={proprietarioPago}
           onCheckedChange={(checked) => onProprietarioPagoChange(!!checked)}
-          className="border-slate-500 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          className="border-gray-400 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
         />
-        <Label htmlFor="proprietarioPago" className="text-slate-200 font-semibold">
+        <Label htmlFor="proprietarioPago" className="text-black font-semibold">
           Proprietário Pago
         </Label>
       </div>
 
       <div>
-        <Label htmlFor="dataPagamentoProprietario" className="text-slate-200 font-semibold">Data de Pagamento ao Proprietário</Label>
+        <Label htmlFor="dataPagamentoProprietario" className="text-black font-semibold">Data de Pagamento ao Proprietário</Label>
         <Input
           id="dataPagamentoProprietario"
           type="date"
           value={dataPagamentoProprietario}
           onChange={(e) => onDataPagamentoProprietarioChange(e.target.value)}
-          className="border-slate-600 focus:border-blue-500 bg-slate-700 text-slate-200"
+          className="border-gray-300 focus:border-blue-500 bg-white text-black"
         />
       </div>
     </div>

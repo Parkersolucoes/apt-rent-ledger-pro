@@ -3,86 +3,86 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Sistema de cores profissional com tons azuis discretos */
+/* Sistema de cores usando apenas preto, azul e branco */
 
 @layer base {
   :root {
-    --background: 248 250 252; /* slate-50 - fundo bem claro e limpo */
-    --foreground: 30 41 59; /* slate-700 - texto principal escuro */
+    --background: 255 255 255; /* white - fundo principal */
+    --foreground: 0 0 0; /* black - texto principal */
 
-    --card: 255 255 255; /* white - cards limpos */
-    --card-foreground: 30 41 59; /* slate-700 */
+    --card: 255 255 255; /* white - cards */
+    --card-foreground: 0 0 0; /* black */
 
     --popover: 255 255 255; /* white */
-    --popover-foreground: 30 41 59; /* slate-700 */
+    --popover-foreground: 0 0 0; /* black */
 
-    --primary: 59 130 246; /* blue-500 - azul profissional */
-    --primary-foreground: 248 250 252; /* slate-50 */
+    --primary: 37 99 235; /* blue-600 - azul principal */
+    --primary-foreground: 255 255 255; /* white */
 
-    --secondary: 241 245 249; /* slate-100 - cinza muito suave */
-    --secondary-foreground: 51 65 85; /* slate-600 */
+    --secondary: 243 244 246; /* gray-100 - cinza muito claro */
+    --secondary-foreground: 0 0 0; /* black */
 
-    --muted: 248 250 252; /* slate-50 */
-    --muted-foreground: 100 116 139; /* slate-500 */
+    --muted: 249 250 251; /* gray-50 */
+    --muted-foreground: 107 114 128; /* gray-500 */
 
-    --accent: 59 130 246; /* blue-500 */
-    --accent-foreground: 248 250 252; /* slate-50 */
+    --accent: 37 99 235; /* blue-600 */
+    --accent-foreground: 255 255 255; /* white */
 
-    --destructive: 239 68 68; /* red-500 */
-    --destructive-foreground: 248 250 252; /* slate-50 */
+    --destructive: 220 38 38; /* red-600 */
+    --destructive-foreground: 255 255 255; /* white */
 
-    --border: 226 232 240; /* slate-200 - bordas sutis */
-    --input: 226 232 240; /* slate-200 */
-    --ring: 59 130 246; /* blue-500 */
+    --border: 209 213 219; /* gray-300 - bordas */
+    --input: 209 213 219; /* gray-300 */
+    --ring: 37 99 235; /* blue-600 */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 248 250 252; /* slate-50 */
-    --sidebar-foreground: 30 41 59; /* slate-700 */
-    --sidebar-primary: 59 130 246; /* blue-500 */
-    --sidebar-primary-foreground: 248 250 252; /* slate-50 */
-    --sidebar-accent: 241 245 249; /* slate-100 */
-    --sidebar-accent-foreground: 30 41 59; /* slate-700 */
-    --sidebar-border: 226 232 240; /* slate-200 */
-    --sidebar-ring: 59 130 246; /* blue-500 */
+    --sidebar-background: 255 255 255; /* white */
+    --sidebar-foreground: 0 0 0; /* black */
+    --sidebar-primary: 37 99 235; /* blue-600 */
+    --sidebar-primary-foreground: 255 255 255; /* white */
+    --sidebar-accent: 243 244 246; /* gray-100 */
+    --sidebar-accent-foreground: 0 0 0; /* black */
+    --sidebar-border: 209 213 219; /* gray-300 */
+    --sidebar-ring: 37 99 235; /* blue-600 */
   }
 
   .dark {
-    --background: 15 23 42; /* slate-900 - fundo escuro elegante */
-    --foreground: 248 250 252; /* slate-50 */
+    --background: 0 0 0; /* black - fundo escuro */
+    --foreground: 255 255 255; /* white */
 
-    --card: 30 41 59; /* slate-700 - cards escuros */
-    --card-foreground: 248 250 252; /* slate-50 */
+    --card: 17 24 39; /* gray-900 - cards escuros */
+    --card-foreground: 255 255 255; /* white */
 
-    --popover: 30 41 59; /* slate-700 */
-    --popover-foreground: 248 250 252; /* slate-50 */
+    --popover: 17 24 39; /* gray-900 */
+    --popover-foreground: 255 255 255; /* white */
 
     --primary: 59 130 246; /* blue-500 */
-    --primary-foreground: 248 250 252; /* slate-50 */
+    --primary-foreground: 255 255 255; /* white */
 
-    --secondary: 51 65 85; /* slate-600 */
-    --secondary-foreground: 248 250 252; /* slate-50 */
+    --secondary: 31 41 55; /* gray-800 */
+    --secondary-foreground: 255 255 255; /* white */
 
-    --muted: 51 65 85; /* slate-600 */
-    --muted-foreground: 148 163 184; /* slate-400 */
+    --muted: 31 41 55; /* gray-800 */
+    --muted-foreground: 156 163 175; /* gray-400 */
 
     --accent: 59 130 246; /* blue-500 */
-    --accent-foreground: 248 250 252; /* slate-50 */
+    --accent-foreground: 255 255 255; /* white */
 
     --destructive: 239 68 68; /* red-500 */
-    --destructive-foreground: 248 250 252; /* slate-50 */
+    --destructive-foreground: 255 255 255; /* white */
 
-    --border: 51 65 85; /* slate-600 */
-    --input: 51 65 85; /* slate-600 */
+    --border: 31 41 55; /* gray-800 */
+    --input: 31 41 55; /* gray-800 */
     --ring: 59 130 246; /* blue-500 */
 
-    --sidebar-background: 15 23 42; /* slate-900 */
-    --sidebar-foreground: 248 250 252; /* slate-50 */
+    --sidebar-background: 0 0 0; /* black */
+    --sidebar-foreground: 255 255 255; /* white */
     --sidebar-primary: 59 130 246; /* blue-500 */
-    --sidebar-primary-foreground: 248 250 252; /* slate-50 */
-    --sidebar-accent: 51 65 85; /* slate-600 */
-    --sidebar-accent-foreground: 248 250 252; /* slate-50 */
-    --sidebar-border: 51 65 85; /* slate-600 */
+    --sidebar-primary-foreground: 255 255 255; /* white */
+    --sidebar-accent: 31 41 55; /* gray-800 */
+    --sidebar-accent-foreground: 255 255 255; /* white */
+    --sidebar-border: 31 41 55; /* gray-800 */
     --sidebar-ring: 59 130 246; /* blue-500 */
   }
 }
@@ -98,21 +98,21 @@
   }
 }
 
-/* Gradientes profissionais e discretos */
+/* Gradientes usando apenas azul, preto e branco */
 .gradient-bg-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
 .gradient-bg-secondary {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
 }
 
 .gradient-bg-page {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 50%, #e5e7eb 100%);
 }
 
 .gradient-bg-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 }
 

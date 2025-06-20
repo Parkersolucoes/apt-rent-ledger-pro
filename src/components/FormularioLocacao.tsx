@@ -140,10 +140,10 @@ export const FormularioLocacao = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-4xl mx-auto">
-        <Card className="shadow-lg border-slate-200">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+        <Card className="shadow-lg border-gray-300">
+          <CardHeader className="bg-blue-600 text-white rounded-t-lg">
             <CardTitle className="text-2xl font-bold text-center">Nova Locação</CardTitle>
           </CardHeader>
           <CardContent className="p-6 bg-white">
@@ -188,18 +188,18 @@ export const FormularioLocacao = () => {
               />
 
               <div>
-                <Label htmlFor="observacoes" className="text-slate-700 font-semibold">Observações</Label>
+                <Label htmlFor="observacoes" className="text-black font-semibold">Observações</Label>
                 <Textarea
                   id="observacoes"
                   value={formData.observacoes}
                   onChange={(e) => setFormData({...formData, observacoes: e.target.value})}
                   placeholder="Observações adicionais..."
                   rows={3}
-                  className="border-slate-300 focus:border-blue-500 bg-white text-slate-700"
+                  className="border-gray-300 focus:border-blue-500 bg-white text-black"
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 text-lg shadow-md transform hover:scale-105 transition-all duration-200">
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 text-lg shadow-md transform hover:scale-105 transition-all duration-200">
                 Cadastrar Locação
               </Button>
             </form>
