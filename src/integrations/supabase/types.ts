@@ -69,6 +69,60 @@ export type Database = {
         }
         Relationships: []
       }
+      contratos: {
+        Row: {
+          apartamento_numero: string | null
+          conteudo: string
+          created_at: string
+          data_assinatura: string | null
+          data_criacao: string
+          data_vencimento: string | null
+          id: string
+          observacoes: string | null
+          percentual_comissao: number | null
+          proprietario_nome: string
+          status: string
+          titulo: string
+          updated_at: string
+          valor_mensal: number | null
+          variaveis: Json | null
+        }
+        Insert: {
+          apartamento_numero?: string | null
+          conteudo: string
+          created_at?: string
+          data_assinatura?: string | null
+          data_criacao?: string
+          data_vencimento?: string | null
+          id?: string
+          observacoes?: string | null
+          percentual_comissao?: number | null
+          proprietario_nome: string
+          status?: string
+          titulo: string
+          updated_at?: string
+          valor_mensal?: number | null
+          variaveis?: Json | null
+        }
+        Update: {
+          apartamento_numero?: string | null
+          conteudo?: string
+          created_at?: string
+          data_assinatura?: string | null
+          data_criacao?: string
+          data_vencimento?: string | null
+          id?: string
+          observacoes?: string | null
+          percentual_comissao?: number | null
+          proprietario_nome?: string
+          status?: string
+          titulo?: string
+          updated_at?: string
+          valor_mensal?: number | null
+          variaveis?: Json | null
+        }
+        Relationships: []
+      }
       despesas: {
         Row: {
           apartamento: string
@@ -175,6 +229,39 @@ export type Database = {
         Relationships: []
       }
       modelos_mensagem: {
+        Row: {
+          ativo: boolean
+          conteudo: string
+          created_at: string
+          id: string
+          nome: string
+          titulo: string
+          updated_at: string
+          variaveis: string[] | null
+        }
+        Insert: {
+          ativo?: boolean
+          conteudo: string
+          created_at?: string
+          id?: string
+          nome: string
+          titulo: string
+          updated_at?: string
+          variaveis?: string[] | null
+        }
+        Update: {
+          ativo?: boolean
+          conteudo?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          titulo?: string
+          updated_at?: string
+          variaveis?: string[] | null
+        }
+        Relationships: []
+      }
+      templates_contrato: {
         Row: {
           ativo: boolean
           conteudo: string

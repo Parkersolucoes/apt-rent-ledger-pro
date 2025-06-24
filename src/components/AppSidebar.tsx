@@ -11,6 +11,7 @@ import {
   List,
   FileText,
   MessageCircle,
+  FileSignature,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -76,6 +77,11 @@ const menuItems = [
         icon: List,
       },
     ],
+  },
+  {
+    title: "Contratos",
+    url: "/contratos",
+    icon: FileSignature,
   },
   {
     title: "Relatórios",

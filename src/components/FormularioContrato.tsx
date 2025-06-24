@@ -1,0 +1,308 @@
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Save, FileText } from 'lucide-react';
+import { useContratos } from '@/hooks/useContratos';
+import { useApartamentos } from '@/hooks/useApartamentos';
+import { Contrato } from '@/types/contrato';
+
+interface FormularioContratoProps {
+  contrato?: Contrato | null;
+  onVoltar: () => void;
+}
+
+export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoProps) => {
+  const { criarContrato, atualizarContrato, templates } = useContratos();
+  const { apartamentos } = useApartamentos();
+  
+  const [formData, setFormData] = useState({
+    titulo: '',
+    conteudo: '',
+    proprietario_nome: '',
+    apartamento_numero: '',
+    data_assinatura: '',
+    data_vencimento: '',
+    status: 'rascunho' as const,
+    percentual_comissao: '',
+    valor_mensal: '',
+    observacoes: ''
+  });
+
+  const [templateSelecionado, setTemplateSelecionado] = useState('');
+
+  useEffect(() => {
+    if (contrato) {
+      setFormData({
+        titulo: contrato.titulo,
+        conteudo: contrato.conteudo,
+        proprietario_nome: contrato.proprietario_nome,
+        apartamento_numero: contrato.apartamento_numero || '',
+        data_assinatura: contrato.data_assinatura || '',
+        data_vencimento: contrato.data_vencimento || '',
+        status: contrato.status,
+        percentual_comissao: contrato.percentual_comissao?.toString() || '',
+        valor_mensal: contrato.valor_mensal?.toString() || '',
+        observacoes: contrato.observacoes || ''
+      });
+    }
+  }, [contrato]);
+
+  const handleTemplateChange = (templateId: string) => {
+    setTemplateSelecionado(templateId);
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      setFormData(prev => ({
+        ...prev,
+        titulo: template.titulo,
+        conteudo: template.conteudo
+      }));
+    }
+  };
+
+  const preencherComProprietario = (apartamentoNumero: string) => {
+    const apartamento = apartamentos.find(apt => apt.numero === apartamentoNumero);
+    if (apartamento) {
+      setFormData(prev => ({
+        ...prev,
+        proprietario_nome: apartamento.proprietario || '',
+        apartamento_numero: apartamentoNumero
+      }));
+    }
+  };
+
+  const processarVariaveis = (conteudo: string) => {
+    let conteudoProcessado = conteudo;
+    
+    // Variáveis do proprietário/apartamento
+    const apartamento = apartamentos.find(apt => apt.numero === formData.apartamento_numero);
+    if (apartamento) {
+      conteudoProcessado = conteudoProcessado
+        .replace(/\{\{proprietario_nome\}\}/g, apartamento.proprietario || '')
+        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefone_proprietario || '')
+        .replace(/\{\{apartamento_numero\}\}/g, apartamento.numero)
+        .replace(/\{\{apartamento_endereco\}\}/g, apartamento.endereco || '')
+        .replace(/\{\{apartamento_descricao\}\}/g, apartamento.descricao || '');
+    }
+
+    // Outras variáveis
+    conteudoProcessado = conteudoProcessado
+      .replace(/\{\{percentual_comissao\}\}/g, formData.percentual_comissao)
+      .replace(/\{\{valor_mensal\}\}/g, formData.valor_mensal)
+      .replace(/\{\{local_data\}\}/g, new Date().toLocaleDateString());
+
+    return conteudoProcessado;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const conteudoProcessado = processarVariaveis(formData.conteudo);
+    
+    const dadosContrato = {
+      ...formData,
+      conteudo: conteudoProcessado,
+      percentual_comissao: formData.percentual_comissao ? parseFloat(formData.percentual_comissao) : undefined,
+      valor_mensal: formData.valor_mensal ? parseFloat(formData.valor_mensal) : undefined,
+      data_assinatura: formData.data_assinatura || undefined,
+      data_vencimento: formData.data_vencimento || undefined
+    };
+
+    if (contrato) {
+      atualizarContrato.mutate({ id: contrato.id, ...dadosContrato });
+    } else {
+      criarContrato.mutate(dadosContrato);
+    }
+    
+    onVoltar();
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center gap-4">
+        <Button variant="outline" onClick={onVoltar}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
+        </Button>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {contrato ? 'Editar Contrato' : 'Novo Contrato'}
+        </h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informações Básicas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {!contrato && (
+                <div>
+                  <Label htmlFor="template">Template</Label>
+                  <Select value={templateSelecionado} onValueChange={handleTemplateChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um template (opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates.map((template) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="titulo">Título</Label>
+                <Input
+                  id="titulo"
+                  value={formData.titulo}
+                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="apartamento">Apartamento</Label>
+                <Select 
+                  value={formData.apartamento_numero} 
+                  onValueChange={preencherComProprietario}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um apartamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apartamentos.map((apt) => (
+                      <SelectItem key={apt.id} value={apt.numero}>
+                        {apt.numero} - {apt.proprietario}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="proprietario">Proprietário</Label>
+                <Input
+                  id="proprietario"
+                  value={formData.proprietario_nome}
+                  onChange={(e) => setFormData({ ...formData, proprietario_nome: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value: any) => setFormData({ ...formData, status: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="rascunho">Rascunho</SelectItem>
+                    <SelectItem value="enviado">Enviado</SelectItem>
+                    <SelectItem value="assinado">Assinado</SelectItem>
+                    <SelectItem value="vencido">Vencido</SelectItem>
+                    <SelectItem value="cancelado">Cancelado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="comissao">Comissão (%)</Label>
+                  <Input
+                    id="comissao"
+                    type="number"
+                    step="0.01"
+                    value={formData.percentual_comissao}
+                    onChange={(e) => setFormData({ ...formData, percentual_comissao: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="valor_mensal">Valor Mensal</Label>
+                  <Input
+                    id="valor_mensal"
+                    type="number"
+                    step="0.01"
+                    value={formData.valor_mensal}
+                    onChange={(e) => setFormData({ ...formData, valor_mensal: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="data_assinatura">Data de Assinatura</Label>
+                  <Input
+                    id="data_assinatura"
+                    type="date"
+                    value={formData.data_assinatura}
+                    onChange={(e) => setFormData({ ...formData, data_assinatura: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="data_vencimento">Data de Vencimento</Label>
+                  <Input
+                    id="data_vencimento"
+                    type="date"
+                    value={formData.data_vencimento}
+                    onChange={(e) => setFormData({ ...formData, data_vencimento: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="observacoes">Observações</Label>
+                <Textarea
+                  id="observacoes"
+                  value={formData.observacoes}
+                  onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Conteúdo do Contrato</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div>
+                <Label htmlFor="conteudo">Texto do Contrato</Label>
+                <Textarea
+                  id="conteudo"
+                  value={formData.conteudo}
+                  onChange={(e) => setFormData({ ...formData, conteudo: e.target.value })}
+                  rows={20}
+                  className="font-mono text-sm"
+                  placeholder="Digite o conteúdo do contrato..."
+                  required
+                />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Use variáveis como: {`{{proprietario_nome}}, {{apartamento_numero}}, {{percentual_comissao}}`}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex gap-4">
+          <Button type="submit" disabled={criarContrato.isPending || atualizarContrato.isPending}>
+            <Save className="h-4 w-4 mr-2" />
+            {contrato ? 'Atualizar' : 'Criar'} Contrato
+          </Button>
+          <Button type="button" variant="outline" onClick={onVoltar}>
+            Cancelar
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
