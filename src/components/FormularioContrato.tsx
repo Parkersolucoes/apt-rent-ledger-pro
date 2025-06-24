@@ -27,7 +27,7 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     apartamento_numero: '',
     data_assinatura: '',
     data_vencimento: '',
-    status: 'rascunho' as const,
+    status: 'rascunho' as 'rascunho' | 'enviado' | 'assinado' | 'vencido' | 'cancelado',
     percentual_comissao: '',
     valor_mensal: '',
     observacoes: ''
@@ -83,7 +83,7 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     if (apartamento) {
       conteudoProcessado = conteudoProcessado
         .replace(/\{\{proprietario_nome\}\}/g, apartamento.proprietario || '')
-        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefone_proprietario || '')
+        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefoneProprietario || '')
         .replace(/\{\{apartamento_numero\}\}/g, apartamento.numero)
         .replace(/\{\{apartamento_endereco\}\}/g, apartamento.endereco || '')
         .replace(/\{\{apartamento_descricao\}\}/g, apartamento.descricao || '');
@@ -106,6 +106,7 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     const dadosContrato = {
       ...formData,
       conteudo: conteudoProcessado,
+      data_criacao: new Date().toISOString().split('T')[0],
       percentual_comissao: formData.percentual_comissao ? parseFloat(formData.percentual_comissao) : undefined,
       valor_mensal: formData.valor_mensal ? parseFloat(formData.valor_mensal) : undefined,
       data_assinatura: formData.data_assinatura || undefined,
