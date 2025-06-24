@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,10 +5,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, FileText } from 'lucide-react';
+import { ArrowLeft, Save, FileText, Send, Mail } from 'lucide-react';
 import { useContratos } from '@/hooks/useContratos';
 import { useApartamentos } from '@/hooks/useApartamentos';
+import { useConfiguracoes } from '@/hooks/useConfiguracoes';
+import { useToast } from '@/hooks/use-toast';
 import { Contrato } from '@/types/contrato';
+import { WhatsAppModalContrato } from './WhatsAppModalContrato';
+import { EmailModalContrato } from './EmailModalContrato';
+import { generateContractPDF } from '@/utils/pdf/pdfContractGenerator';
+import { enviarPDFWhatsApp } from '@/utils/whatsapp';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FormularioContratoProps {
   contrato?: Contrato | null;
@@ -19,6 +25,8 @@ interface FormularioContratoProps {
 export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoProps) => {
   const { criarContrato, atualizarContrato, templates } = useContratos();
   const { apartamentos } = useApartamentos();
+  const { configEvolution } = useConfiguracoes();
+  const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     titulo: '',
@@ -34,6 +42,10 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
   });
 
   const [templateSelecionado, setTemplateSelecionado] = useState('');
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [enviandoWhatsApp, setEnviandoWhatsApp] = useState(false);
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
 
   useEffect(() => {
     if (contrato) {
@@ -96,6 +108,133 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
       .replace(/\{\{local_data\}\}/g, new Date().toLocaleDateString());
 
     return conteudoProcessado;
+  };
+
+  const handleExportarPDF = () => {
+    if (!contrato) {
+      toast({
+        title: "Erro",
+        description: "É necessário salvar o contrato antes de exportar em PDF.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const doc = generateContractPDF(contrato);
+      doc.save(`contrato-${contrato.titulo.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+      
+      toast({
+        title: "Sucesso!",
+        description: "Contrato exportado em PDF com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao gerar PDF do contrato.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEnviarWhatsApp = async (telefone: string, mensagem: string) => {
+    if (!contrato) {
+      toast({
+        title: "Erro",
+        description: "É necessário salvar o contrato antes de enviar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!configEvolution.apiUrl || !configEvolution.apiKey || !configEvolution.instanceName) {
+      toast({
+        title: "Erro",
+        description: "Configure primeiro as credenciais da Evolution API nas configurações.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setEnviandoWhatsApp(true);
+
+    try {
+      const doc = generateContractPDF(contrato);
+      const pdfBlob = doc.output('blob');
+      const nomeArquivo = `contrato-${contrato.titulo.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+
+      await enviarPDFWhatsApp(
+        configEvolution,
+        telefone,
+        pdfBlob,
+        nomeArquivo,
+        mensagem
+      );
+
+      toast({
+        title: "Sucesso!",
+        description: "Contrato enviado por WhatsApp com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao enviar WhatsApp:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar contrato por WhatsApp. Verifique as configurações da Evolution API.",
+        variant: "destructive",
+      });
+    } finally {
+      setEnviandoWhatsApp(false);
+    }
+  };
+
+  const handleEnviarEmail = async (email: string, assunto: string, mensagem: string) => {
+    if (!contrato) {
+      toast({
+        title: "Erro",
+        description: "É necessário salvar o contrato antes de enviar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setEnviandoEmail(true);
+
+    try {
+      const doc = generateContractPDF(contrato);
+      const pdfBlob = doc.output('blob');
+      const nomeArquivo = `contrato-${contrato.titulo.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+
+      // Convert PDF to base64
+      const arrayBuffer = await pdfBlob.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      const { data, error } = await supabase.functions.invoke('send-contract-email', {
+        body: {
+          email,
+          assunto,
+          mensagem,
+          pdfBase64: base64,
+          nomeArquivo
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso!",
+        description: "Contrato enviado por e-mail com sucesso.",
+      });
+    } catch (error) {
+      console.error('Erro ao enviar e-mail:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar contrato por e-mail. Verifique se a configuração do Resend está correta.",
+        variant: "destructive",
+      });
+    } finally {
+      setEnviandoEmail(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -294,16 +433,66 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
           </Card>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <Button type="submit" disabled={criarContrato.isPending || atualizarContrato.isPending}>
             <Save className="h-4 w-4 mr-2" />
             {contrato ? 'Atualizar' : 'Criar'} Contrato
           </Button>
+          
           <Button type="button" variant="outline" onClick={onVoltar}>
             Cancelar
           </Button>
+
+          {contrato && (
+            <>
+              <Button type="button" variant="outline" onClick={handleExportarPDF}>
+                <FileText className="h-4 w-4 mr-2" />
+                Exportar PDF
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowWhatsAppModal(true)}
+                disabled={enviandoWhatsApp}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Enviar WhatsApp
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowEmailModal(true)}
+                disabled={enviandoEmail}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Enviar E-mail
+              </Button>
+            </>
+          )}
         </div>
       </form>
+
+      {contrato && (
+        <>
+          <WhatsAppModalContrato
+            open={showWhatsAppModal}
+            onOpenChange={setShowWhatsAppModal}
+            contrato={contrato}
+            onEnviar={handleEnviarWhatsApp}
+            enviando={enviandoWhatsApp}
+          />
+
+          <EmailModalContrato
+            open={showEmailModal}
+            onOpenChange={setShowEmailModal}
+            contrato={contrato}
+            onEnviar={handleEnviarEmail}
+            enviando={enviandoEmail}
+          />
+        </>
+      )}
     </div>
   );
 };
