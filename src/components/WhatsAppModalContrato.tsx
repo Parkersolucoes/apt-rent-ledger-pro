@@ -49,12 +49,12 @@ export const WhatsAppModalContrato = ({
     };
   };
 
-  const handleModeloChange = (modeloId: string) => {
+  const handleModeloChange = async (modeloId: string) => {
     setModeloSelecionado(modeloId);
     const modelo = modelos.find(m => m.id === modeloId);
     if (modelo) {
       const variaveis = gerarVariaveisTemplate();
-      const mensagemProcessada = processarTemplate(modelo.conteudo, variaveis);
+      const mensagemProcessada = await processarTemplate(modelo.conteudo, variaveis);
       setMensagem(mensagemProcessada);
     }
   };

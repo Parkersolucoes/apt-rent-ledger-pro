@@ -50,20 +50,23 @@ export const EmailModalContrato = ({
     };
   };
 
-  const handleModeloChange = (modeloId: string) => {
+  const handleModeloChange = async (modeloId: string) => {
     setModeloSelecionado(modeloId);
     const modelo = modelos.find(m => m.id === modeloId);
     if (modelo) {
       const variaveis = gerarVariaveisTemplate();
-      const mensagemProcessada = processarTemplate(modelo.conteudo, variaveis);
+      const mensagemProcessada = await processarTemplate(modelo.conteudo, variaveis);
       setMensagem(mensagemProcessada);
     }
   };
 
   const preencherEmailProprietario = () => {
+    // Since emailProprietario doesn't exist in Apartamento type, 
+    // we'll use a placeholder or ask user to enter manually
     const apartamento = apartamentos.find(apt => apt.numero === contrato.apartamento_numero);
-    if (apartamento?.emailProprietario) {
-      setEmail(apartamento.emailProprietario);
+    if (apartamento?.proprietario) {
+      // We can set a placeholder based on proprietario name
+      setEmail(`${apartamento.proprietario.toLowerCase().replace(/\s+/g, '.')}@email.com`);
     }
   };
 
@@ -107,7 +110,7 @@ export const EmailModalContrato = ({
                 onClick={preencherEmailProprietario}
                 className="w-full"
               >
-                Usar E-mail do Proprietário
+                Sugerir E-mail do Proprietário
               </Button>
             </div>
           </div>
