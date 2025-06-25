@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,6 +58,16 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     }
   }, [contrato]);
 
+  // Atualizar nome do proprietário quando apartamento for selecionado
+  useEffect(() => {
+    if (formData.apartamento_numero && !contrato) {
+      const apartamento = apartamentos.find(apt => apt.numero === formData.apartamento_numero);
+      if (apartamento?.proprietario) {
+        setFormData(prev => ({ ...prev, proprietario_nome: apartamento.proprietario || '' }));
+      }
+    }
+  }, [formData.apartamento_numero, apartamentos, contrato]);
+
   const gerarVariaveisContrato = () => {
     const apartamento = apartamentos.find(apt => apt.numero === formData.apartamento_numero);
     
@@ -77,30 +86,32 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
       empresa_responsavel: empresa?.responsavel || '',
       empresa_cpf_responsavel: empresa?.cpf_responsavel || '',
       
-      // Dados do proprietário
-      proprietario_nome: formData.proprietario_nome,
-      proprietario_data_nascimento: '',
-      proprietario_nacionalidade: empresa?.nacionalidade_responsavel || 'BRASILEIRA',
-      proprietario_estado_civil: empresa?.estado_civil_responsavel || '',
-      proprietario_profissao: empresa?.profissao_responsavel || '',
-      proprietario_rg: empresa?.rg_responsavel || '',
-      proprietario_orgao_expeditor: empresa?.orgao_expeditor || '',
-      proprietario_cpf: '',
-      proprietario_email: '',
-      proprietario_endereco: empresa?.endereco_responsavel || '',
-      proprietario_banco: '',
-      proprietario_agencia: '',
-      proprietario_conta: '',
-      proprietario_pix: '',
-      proprietario_tipo_conta: '',
-      proprietario_titular_conta: formData.proprietario_nome,
-      proprietario_cpf_titular: '',
+      // Dados do proprietário - agora vindos do cadastro do apartamento
+      proprietario_nome: apartamento?.proprietario || formData.proprietario_nome,
+      proprietario_cpf: apartamento?.cpfProprietario || '',
+      proprietario_data_nascimento: apartamento?.dataNascimentoProprietario ? new Date(apartamento.dataNascimentoProprietario).toLocaleDateString() : '',
+      proprietario_nacionalidade: apartamento?.nacionalidadeProprietario || 'BRASILEIRA',
+      proprietario_estado_civil: apartamento?.estadoCivilProprietario || '',
+      proprietario_profissao: apartamento?.profissaoProprietario || '',
+      proprietario_rg: apartamento?.rgProprietario || '',
+      proprietario_orgao_expeditor: apartamento?.orgaoExpeditorProprietario || '',
+      proprietario_email: apartamento?.emailProprietario || '',
+      proprietario_endereco: apartamento?.enderecoProprietario || '',
+      proprietario_telefone: apartamento?.telefoneProprietario || '',
+      proprietario_banco: apartamento?.bancoProprietario || '',
+      proprietario_agencia: apartamento?.agenciaProprietario || '',
+      proprietario_conta: apartamento?.contaProprietario || '',
+      proprietario_pix: apartamento?.pixProprietario || '',
+      proprietario_tipo_conta: apartamento?.tipoContaProprietario || '',
+      proprietario_titular_conta: apartamento?.titularContaProprietario || apartamento?.proprietario || formData.proprietario_nome,
+      proprietario_cpf_titular: apartamento?.cpfTitularProprietario || apartamento?.cpfProprietario || '',
       
       // Dados do apartamento
       apartamento_numero: formData.apartamento_numero || '',
       apartamento_torre: '',
       apartamento_caracteristicas: apartamento?.descricao || '',
       apartamento_capacidade: '8',
+      apartamento_endereco: apartamento?.endereco || '',
       
       // Dados do condomínio
       condominio_nome: 'EVIAN THERMAS RESIDENCE',
@@ -155,6 +166,8 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     }
   };
 
+  const apartamentoSelecionado = apartamentos.find(apt => apt.numero === formData.apartamento_numero);
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4 mb-6">
@@ -194,7 +207,7 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
                   <SelectContent>
                     {apartamentos.map((apartamento) => (
                       <SelectItem key={apartamento.numero} value={apartamento.numero}>
-                        {apartamento.numero} - {apartamento.descricao}
+                        {apartamento.numero} - {apartamento.proprietario || 'Sem proprietário'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -210,8 +223,49 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
                 onChange={(e) => handleInputChange('proprietario_nome', e.target.value)}
                 placeholder="Nome completo do proprietário"
                 required
+                disabled={!!apartamentoSelecionado?.proprietario}
               />
+              {apartamentoSelecionado?.proprietario && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nome preenchido automaticamente do cadastro do apartamento
+                </p>
+              )}
             </div>
+
+            {/* Mostrar dados do proprietário se apartamento estiver selecionado */}
+            {apartamentoSelecionado && (
+              <Card className="bg-muted/50">
+                <CardHeader>
+                  <CardTitle className="text-lg">Dados do Proprietário</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                  {apartamentoSelecionado.cpfProprietario && (
+                    <div>
+                      <Label className="text-xs font-medium">CPF</Label>
+                      <p>{apartamentoSelecionado.cpfProprietario}</p>
+                    </div>
+                  )}
+                  {apartamentoSelecionado.telefoneProprietario && (
+                    <div>
+                      <Label className="text-xs font-medium">Telefone</Label>
+                      <p>{apartamentoSelecionado.telefoneProprietario}</p>
+                    </div>
+                  )}
+                  {apartamentoSelecionado.emailProprietario && (
+                    <div>
+                      <Label className="text-xs font-medium">E-mail</Label>
+                      <p>{apartamentoSelecionado.emailProprietario}</p>
+                    </div>
+                  )}
+                  {apartamentoSelecionado.enderecoProprietario && (
+                    <div className="md:col-span-2 lg:col-span-3">
+                      <Label className="text-xs font-medium">Endereço</Label>
+                      <p>{apartamentoSelecionado.enderecoProprietario}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>

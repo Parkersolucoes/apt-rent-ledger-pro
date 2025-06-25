@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,30 +55,32 @@ export const EditorContrato = ({ contrato, onVoltar }: EditorContratoProps) => {
       empresa_responsavel: empresa?.responsavel || '',
       empresa_cpf_responsavel: empresa?.cpf_responsavel || '',
       
-      // Dados do proprietário
-      proprietario_nome: contrato.proprietario_nome,
-      proprietario_data_nascimento: '',
-      proprietario_nacionalidade: empresa?.nacionalidade_responsavel || 'BRASILEIRA',
-      proprietario_estado_civil: empresa?.estado_civil_responsavel || '',
-      proprietario_profissao: empresa?.profissao_responsavel || '',
-      proprietario_rg: empresa?.rg_responsavel || '',
-      proprietario_orgao_expeditor: empresa?.orgao_expeditor || '',
-      proprietario_cpf: '',
-      proprietario_email: '',
-      proprietario_endereco: empresa?.endereco_responsavel || '',
-      proprietario_banco: '',
-      proprietario_agencia: '',
-      proprietario_conta: '',
-      proprietario_pix: '',
-      proprietario_tipo_conta: '',
-      proprietario_titular_conta: contrato.proprietario_nome,
-      proprietario_cpf_titular: '',
+      // Dados do proprietário - agora vindos do cadastro do apartamento
+      proprietario_nome: apartamento?.proprietario || contrato.proprietario_nome,
+      proprietario_cpf: apartamento?.cpfProprietario || '',
+      proprietario_data_nascimento: apartamento?.dataNascimentoProprietario || '',
+      proprietario_nacionalidade: apartamento?.nacionalidadeProprietario || 'BRASILEIRA',
+      proprietario_estado_civil: apartamento?.estadoCivilProprietario || '',
+      proprietario_profissao: apartamento?.profissaoProprietario || '',
+      proprietario_rg: apartamento?.rgProprietario || '',
+      proprietario_orgao_expeditor: apartamento?.orgaoExpeditorProprietario || '',
+      proprietario_email: apartamento?.emailProprietario || '',
+      proprietario_endereco: apartamento?.enderecoProprietario || '',
+      proprietario_telefone: apartamento?.telefoneProprietario || '',
+      proprietario_banco: apartamento?.bancoProprietario || '',
+      proprietario_agencia: apartamento?.agenciaProprietario || '',
+      proprietario_conta: apartamento?.contaProprietario || '',
+      proprietario_pix: apartamento?.pixProprietario || '',
+      proprietario_tipo_conta: apartamento?.tipoContaProprietario || '',
+      proprietario_titular_conta: apartamento?.titularContaProprietario || apartamento?.proprietario || contrato.proprietario_nome,
+      proprietario_cpf_titular: apartamento?.cpfTitularProprietario || apartamento?.cpfProprietario || '',
       
       // Dados do apartamento
       apartamento_numero: contrato.apartamento_numero || '',
       apartamento_torre: '',
       apartamento_caracteristicas: apartamento?.descricao || '',
       apartamento_capacidade: '8',
+      apartamento_endereco: apartamento?.endereco || '',
       
       // Dados do condomínio
       condominio_nome: 'EVIAN THERMAS RESIDENCE',
