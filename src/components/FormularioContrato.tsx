@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,15 +6,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DatePicker } from "@/components/ui/date-picker"
-import { Calendar } from "lucide-react";
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, ArrowLeft } from "lucide-react";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast"
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { useEmpresa } from '@/hooks/useEmpresa';
+import { useContratos } from '@/hooks/useContratos';
+import { Contrato } from '@/types/contrato';
 
-export const FormularioContrato = () => {
+interface FormularioContratoProps {
+  contrato?: Contrato | null;
+  onVoltar: () => void;
+}
+
+export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoProps) => {
   const [formData, setFormData] = useState({
     titulo: '',
     apartamento_numero: '',
@@ -23,13 +33,31 @@ export const FormularioContrato = () => {
     data_vencimento: new Date(),
     valor_mensal: 0,
     percentual_comissao: 20,
-    status: 'Ativo',
+    status: 'rascunho' as const,
     observacoes: '',
   });
 
   const { toast } = useToast();
   const { apartamentos } = useApartamentos();
   const { empresa } = useEmpresa();
+  const { criarContrato, atualizarContrato } = useContratos();
+
+  useEffect(() => {
+    if (contrato) {
+      setFormData({
+        titulo: contrato.titulo,
+        apartamento_numero: contrato.apartamento_numero || '',
+        proprietario_nome: contrato.proprietario_nome,
+        data_criacao: new Date(contrato.data_criacao),
+        data_assinatura: contrato.data_assinatura ? new Date(contrato.data_assinatura) : new Date(),
+        data_vencimento: contrato.data_vencimento ? new Date(contrato.data_vencimento) : new Date(),
+        valor_mensal: contrato.valor_mensal || 0,
+        percentual_comissao: contrato.percentual_comissao || 20,
+        status: contrato.status,
+        observacoes: contrato.observacoes || '',
+      });
+    }
+  }, [contrato]);
 
   const gerarVariaveisContrato = () => {
     const apartamento = apartamentos.find(apt => apt.numero === formData.apartamento_numero);
@@ -93,162 +121,242 @@ export const FormularioContrato = () => {
     };
   };
 
-  const processarConteudoContrato = (conteudo: string) => {
-    const variaveis = gerarVariaveisContrato();
-    let conteudoProcessado = conteudo;
-
-    // Substituir todas as variáveis no conteúdo
-    Object.entries(variaveis).forEach(([chave, valor]) => {
-      const regex = new RegExp(`\\{\\{${chave}\\}\\}`, 'g');
-      conteudoProcessado = conteudoProcessado.replace(regex, valor || '');
-    });
-
-    return conteudoProcessado;
-  };
-
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Formulário submetido:', formData);
-    toast({
-      title: "Sucesso",
-      description: "Contrato gerado com sucesso!",
-    })
+    
+    const contratoData = {
+      titulo: formData.titulo,
+      conteudo: '', // Will be filled with template content
+      proprietario_nome: formData.proprietario_nome,
+      apartamento_numero: formData.apartamento_numero,
+      data_criacao: formData.data_criacao.toISOString(),
+      data_assinatura: formData.data_assinatura.toISOString(),
+      data_vencimento: formData.data_vencimento.toISOString(),
+      status: formData.status,
+      percentual_comissao: formData.percentual_comissao,
+      valor_mensal: formData.valor_mensal,
+      variaveis: gerarVariaveisContrato(),
+      observacoes: formData.observacoes,
+    };
+
+    try {
+      if (contrato) {
+        await atualizarContrato.mutateAsync({ id: contrato.id, ...contratoData });
+      } else {
+        await criarContrato.mutateAsync(contratoData);
+      }
+      onVoltar();
+    } catch (error) {
+      console.error('Erro ao salvar contrato:', error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="container mx-auto p-6 space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Informações do Contrato</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="titulo">Título do Contrato</Label>
-              <Input
-                id="titulo"
-                value={formData.titulo}
-                onChange={(e) => handleInputChange('titulo', e.target.value)}
-                placeholder="Ex: Contrato de Locação - Apartamento 101"
-              />
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="outline" onClick={onVoltar}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar
+        </Button>
+        <h1 className="text-3xl font-bold">
+          {contrato ? 'Editar Contrato' : 'Novo Contrato'}
+        </h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Informações do Contrato</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="titulo">Título do Contrato</Label>
+                <Input
+                  id="titulo"
+                  value={formData.titulo}
+                  onChange={(e) => handleInputChange('titulo', e.target.value)}
+                  placeholder="Ex: Contrato de Locação - Apartamento 101"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="apartamento_numero">Número do Apartamento</Label>
+                <Select onValueChange={(value) => handleInputChange('apartamento_numero', value)} value={formData.apartamento_numero}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o Apartamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apartamentos.map((apartamento) => (
+                      <SelectItem key={apartamento.numero} value={apartamento.numero}>
+                        {apartamento.numero} - {apartamento.descricao}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div>
-              <Label htmlFor="apartamento_numero">Número do Apartamento</Label>
-              <Select onValueChange={(value) => handleInputChange('apartamento_numero', value)}>
+              <Label htmlFor="proprietario_nome">Nome do Proprietário</Label>
+              <Input
+                id="proprietario_nome"
+                value={formData.proprietario_nome}
+                onChange={(e) => handleInputChange('proprietario_nome', e.target.value)}
+                placeholder="Nome completo do proprietário"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label>Data de Criação</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.data_criacao && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.data_criacao ? format(formData.data_criacao, "PPP", { locale: ptBR }) : "Selecione a data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.data_criacao}
+                      onSelect={(date) => date && handleInputChange('data_criacao', date)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label>Data de Assinatura</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.data_assinatura && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.data_assinatura ? format(formData.data_assinatura, "PPP", { locale: ptBR }) : "Selecione a data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.data_assinatura}
+                      onSelect={(date) => date && handleInputChange('data_assinatura', date)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <Label>Data de Vencimento</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.data_vencimento && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.data_vencimento ? format(formData.data_vencimento, "PPP", { locale: ptBR }) : "Selecione a data"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={formData.data_vencimento}
+                      onSelect={(date) => date && handleInputChange('data_vencimento', date)}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="valor_mensal">Valor Mensal (R$)</Label>
+                <Input
+                  type="number"
+                  id="valor_mensal"
+                  value={formData.valor_mensal}
+                  onChange={(e) => handleInputChange('valor_mensal', parseFloat(e.target.value))}
+                  placeholder="Valor mensal do contrato"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="percentual_comissao">Percentual de Comissão (%)</Label>
+                <Input
+                  type="number"
+                  id="percentual_comissao"
+                  value={formData.percentual_comissao}
+                  onChange={(e) => handleInputChange('percentual_comissao', parseFloat(e.target.value))}
+                  placeholder="Percentual de comissão"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="status">Status do Contrato</Label>
+              <Select onValueChange={(value) => handleInputChange('status', value)} value={formData.status}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o Apartamento" />
+                  <SelectValue placeholder="Selecione o Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {apartamentos.map((apartamento) => (
-                    <SelectItem key={apartamento.numero} value={apartamento.numero}>
-                      {apartamento.numero} - {apartamento.descricao}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="rascunho">Rascunho</SelectItem>
+                  <SelectItem value="enviado">Enviado</SelectItem>
+                  <SelectItem value="assinado">Assinado</SelectItem>
+                  <SelectItem value="vencido">Vencido</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="proprietario_nome">Nome do Proprietário</Label>
-            <Input
-              id="proprietario_nome"
-              value={formData.proprietario_nome}
-              onChange={(e) => handleInputChange('proprietario_nome', e.target.value)}
-              placeholder="Nome completo do proprietário"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label>Data de Criação</Label>
-              <DatePicker
-                locale={ptBR}
-                className="w-full"
-                date={formData.data_criacao}
-                onDateChange={(date) => handleInputChange('data_criacao', date)}
-              />
-            </div>
 
             <div>
-              <Label>Data de Assinatura</Label>
-              <DatePicker
-                locale={ptBR}
-                className="w-full"
-                date={formData.data_assinatura}
-                onDateChange={(date) => handleInputChange('data_assinatura', date)}
+              <Label htmlFor="observacoes">Observações</Label>
+              <Textarea
+                id="observacoes"
+                value={formData.observacoes}
+                onChange={(e) => handleInputChange('observacoes', e.target.value)}
+                placeholder="Observações adicionais sobre o contrato"
               />
             </div>
+          </CardContent>
+        </Card>
 
-            <div>
-              <Label>Data de Vencimento</Label>
-              <DatePicker
-                locale={ptBR}
-                className="w-full"
-                date={formData.data_vencimento}
-                onDateChange={(date) => handleInputChange('data_vencimento', date)}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="valor_mensal">Valor Mensal (R$)</Label>
-              <Input
-                type="number"
-                id="valor_mensal"
-                value={formData.valor_mensal}
-                onChange={(e) => handleInputChange('valor_mensal', parseFloat(e.target.value))}
-                placeholder="Valor mensal do contrato"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="percentual_comissao">Percentual de Comissão (%)</Label>
-              <Input
-                type="number"
-                id="percentual_comissao"
-                value={formData.percentual_comissao}
-                onChange={(e) => handleInputChange('percentual_comissao', parseFloat(e.target.value))}
-                placeholder="Percentual de comissão"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="status">Status do Contrato</Label>
-            <Select onValueChange={(value) => handleInputChange('status', value)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione o Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Ativo">Ativo</SelectItem>
-                <SelectItem value="Inativo">Inativo</SelectItem>
-                <SelectItem value="Em negociação">Em negociação</SelectItem>
-                <SelectItem value="Concluído">Concluído</SelectItem>
-                <SelectItem value="Cancelado">Cancelado</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="observacoes">Observações</Label>
-            <Textarea
-              id="observacoes"
-              value={formData.observacoes}
-              onChange={(e) => handleInputChange('observacoes', e.target.value)}
-              placeholder="Observações adicionais sobre o contrato"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Button type="submit">Gerar Contrato</Button>
-    </form>
+        <div className="flex gap-4">
+          <Button type="submit" disabled={criarContrato.isPending || atualizarContrato.isPending}>
+            {contrato ? 'Atualizar Contrato' : 'Criar Contrato'}
+          </Button>
+          <Button type="button" variant="outline" onClick={onVoltar}>
+            Cancelar
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
