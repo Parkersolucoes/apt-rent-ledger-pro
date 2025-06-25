@@ -4,15 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, FileText, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, FileText, Edit, Trash2, FileEdit } from 'lucide-react';
 import { useContratos } from '@/hooks/useContratos';
 import { FormularioContrato } from './FormularioContrato';
+import { EditorContrato } from './EditorContrato';
 import { Contrato } from '@/types/contrato';
 
 export const Contratos = () => {
   const [busca, setBusca] = useState('');
   const [contratoSelecionado, setContratoSelecionado] = useState<Contrato | null>(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarEditor, setMostrarEditor] = useState(false);
   const { contratos, isLoadingContratos, excluirContrato } = useContratos();
 
   const contratosFiltrados = contratos.filter(contrato =>
@@ -41,6 +43,11 @@ export const Contratos = () => {
     setMostrarFormulario(true);
   };
 
+  const handleEditarTemplate = (contrato: Contrato) => {
+    setContratoSelecionado(contrato);
+    setMostrarEditor(true);
+  };
+
   const handleExcluirContrato = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este contrato?')) {
       excluirContrato.mutate(id);
@@ -52,6 +59,15 @@ export const Contratos = () => {
       <FormularioContrato
         contrato={contratoSelecionado}
         onVoltar={() => setMostrarFormulario(false)}
+      />
+    );
+  }
+
+  if (mostrarEditor) {
+    return (
+      <EditorContrato
+        contrato={contratoSelecionado!}
+        onVoltar={() => setMostrarEditor(false)}
       />
     );
   }
@@ -143,6 +159,15 @@ export const Contratos = () => {
                   >
                     <Edit className="h-3 w-3 mr-1" />
                     Editar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditarTemplate(contrato)}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <FileEdit className="h-3 w-3 mr-1" />
+                    Template
                   </Button>
                   <Button
                     variant="outline"
