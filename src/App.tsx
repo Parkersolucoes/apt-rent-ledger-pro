@@ -17,6 +17,7 @@ import Despesas from "./pages/Despesas";
 import NovaDespesa from "./pages/NovaDespesa";
 import { ListaApartamentos } from "./components/ListaApartamentos";
 import Contratos from "./pages/Contratos";
+import CadastroEmpresa from "./pages/CadastroEmpresa";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ const App = () => (
                 <Route path="/despesas" element={<Despesas />} />
                 <Route path="/despesas/novo" element={<NovaDespesa />} />
                 <Route path="/contratos" element={<Contratos />} />
+                <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

@@ -40,6 +40,7 @@ export const EmailModalContrato = ({
     const apartamento = apartamentos.find(apt => apt.numero === contrato.apartamento_numero);
     
     return {
+      // Variáveis básicas do contrato
       nome_proprietario: contrato.proprietario_nome,
       apartamento: contrato.apartamento_numero || 'N/A',
       titulo_contrato: contrato.titulo,
@@ -49,12 +50,26 @@ export const EmailModalContrato = ({
       valor_mensal: contrato.valor_mensal?.toString() || '0',
       telefone_proprietario: apartamento?.telefoneProprietario || '',
       endereco_apartamento: apartamento?.endereco || '',
+      
+      // Variáveis da empresa expandidas
       empresa_nome: empresa?.nome || '',
+      empresa_razao_social: empresa?.razao_social || empresa?.nome || '',
+      empresa_nome_fantasia: empresa?.nome_fantasia || empresa?.nome || '',
       empresa_cnpj: empresa?.cnpj || '',
       empresa_endereco: empresa?.endereco || '',
       empresa_telefone: empresa?.telefone || '',
+      empresa_telefone_secundario: empresa?.telefone_secundario || '',
       empresa_email: empresa?.email || '',
-      empresa_responsavel: empresa?.responsavel || ''
+      empresa_responsavel: empresa?.responsavel || '',
+      empresa_cpf_responsavel: empresa?.cpf_responsavel || '',
+      empresa_cargo_responsavel: empresa?.cargo_responsavel || '',
+      
+      // Novas variáveis para templates mais completos
+      proprietario_telefone: apartamento?.telefoneProprietario || '',
+      apartamento_descricao: apartamento?.descricao || '',
+      data_atual: new Date().toLocaleDateString(),
+      mes_atual: new Date().toLocaleDateString('pt-BR', { month: 'long' }),
+      ano_atual: new Date().getFullYear().toString()
     };
   };
 

@@ -12,6 +12,7 @@ import {
   FileText,
   MessageCircle,
   FileSignature,
+  Building2,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -92,6 +93,11 @@ const menuItems = [
     title: "Modelos de Mensagem",
     url: "/modelos-mensagem",
     icon: MessageCircle,
+  },
+  {
+    title: "Cadastro da Empresa",
+    url: "/cadastro-empresa",
+    icon: Building2,
   },
   {
     title: "Configurações",

@@ -17,6 +17,17 @@ export interface Empresa {
   ativo: boolean;
   created_at: string;
   updated_at: string;
+  // Novos campos baseados no contrato
+  razao_social?: string;
+  nome_fantasia?: string;
+  telefone_secundario?: string;
+  cpf_responsavel?: string;
+  rg_responsavel?: string;
+  orgao_expeditor?: string;
+  nacionalidade_responsavel?: string;
+  estado_civil_responsavel?: string;
+  profissao_responsavel?: string;
+  endereco_responsavel?: string;
 }
 
 export const useEmpresa = () => {
