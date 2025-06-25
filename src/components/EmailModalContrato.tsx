@@ -47,7 +47,7 @@ export const EmailModalContrato = ({
       data_criacao: new Date(contrato.data_criacao).toLocaleDateString(),
       percentual_comissao: contrato.percentual_comissao?.toString() || '0',
       valor_mensal: contrato.valor_mensal?.toString() || '0',
-      telefone_proprietario: apartamento?.telefone_proprietario || '',
+      telefone_proprietario: apartamento?.telefoneProprietario || '',
       endereco_apartamento: apartamento?.endereco || '',
       empresa_nome: empresa?.nome || '',
       empresa_cnpj: empresa?.cnpj || '',

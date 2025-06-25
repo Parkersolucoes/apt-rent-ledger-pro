@@ -97,7 +97,7 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     if (apartamento) {
       conteudoProcessado = conteudoProcessado
         .replace(/\{\{proprietario_nome\}\}/g, apartamento.proprietario || '')
-        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefone_proprietario || '')
+        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefoneProprietario || '')
         .replace(/\{\{apartamento_numero\}\}/g, apartamento.numero)
         .replace(/\{\{apartamento_endereco\}\}/g, apartamento.endereco || '')
         .replace(/\{\{apartamento_descricao\}\}/g, apartamento.descricao || '');
