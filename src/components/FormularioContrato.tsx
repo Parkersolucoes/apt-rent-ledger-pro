@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Save, FileText, Send, Mail } from 'lucide-react';
 import { useContratos } from '@/hooks/useContratos';
 import { useApartamentos } from '@/hooks/useApartamentos';
+import { useEmpresa } from '@/hooks/useEmpresa';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 import { useToast } from '@/hooks/use-toast';
 import { Contrato } from '@/types/contrato';
@@ -25,6 +26,7 @@ interface FormularioContratoProps {
 export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoProps) => {
   const { criarContrato, atualizarContrato, templates } = useContratos();
   const { apartamentos } = useApartamentos();
+  const { empresa } = useEmpresa();
   const { configEvolution } = useConfiguracoes();
   const { toast } = useToast();
   
@@ -95,10 +97,22 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     if (apartamento) {
       conteudoProcessado = conteudoProcessado
         .replace(/\{\{proprietario_nome\}\}/g, apartamento.proprietario || '')
-        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefoneProprietario || '')
+        .replace(/\{\{proprietario_telefone\}\}/g, apartamento.telefone_proprietario || '')
         .replace(/\{\{apartamento_numero\}\}/g, apartamento.numero)
         .replace(/\{\{apartamento_endereco\}\}/g, apartamento.endereco || '')
         .replace(/\{\{apartamento_descricao\}\}/g, apartamento.descricao || '');
+    }
+
+    // Variáveis da empresa
+    if (empresa) {
+      conteudoProcessado = conteudoProcessado
+        .replace(/\{\{empresa_nome\}\}/g, empresa.nome || '')
+        .replace(/\{\{empresa_cnpj\}\}/g, empresa.cnpj || '')
+        .replace(/\{\{empresa_endereco\}\}/g, empresa.endereco || '')
+        .replace(/\{\{empresa_telefone\}\}/g, empresa.telefone || '')
+        .replace(/\{\{empresa_email\}\}/g, empresa.email || '')
+        .replace(/\{\{empresa_responsavel\}\}/g, empresa.responsavel || '')
+        .replace(/\{\{empresa_cargo_responsavel\}\}/g, empresa.cargo_responsavel || '');
     }
 
     // Outras variáveis
@@ -205,7 +219,6 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
       const pdfBlob = doc.output('blob');
       const nomeArquivo = `contrato-${contrato.titulo.replace(/\s+/g, '-').toLowerCase()}.pdf`;
 
-      // Convert PDF to base64
       const arrayBuffer = await pdfBlob.arrayBuffer();
       const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
@@ -426,7 +439,10 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
                   required
                 />
                 <p className="text-sm text-muted-foreground mt-2">
-                  Use variáveis como: {`{{proprietario_nome}}, {{apartamento_numero}}, {{percentual_comissao}}`}
+                  Variáveis disponíveis:<br/>
+                  <strong>Proprietário/Apartamento:</strong> {`{{proprietario_nome}}, {{apartamento_numero}}, {{apartamento_endereco}}`}<br/>
+                  <strong>Empresa:</strong> {`{{empresa_nome}}, {{empresa_cnpj}}, {{empresa_endereco}}, {{empresa_responsavel}}`}<br/>
+                  <strong>Contrato:</strong> {`{{percentual_comissao}}, {{valor_mensal}}, {{local_data}}`}
                 </p>
               </div>
             </CardContent>

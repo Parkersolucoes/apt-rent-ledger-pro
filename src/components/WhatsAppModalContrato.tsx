@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useModelosMensagem } from '@/hooks/useModelosMensagem';
 import { useApartamentos } from '@/hooks/useApartamentos';
+import { useEmpresa } from '@/hooks/useEmpresa';
 import { Contrato } from '@/types/contrato';
 import { Send } from 'lucide-react';
 
@@ -32,6 +33,7 @@ export const WhatsAppModalContrato = ({
   
   const { modelos, processarTemplate } = useModelosMensagem();
   const { apartamentos } = useApartamentos();
+  const { empresa } = useEmpresa();
 
   const gerarVariaveisTemplate = () => {
     const apartamento = apartamentos.find(apt => apt.numero === contrato.apartamento_numero);
@@ -44,8 +46,14 @@ export const WhatsAppModalContrato = ({
       data_criacao: new Date(contrato.data_criacao).toLocaleDateString(),
       percentual_comissao: contrato.percentual_comissao?.toString() || '0',
       valor_mensal: contrato.valor_mensal?.toString() || '0',
-      telefone_proprietario: apartamento?.telefoneProprietario || '',
-      endereco_apartamento: apartamento?.endereco || ''
+      telefone_proprietario: apartamento?.telefone_proprietario || '',
+      endereco_apartamento: apartamento?.endereco || '',
+      empresa_nome: empresa?.nome || '',
+      empresa_cnpj: empresa?.cnpj || '',
+      empresa_endereco: empresa?.endereco || '',
+      empresa_telefone: empresa?.telefone || '',
+      empresa_email: empresa?.email || '',
+      empresa_responsavel: empresa?.responsavel || ''
     };
   };
 
@@ -61,8 +69,8 @@ export const WhatsAppModalContrato = ({
 
   const preencherTelefoneProprietario = () => {
     const apartamento = apartamentos.find(apt => apt.numero === contrato.apartamento_numero);
-    if (apartamento?.telefoneProprietario) {
-      setTelefone(apartamento.telefoneProprietario);
+    if (apartamento?.telefone_proprietario) {
+      setTelefone(apartamento.telefone_proprietario);
     }
   };
 
@@ -135,7 +143,7 @@ export const WhatsAppModalContrato = ({
               placeholder="Digite a mensagem que acompanhará o PDF..."
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Variáveis disponíveis: nome_proprietario, apartamento, titulo_contrato, status_contrato
+              Variáveis disponíveis: nome_proprietario, apartamento, titulo_contrato, empresa_nome, empresa_responsavel
             </p>
           </div>
 
