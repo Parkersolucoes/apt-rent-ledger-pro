@@ -33,7 +33,7 @@ export const FormularioContrato = ({ contrato, onVoltar }: FormularioContratoPro
     data_vencimento: new Date(),
     valor_mensal: 0,
     percentual_comissao: 20,
-    status: 'rascunho' as const,
+    status: 'rascunho' as Contrato['status'],
     observacoes: '',
   });
 
