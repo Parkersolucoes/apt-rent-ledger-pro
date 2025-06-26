@@ -153,6 +153,45 @@ export type Database = {
         }
         Relationships: []
       }
+      disponibilidade: {
+        Row: {
+          apartamento_numero: string
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          hospede: string | null
+          id: string
+          observacoes: string | null
+          status: string
+          updated_at: string
+          valor_diaria: number | null
+        }
+        Insert: {
+          apartamento_numero: string
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          hospede?: string | null
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          valor_diaria?: number | null
+        }
+        Update: {
+          apartamento_numero?: string
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          hospede?: string | null
+          id?: string
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          valor_diaria?: number | null
+        }
+        Relationships: []
+      }
       empresa: {
         Row: {
           ativo: boolean

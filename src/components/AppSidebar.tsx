@@ -1,4 +1,3 @@
-
 import {
   Calendar,
   Home,
@@ -13,6 +12,7 @@ import {
   MessageCircle,
   FileSignature,
   Building2,
+  CalendarDays,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -46,6 +46,11 @@ const menuItems = [
     title: "Apartamentos",
     url: "/apartamentos",
     icon: Building,
+  },
+  {
+    title: "Disponibilidade",
+    url: "/disponibilidade",
+    icon: CalendarDays,
   },
   {
     title: "Locações",
