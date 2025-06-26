@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { useApartamentos } from '@/hooks/useApartamentos';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { NovaReservaModal } from './NovaReservaModal';
 
 export const MapaDisponibilidade = () => {
   const [mesAtual, setMesAtual] = useState(new Date());
@@ -82,10 +82,7 @@ export const MapaDisponibilidade = () => {
             <Filter className="h-4 w-4 mr-2" />
             Filtros
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Nova Reserva
-          </Button>
+          <NovaReservaModal />
         </div>
       </div>
 
