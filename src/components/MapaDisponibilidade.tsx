@@ -38,13 +38,13 @@ export const MapaDisponibilidade = () => {
   const getCorStatus = (status: string) => {
     switch (status) {
       case 'ocupado':
-        return 'bg-blue-500 text-white';
+        return 'bg-red-300 text-red-800 border-red-400';
       case 'bloqueado':
-        return 'bg-yellow-400 text-black';
+        return 'bg-yellow-300 text-yellow-800 border-yellow-400';
       case 'manutencao':
-        return 'bg-gray-500 text-white';
+        return 'bg-gray-400 text-gray-800 border-gray-500';
       default:
-        return 'bg-green-500 text-white';
+        return 'bg-green-400 text-green-800 border-green-500';
     }
   };
 
@@ -57,13 +57,13 @@ export const MapaDisponibilidade = () => {
   };
 
   const getDiaSemana = (dia: Date) => {
-    const dias = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+    const dias = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
     return dias[getDay(dia)];
   };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-4">
         <div className="flex items-center justify-center h-64">
           <div className="text-lg">Carregando mapa de disponibilidade...</div>
         </div>
@@ -72,14 +72,14 @@ export const MapaDisponibilidade = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Calendar className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold">Mapa de Disponibilidade</h1>
+          <h1 className="text-2xl font-bold">Mapa de Disponibilidade</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" size="sm">
             <Filter className="h-4 w-4 mr-2" />
             Filtros
           </Button>
@@ -89,52 +89,48 @@ export const MapaDisponibilidade = () => {
 
       {/* Controles de navegação */}
       <Card>
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="icon" onClick={mesAnterior}>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={mesAnterior}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <h2 className="text-xl font-semibold min-w-[200px] text-center">
+              <h2 className="text-lg font-semibold min-w-[180px] text-center">
                 {format(mesAtual, 'MMMM yyyy', { locale: ptBR })}
               </h2>
-              <Button variant="outline" size="icon" onClick={proximoMes}>
+              <Button variant="outline" size="sm" onClick={proximoMes}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-blue-500">Ocupado</Badge>
-              <Badge className="bg-yellow-400 text-black">Bloqueado</Badge>
-              <Badge className="bg-gray-500">Manutenção</Badge>
-              <Badge className="bg-green-500">Disponível</Badge>
+            <div className="flex items-center gap-2 text-xs">
+              <Badge className="bg-green-400 text-green-800">Disponível</Badge>
+              <Badge className="bg-red-300 text-red-800">Ocupado</Badge>
+              <Badge className="bg-yellow-300 text-yellow-800">Bloqueado</Badge>
+              <Badge className="bg-gray-400 text-gray-800">Manutenção</Badge>
             </div>
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <div className="min-w-full">
             {/* Cabeçalho dos dias */}
-            <div className="grid gap-1 mb-4" style={{ gridTemplateColumns: `120px repeat(${diasDoMes.length}, 80px)` }}>
-              <div className="font-bold text-sm p-2 bg-gray-100 rounded flex items-center">
-                UHs / Mês
+            <div className="grid gap-0.5 mb-3" style={{ gridTemplateColumns: `100px repeat(${diasDoMes.length}, minmax(25px, 1fr))` }}>
+              <div className="font-bold text-xs p-2 bg-gray-100 rounded text-center">
+                Unidades
               </div>
               {diasDoMes.map((dia) => (
-                <div key={dia.toISOString()} className="text-center text-xs p-2 bg-gray-50 rounded">
-                  <div className="font-bold">{getDiaSemana(dia)}</div>
-                  <div className="text-lg font-bold">{format(dia, 'd')}</div>
-                  <div className="text-xs text-gray-500">{format(dia, 'MMM', { locale: ptBR }).toUpperCase()}</div>
+                <div key={dia.toISOString()} className="text-center text-xs p-1 bg-gray-50 rounded">
+                  <div className="font-bold text-xs">{getDiaSemana(dia)}</div>
+                  <div className="text-sm font-bold">{format(dia, 'd')}</div>
                 </div>
               ))}
             </div>
 
             {/* Linhas das unidades */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               {apartamentosAtivos.map((apartamento) => (
-                <div key={apartamento.id} className="grid gap-1 items-center" style={{ gridTemplateColumns: `120px repeat(${diasDoMes.length}, 80px)` }}>
-                  <div className="font-medium text-sm p-2 bg-gray-50 rounded flex items-center h-12">
-                    <div>
-                      <div className="font-bold">Apto {apartamento.numero}</div>
-                      <div className="text-xs text-gray-500">STANDARD</div>
-                    </div>
+                <div key={apartamento.id} className="grid gap-0.5 items-center" style={{ gridTemplateColumns: `100px repeat(${diasDoMes.length}, minmax(25px, 1fr))` }}>
+                  <div className="font-medium text-xs p-2 bg-gray-50 rounded text-center h-8 flex items-center justify-center">
+                    <div className="font-bold">Apto {apartamento.numero}</div>
                   </div>
                   {diasDoMes.map((dia) => {
                     const reservas = getReservasDia(apartamento.numero, dia);
@@ -143,30 +139,27 @@ export const MapaDisponibilidade = () => {
                     return (
                       <div
                         key={dia.toISOString()}
-                        className="h-12 relative"
+                        className="h-8 relative"
                       >
                         {reserva ? (
                           <div
                             className={cn(
-                              'absolute inset-0 rounded px-2 py-1 text-xs font-medium flex flex-col justify-center items-center cursor-pointer hover:opacity-80 transition-opacity',
+                              'absolute inset-0 rounded border text-xs font-medium flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity',
                               getCorStatus(reserva.status)
                             )}
                             title={`${apartamento.numero} - ${format(dia, 'dd/MM')} - ${reserva.hospede || reserva.status}`}
                           >
-                            {reserva.hospede && (
-                              <div className="truncate w-full text-center leading-tight">
-                                {reserva.hospede.split(' ')[0]}
-                              </div>
-                            )}
-                            {reserva.valor_diaria && (
-                              <div className="text-xs opacity-90">
-                                R$ {reserva.valor_diaria.toFixed(0)}
-                              </div>
-                            )}
+                            <div className="text-center leading-tight overflow-hidden">
+                              {reserva.hospede && (
+                                <div className="truncate text-xs">
+                                  {reserva.hospede.split(' ')[0].substring(0, 6)}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           <div
-                            className="absolute inset-0 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="absolute inset-0 border border-gray-200 rounded hover:bg-green-50 cursor-pointer transition-colors bg-green-100"
                             title={`${apartamento.numero} - ${format(dia, 'dd/MM')} - Disponível`}
                           />
                         )}
@@ -181,37 +174,37 @@ export const MapaDisponibilidade = () => {
       </Card>
 
       {/* Resumo estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">
+          <CardContent className="p-3">
+            <div className="text-xl font-bold text-green-600">
               {Math.round((disponibilidades.filter(d => d.status === 'disponivel').length / Math.max(disponibilidades.length, 1)) * 100)}%
             </div>
-            <div className="text-sm text-gray-500">Taxa de Disponibilidade</div>
+            <div className="text-xs text-gray-500">Taxa de Disponibilidade</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-blue-600">
+          <CardContent className="p-3">
+            <div className="text-xl font-bold text-red-600">
               {disponibilidades.filter(d => d.status === 'ocupado').length}
             </div>
-            <div className="text-sm text-gray-500">Reservas Ativas</div>
+            <div className="text-xs text-gray-500">Reservas Ativas</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-yellow-600">
+          <CardContent className="p-3">
+            <div className="text-xl font-bold text-yellow-600">
               {disponibilidades.filter(d => d.status === 'bloqueado').length}
             </div>
-            <div className="text-sm text-gray-500">Bloqueios</div>
+            <div className="text-xs text-gray-500">Bloqueios</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-gray-600">
+          <CardContent className="p-3">
+            <div className="text-xl font-bold text-gray-600">
               {Math.round((disponibilidades.filter(d => d.status === 'ocupado').length / Math.max(disponibilidades.length, 1)) * 100)}%
             </div>
-            <div className="text-sm text-gray-500">Taxa de Ocupação</div>
+            <div className="text-xs text-gray-500">Taxa de Ocupação</div>
           </CardContent>
         </Card>
       </div>
