@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ import { useLocacoes } from '@/hooks/useLocacoes';
 import { useApartamentos } from '@/hooks/useApartamentos';
 import { useModelosMensagem } from '@/hooks/useModelosMensagem';
 import { useWebhook } from '@/hooks/useWebhook';
+import { useValidacaoDisponibilidade } from '@/hooks/useValidacaoDisponibilidade';
 import { parseDateInput, calcularComissao, calcularValorProprietario } from '@/utils/formatters';
 import { toast } from '@/hooks/use-toast';
 import { CamposBasicos } from './FormularioLocacao/CamposBasicos';
@@ -29,6 +29,7 @@ export const FormularioLocacao = () => {
   const { modelos, processarTemplate } = useModelosMensagem();
   const { configuracoes } = useConfiguracoes();
   const { sendLocacaoCriada } = useWebhook();
+  const { validarDisponibilidade } = useValidacaoDisponibilidade();
   const navigate = useNavigate();
   const [showConfirmacao, setShowConfirmacao] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
@@ -70,7 +71,6 @@ export const FormularioLocacao = () => {
     return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
   };
 
-  // Cálculos automatizados
   const valorLocacao = parseCurrencyInput(formData.valorLocacao);
   const taxaLimpeza = parseCurrencyInput(formData.taxaLimpeza);
   const comissao = calcularComissao(valorLocacao, taxaLimpeza);
@@ -142,7 +142,6 @@ export const FormularioLocacao = () => {
 
       const telefoneFormatado = formatarTelefone(telefone);
       
-      // Como não temos PDF neste contexto, enviamos apenas a mensagem
       const response = await fetch(`${whatsappConfig.apiUrl}/message/sendText/${whatsappConfig.instanceName}`, {
         method: 'POST',
         headers: {
@@ -187,6 +186,21 @@ export const FormularioLocacao = () => {
       return;
     }
 
+    // Validar disponibilidade antes de salvar
+    const dataEntrada = parseDateInput(formData.dataEntrada);
+    const dataSaida = parseDateInput(formData.dataSaida);
+    
+    const validacao = validarDisponibilidade(formData.apartamento, dataEntrada, dataSaida);
+    
+    if (!validacao.isValido) {
+      toast({
+        title: "Conflito de Datas",
+        description: validacao.mensagemErro || "As datas selecionadas conflitam com reservas existentes.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const valorLocacaoNum = parseCurrencyInput(formData.valorLocacao);
     const primeiroPagamento = parseCurrencyInput(formData.primeiroPagamento);
     const segundoPagamento = parseCurrencyInput(formData.segundoPagamento);
@@ -196,9 +210,6 @@ export const FormularioLocacao = () => {
     const valorFaltando = valorTotal - primeiroPagamento - segundoPagamento;
     const comissaoCalculada = calcularComissao(valorLocacaoNum, taxaLimpezaNum);
     const valorProprietarioCalculado = calcularValorProprietario(valorLocacaoNum, taxaLimpezaNum, comissaoCalculada);
-
-    const dataEntrada = parseDateInput(formData.dataEntrada);
-    const dataSaida = parseDateInput(formData.dataSaida);
 
     const novaLocacao = {
       apartamento: formData.apartamento,
@@ -226,14 +237,12 @@ export const FormularioLocacao = () => {
     try {
       const locacaoAdicionada = await adicionarLocacao(novaLocacao);
 
-      // Enviar webhook de nova locação
       sendLocacaoCriada({
         ...novaLocacao,
         id: 'novo',
         createdAt: new Date()
       });
 
-      // Armazenar a locação cadastrada e mostrar confirmação
       setLocacaoCadastrada(locacaoAdicionada);
       setShowConfirmacao(true);
     } catch (error) {
@@ -300,6 +309,7 @@ export const FormularioLocacao = () => {
                 <CamposDatas
                   dataEntrada={formData.dataEntrada}
                   dataSaida={formData.dataSaida}
+                  apartamento={formData.apartamento}
                   onDataEntradaChange={(value) => setFormData({...formData, dataEntrada: value})}
                   onDataSaidaChange={(value) => setFormData({...formData, dataSaida: value})}
                 />

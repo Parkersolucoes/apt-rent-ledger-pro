@@ -1,11 +1,15 @@
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useMemo } from 'react';
+import { useValidacaoDisponibilidade } from '@/hooks/useValidacaoDisponibilidade';
+import { AlertTriangle } from 'lucide-react';
 
 interface CamposDatasProps {
   dataEntrada: string;
   dataSaida: string;
+  apartamento: string;
   onDataEntradaChange: (value: string) => void;
   onDataSaidaChange: (value: string) => void;
 }
@@ -13,12 +17,15 @@ interface CamposDatasProps {
 export const CamposDatas = ({
   dataEntrada,
   dataSaida,
+  apartamento,
   onDataEntradaChange,
   onDataSaidaChange
 }: CamposDatasProps) => {
-  const { diarias, isDataSaidaInvalida } = useMemo(() => {
+  const { validarDisponibilidade } = useValidacaoDisponibilidade();
+
+  const { diarias, isDataSaidaInvalida, validacaoDisponibilidade } = useMemo(() => {
     if (!dataEntrada || !dataSaida) {
-      return { diarias: 0, isDataSaidaInvalida: false };
+      return { diarias: 0, isDataSaidaInvalida: false, validacaoDisponibilidade: { isValido: true, mensagemErro: null } };
     }
 
     const entrada = new Date(dataEntrada);
@@ -27,11 +34,20 @@ export const CamposDatas = ({
     const diffTime = saida.getTime() - entrada.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
+    const isDataSaidaInvalida = diffDays < 0;
+    
+    // Validar disponibilidade apenas se as datas são válidas e o apartamento foi selecionado
+    let validacaoDisponibilidade = { isValido: true, mensagemErro: null };
+    if (!isDataSaidaInvalida && apartamento && diffDays >= 0) {
+      validacaoDisponibilidade = validarDisponibilidade(apartamento, entrada, saida);
+    }
+
     return {
       diarias: diffDays,
-      isDataSaidaInvalida: diffDays < 0
+      isDataSaidaInvalida,
+      validacaoDisponibilidade
     };
-  }, [dataEntrada, dataSaida]);
+  }, [dataEntrada, dataSaida, apartamento, validarDisponibilidade]);
 
   return (
     <div className="space-y-4">
@@ -54,7 +70,7 @@ export const CamposDatas = ({
             type="date"
             value={dataSaida}
             onChange={(e) => onDataSaidaChange(e.target.value)}
-            className={isDataSaidaInvalida ? 'border-red-500' : ''}
+            className={isDataSaidaInvalida || !validacaoDisponibilidade.isValido ? 'border-red-500' : ''}
             required
           />
           {isDataSaidaInvalida && (
@@ -65,7 +81,16 @@ export const CamposDatas = ({
         </div>
       </div>
 
-      {dataEntrada && dataSaida && !isDataSaidaInvalida && diarias > 0 && (
+      {!validacaoDisponibilidade.isValido && validacaoDisponibilidade.mensagemErro && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {validacaoDisponibilidade.mensagemErro}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {dataEntrada && dataSaida && !isDataSaidaInvalida && diarias > 0 && validacaoDisponibilidade.isValido && (
         <div className="flex justify-center">
           <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
             <Label className="text-blue-700 font-semibold text-lg">
