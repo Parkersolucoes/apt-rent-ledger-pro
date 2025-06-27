@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { CamposCalculados } from './FormularioLocacao/CamposCalculados';
 import { CamposPagamento } from './FormularioLocacao/CamposPagamento';
 import { ConfirmacaoNovoRegistro } from './ConfirmacaoNovoRegistro';
 import { WhatsAppModalLocacao } from './WhatsAppModalLocacao';
+import { LinkPagamentoModal } from './LinkPagamentoModal';
 import { Locacao } from '@/types/locacao';
 import { enviarPDFWhatsApp, formatarTelefone } from '@/utils/whatsapp';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
@@ -30,6 +32,7 @@ export const FormularioLocacao = () => {
   const navigate = useNavigate();
   const [showConfirmacao, setShowConfirmacao] = useState(false);
   const [showWhatsApp, setShowWhatsApp] = useState(false);
+  const [showLinkPagamento, setShowLinkPagamento] = useState(false);
   const [locacaoCadastrada, setLocacaoCadastrada] = useState<Locacao | null>(null);
   const [enviandoWhatsApp, setEnviandoWhatsApp] = useState(false);
   
@@ -263,6 +266,11 @@ export const FormularioLocacao = () => {
     setShowWhatsApp(true);
   };
 
+  const handleGerarLinkPagamento = () => {
+    setShowConfirmacao(false);
+    setShowLinkPagamento(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
@@ -369,6 +377,8 @@ export const FormularioLocacao = () => {
         onIrParaLista={handleIrParaLista}
         showWhatsAppButton
         onEnviarWhatsApp={handleEnviarWhatsAppConfirmacao}
+        showLinkPagamentoButton
+        onGerarLinkPagamento={handleGerarLinkPagamento}
       />
 
       <WhatsAppModalLocacao
@@ -380,6 +390,12 @@ export const FormularioLocacao = () => {
         onProcessarTemplate={processarTemplate}
         onEnviar={handleEnviarWhatsApp}
         enviando={enviandoWhatsApp}
+      />
+
+      <LinkPagamentoModal
+        open={showLinkPagamento}
+        onOpenChange={setShowLinkPagamento}
+        locacao={locacaoCadastrada}
       />
     </div>
   );

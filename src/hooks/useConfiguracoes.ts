@@ -17,6 +17,11 @@ interface ConfiguracaoEvolution {
   instanceName: string;
 }
 
+interface ConfiguracaoMercadoPago {
+  accessToken: string;
+  publicKey: string;
+}
+
 interface Configuracoes {
   evolution_api_url: string;
   evolution_api_key: string;
@@ -29,6 +34,8 @@ interface Configuracoes {
   smtp_nome_remetente: string;
   webhook_url: string;
   logo_empresa: string;
+  mercadopago_access_token: string;
+  mercadopago_public_key: string;
 }
 
 export const useConfiguracoes = () => {
@@ -47,6 +54,10 @@ export const useConfiguracoes = () => {
     apiKey: '',
     instanceName: ''
   });
+  const [configMercadoPago, setConfigMercadoPago] = useState<ConfiguracaoMercadoPago>({
+    accessToken: '',
+    publicKey: ''
+  });
   const [configuracoes, setConfiguracoes] = useState<Configuracoes>({
     evolution_api_url: '',
     evolution_api_key: '',
@@ -58,7 +69,9 @@ export const useConfiguracoes = () => {
     smtp_email_remetente: '',
     smtp_nome_remetente: '',
     webhook_url: '',
-    logo_empresa: ''
+    logo_empresa: '',
+    mercadopago_access_token: '',
+    mercadopago_public_key: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -104,6 +117,7 @@ export const useConfiguracoes = () => {
         const configsObj: Partial<Configuracoes> = {};
         const smtpConfig = { ...configSMTP };
         const evolutionConfig = { ...configEvolution };
+        const mercadoPagoConfig = { ...configMercadoPago };
 
         todasConfigs.forEach(config => {
           switch (config.chave) {
@@ -149,11 +163,20 @@ export const useConfiguracoes = () => {
             case 'logo_empresa':
               configsObj.logo_empresa = config.valor || '';
               break;
+            case 'mercadopago_access_token':
+              mercadoPagoConfig.accessToken = config.valor || '';
+              configsObj.mercadopago_access_token = config.valor || '';
+              break;
+            case 'mercadopago_public_key':
+              mercadoPagoConfig.publicKey = config.valor || '';
+              configsObj.mercadopago_public_key = config.valor || '';
+              break;
           }
         });
 
         setConfigSMTP(smtpConfig);
         setConfigEvolution(evolutionConfig);
+        setConfigMercadoPago(mercadoPagoConfig);
         setConfiguracoes(prev => ({ ...prev, ...configsObj }));
       }
     } catch (error) {
@@ -365,6 +388,52 @@ export const useConfiguracoes = () => {
     }
   };
 
+  const salvarConfigMercadoPago = async (config: ConfiguracaoMercadoPago) => {
+    if (!config.accessToken || !config.publicKey) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos do Mercado Pago.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    setIsLoading(true);
+    try {
+      const configsToSave = [
+        { chave: 'mercadopago_access_token', valor: config.accessToken },
+        { chave: 'mercadopago_public_key', valor: config.publicKey },
+      ];
+
+      for (const configItem of configsToSave) {
+        const { error } = await supabase
+          .from('configuracoes_sistema')
+          .upsert(configItem, { onConflict: 'chave' });
+
+        if (error) {
+          throw error;
+        }
+      }
+
+      setConfigMercadoPago(config);
+      toast({
+        title: "Sucesso!",
+        description: "Configurações do Mercado Pago salvas com sucesso."
+      });
+      return true;
+    } catch (error) {
+      console.error('Erro ao salvar configurações Mercado Pago:', error);
+      toast({
+        title: "Erro",
+        description: "Falha ao salvar as configurações do Mercado Pago.",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     carregarConfiguracoes();
   }, []);
@@ -374,11 +443,13 @@ export const useConfiguracoes = () => {
     webhookUrl,
     configSMTP,
     configEvolution,
+    configMercadoPago,
     configuracoes,
     salvarLogo,
     salvarWebhook,
     salvarConfigSMTP,
     salvarConfigEvolution,
+    salvarConfigMercadoPago,
     isLoading,
     recarregarConfiguracoes: carregarConfiguracoes
   };

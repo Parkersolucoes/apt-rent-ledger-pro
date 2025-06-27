@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Webhook, Save, TestTube, Upload, Mail, Eye, EyeOff, MessageCircle } from 'lucide-react';
+import { Webhook, Save, TestTube, Upload, Mail, Eye, EyeOff, MessageCircle, CreditCard } from 'lucide-react';
 import { useConfiguracoes } from '@/hooks/useConfiguracoes';
 
 export const Configuracoes = () => {
@@ -12,9 +12,22 @@ export const Configuracoes = () => {
   const [isTesting, setIsTesting] = useState(false);
   const [mostrarSenhaSMTP, setMostrarSenhaSMTP] = useState(false);
   const [mostrarApiKeyEvolution, setMostrarApiKeyEvolution] = useState(false);
+  const [mostrarAccessTokenMP, setMostrarAccessTokenMP] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { logoUrl, webhookUrl, configSMTP, configEvolution, salvarLogo, salvarWebhook, salvarConfigSMTP, salvarConfigEvolution, isLoading } = useConfiguracoes();
+  const { 
+    logoUrl, 
+    webhookUrl, 
+    configSMTP, 
+    configEvolution, 
+    configMercadoPago,
+    salvarLogo, 
+    salvarWebhook, 
+    salvarConfigSMTP, 
+    salvarConfigEvolution,
+    salvarConfigMercadoPago,
+    isLoading 
+  } = useConfiguracoes();
 
   const [smtpForm, setSMTPForm] = useState({
     host: '',
@@ -31,6 +44,11 @@ export const Configuracoes = () => {
     instanceName: ''
   });
 
+  const [mercadoPagoForm, setMercadoPagoForm] = useState({
+    accessToken: '',
+    publicKey: ''
+  });
+
   // Sincronizar os inputs com os valores dos hooks quando carregados
   useEffect(() => {
     if (webhookUrl && !webhookUrlInput) {
@@ -42,7 +60,10 @@ export const Configuracoes = () => {
     if (configEvolution.apiUrl) {
       setEvolutionForm(configEvolution);
     }
-  }, [webhookUrl, webhookUrlInput, configSMTP, configEvolution]);
+    if (configMercadoPago.accessToken) {
+      setMercadoPagoForm(configMercadoPago);
+    }
+  }, [webhookUrl, webhookUrlInput, configSMTP, configEvolution, configMercadoPago]);
 
   const handleSaveWebhook = async () => {
     await salvarWebhook(webhookUrlInput);
@@ -54,6 +75,10 @@ export const Configuracoes = () => {
 
   const handleSaveEvolution = async () => {
     await salvarConfigEvolution(evolutionForm);
+  };
+
+  const handleSaveMercadoPago = async () => {
+    await salvarConfigMercadoPago(mercadoPagoForm);
   };
 
   const handleTest = async () => {
@@ -380,6 +405,78 @@ export const Configuracoes = () => {
                     <p><strong>URL da API:</strong> Endereço completo da sua Evolution API (ex: https://api.minhaempresa.com)</p>
                     <p><strong>API Key:</strong> Chave de autenticação da sua Evolution API</p>
                     <p><strong>Instância:</strong> Nome da instância configurada na Evolution API</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Configuração do Mercado Pago */}
+            <div className="space-y-4 border-t pt-6">
+              <div>
+                <Label className="font-semibold text-lg flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Mercado Pago
+                </Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure suas credenciais do Mercado Pago para gerar links de pagamento.
+                </p>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="mp-access-token">Access Token *</Label>
+                    <div className="relative">
+                      <Input
+                        id="mp-access-token"
+                        type={mostrarAccessTokenMP ? "text" : "password"}
+                        value={mercadoPagoForm.accessToken}
+                        onChange={(e) => setMercadoPagoForm({...mercadoPagoForm, accessToken: e.target.value})}
+                        placeholder="APP_USR-xxx"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setMostrarAccessTokenMP(!mostrarAccessTokenMP)}
+                      >
+                        {mostrarAccessTokenMP ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="mp-public-key">Public Key *</Label>
+                    <Input
+                      id="mp-public-key"
+                      value={mercadoPagoForm.publicKey}
+                      onChange={(e) => setMercadoPagoForm({...mercadoPagoForm, publicKey: e.target.value})}
+                      placeholder="APP_USR-xxx"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Button 
+                    onClick={handleSaveMercadoPago}
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    Salvar Configurações Mercado Pago
+                  </Button>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg mt-4">
+                  <h4 className="font-semibold mb-2">Como obter as credenciais:</h4>
+                  <div className="text-sm space-y-1 text-muted-foreground">
+                    <p>1. Acesse <a href="https://www.mercadopago.com.br/developers" target="_blank" className="text-blue-600 hover:underline">developers.mercadopago.com.br</a></p>
+                    <p>2. Faça login na sua conta Mercado Pago</p>
+                    <p>3. Vá em "Suas integrações" → "Credenciais"</p>
+                    <p>4. Copie o Access Token e Public Key de produção</p>
                   </div>
                 </div>
               </div>
