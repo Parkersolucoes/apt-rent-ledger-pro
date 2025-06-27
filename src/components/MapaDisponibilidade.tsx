@@ -10,6 +10,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithi
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { NovaReservaModalLocacao } from './NovaReservaModalLocacao';
+import { DetalhesReservaPopover } from './DetalhesReservaPopover';
 
 export const MapaDisponibilidade = () => {
   const [mesAtual, setMesAtual] = useState(new Date());
@@ -40,7 +41,8 @@ export const MapaDisponibilidade = () => {
       return {
         status: reservaDisponibilidade.status,
         hospede: reservaDisponibilidade.hospede,
-        origem: 'disponibilidade'
+        origem: 'disponibilidade',
+        reserva: reservaDisponibilidade
       };
     }
 
@@ -57,7 +59,8 @@ export const MapaDisponibilidade = () => {
       return {
         status: 'ocupado',
         hospede: locacao.hospede,
-        origem: 'locacao'
+        origem: 'locacao',
+        locacao: locacao
       };
     }
 
@@ -190,21 +193,28 @@ export const MapaDisponibilidade = () => {
                         key={dia.toISOString()}
                         className="h-6 relative"
                       >
-                        <div
-                          className={cn(
-                            'absolute inset-0 rounded border text-xs font-medium flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity',
-                            getCorStatus(statusInfo.status)
-                          )}
-                          title={`${apartamento.numero} - ${format(dia, 'dd/MM')} - ${statusInfo.hospede || statusInfo.status} ${statusInfo.origem === 'locacao' ? '(Locação)' : statusInfo.origem === 'disponibilidade' ? '(Reserva)' : ''}`}
+                        <DetalhesReservaPopover
+                          apartamento={apartamento.numero}
+                          dia={dia}
+                          status={statusInfo.status}
+                          reserva={statusInfo.reserva}
+                          locacao={statusInfo.locacao}
                         >
-                          <div className="text-center leading-tight overflow-hidden">
-                            {statusInfo.hospede && (
-                              <div className="truncate text-xs">
-                                {statusInfo.hospede.split(' ')[0].substring(0, 4)}
-                              </div>
+                          <div
+                            className={cn(
+                              'absolute inset-0 rounded border text-xs font-medium flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity',
+                              getCorStatus(statusInfo.status)
                             )}
+                          >
+                            <div className="text-center leading-tight overflow-hidden">
+                              {statusInfo.hospede && (
+                                <div className="truncate text-xs">
+                                  {statusInfo.hospede.split(' ')[0].substring(0, 4)}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </DetalhesReservaPopover>
                       </div>
                     );
                   })}
