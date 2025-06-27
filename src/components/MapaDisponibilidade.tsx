@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, Plus, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useDisponibilidade } from '@/hooks/useDisponibilidade';
 import { useApartamentos } from '@/hooks/useApartamentos';
+import { useLocacoes } from '@/hooks/useLocacoes';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, getDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ export const MapaDisponibilidade = () => {
   
   const { disponibilidades, isLoading } = useDisponibilidade();
   const { apartamentos } = useApartamentos();
+  const { locacoes } = useLocacoes();
 
   const diasDoMes = useMemo(() => {
     const inicio = startOfMonth(mesAtual);
@@ -25,26 +26,59 @@ export const MapaDisponibilidade = () => {
 
   const apartamentosAtivos = apartamentos.filter(apt => apt.ativo);
 
-  const getReservasDia = (apartamento: string, dia: Date) => {
-    return disponibilidades.filter(disp => 
+  const getStatusDia = (apartamento: string, dia: Date) => {
+    // Primeiro, verifica se há uma reserva de disponibilidade específica
+    const reservaDisponibilidade = disponibilidades.find(disp => 
       disp.apartamento_numero === apartamento &&
       isWithinInterval(dia, {
         start: new Date(disp.data_inicio),
         end: new Date(disp.data_fim)
       })
     );
+
+    if (reservaDisponibilidade) {
+      return {
+        status: reservaDisponibilidade.status,
+        hospede: reservaDisponibilidade.hospede,
+        origem: 'disponibilidade'
+      };
+    }
+
+    // Se não há reserva de disponibilidade, verifica as locações
+    const locacao = locacoes.find(loc => 
+      loc.apartamento === apartamento &&
+      isWithinInterval(dia, {
+        start: new Date(loc.dataEntrada),
+        end: new Date(loc.dataSaida)
+      })
+    );
+
+    if (locacao) {
+      return {
+        status: 'ocupado',
+        hospede: locacao.hospede,
+        origem: 'locacao'
+      };
+    }
+
+    // Se não há nem reserva nem locação, está disponível
+    return {
+      status: 'disponivel',
+      hospede: null,
+      origem: 'livre'
+    };
   };
 
   const getCorStatus = (status: string) => {
     switch (status) {
       case 'ocupado':
-        return 'bg-red-300 text-red-800 border-red-400';
+        return 'bg-red-200 text-red-800 border-red-300';
       case 'bloqueado':
-        return 'bg-yellow-300 text-yellow-800 border-yellow-400';
+        return 'bg-yellow-200 text-yellow-800 border-yellow-300';
       case 'manutencao':
-        return 'bg-gray-400 text-gray-800 border-gray-500';
+        return 'bg-gray-300 text-gray-800 border-gray-400';
       default:
-        return 'bg-green-400 text-green-800 border-green-500';
+        return 'bg-green-200 text-green-800 border-green-300';
     }
   };
 
@@ -71,12 +105,28 @@ export const MapaDisponibilidade = () => {
     );
   }
 
+  // Calcular estatísticas baseadas nas locações e disponibilidades
+  const totalDiasDoMes = diasDoMes.length * apartamentosAtivos.length;
+  const diasOcupados = diasDoMes.reduce((total, dia) => {
+    return total + apartamentosAtivos.filter(apt => {
+      const statusDia = getStatusDia(apt.numero, dia);
+      return statusDia.status === 'ocupado';
+    }).length;
+  }, 0);
+
+  const diasBloqueados = diasDoMes.reduce((total, dia) => {
+    return total + apartamentosAtivos.filter(apt => {
+      const statusDia = getStatusDia(apt.numero, dia);
+      return statusDia.status === 'bloqueado';
+    }).length;
+  }, 0);
+
   return (
-    <div className="container mx-auto p-4 space-y-4">
+    <div className="container mx-auto p-3 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Calendar className="h-8 w-8 text-blue-600" />
-          <h1 className="text-2xl font-bold">Mapa de Disponibilidade</h1>
+          <h1 className="text-xl font-bold">Mapa de Disponibilidade</h1>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
@@ -89,7 +139,7 @@ export const MapaDisponibilidade = () => {
 
       {/* Controles de navegação */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" onClick={mesAnterior}>
@@ -103,66 +153,58 @@ export const MapaDisponibilidade = () => {
               </Button>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <Badge className="bg-green-400 text-green-800">Disponível</Badge>
-              <Badge className="bg-red-300 text-red-800">Ocupado</Badge>
-              <Badge className="bg-yellow-300 text-yellow-800">Bloqueado</Badge>
-              <Badge className="bg-gray-400 text-gray-800">Manutenção</Badge>
+              <Badge className="bg-green-200 text-green-800">Disponível</Badge>
+              <Badge className="bg-red-200 text-red-800">Ocupado</Badge>
+              <Badge className="bg-yellow-200 text-yellow-800">Bloqueado</Badge>
+              <Badge className="bg-gray-300 text-gray-800">Manutenção</Badge>
             </div>
           </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <div className="min-w-full">
             {/* Cabeçalho dos dias */}
-            <div className="grid gap-0.5 mb-3" style={{ gridTemplateColumns: `100px repeat(${diasDoMes.length}, minmax(25px, 1fr))` }}>
-              <div className="font-bold text-xs p-2 bg-gray-100 rounded text-center">
+            <div className="grid gap-px mb-2" style={{ gridTemplateColumns: `80px repeat(${diasDoMes.length}, minmax(20px, 1fr))` }}>
+              <div className="font-bold text-xs p-1 bg-gray-100 rounded text-center">
                 Unidades
               </div>
               {diasDoMes.map((dia) => (
                 <div key={dia.toISOString()} className="text-center text-xs p-1 bg-gray-50 rounded">
                   <div className="font-bold text-xs">{getDiaSemana(dia)}</div>
-                  <div className="text-sm font-bold">{format(dia, 'd')}</div>
+                  <div className="text-xs font-bold">{format(dia, 'd')}</div>
                 </div>
               ))}
             </div>
 
             {/* Linhas das unidades */}
-            <div className="space-y-1">
+            <div className="space-y-px">
               {apartamentosAtivos.map((apartamento) => (
-                <div key={apartamento.id} className="grid gap-0.5 items-center" style={{ gridTemplateColumns: `100px repeat(${diasDoMes.length}, minmax(25px, 1fr))` }}>
-                  <div className="font-medium text-xs p-2 bg-gray-50 rounded text-center h-8 flex items-center justify-center">
-                    <div className="font-bold">Apto {apartamento.numero}</div>
+                <div key={apartamento.id} className="grid gap-px items-center" style={{ gridTemplateColumns: `80px repeat(${diasDoMes.length}, minmax(20px, 1fr))` }}>
+                  <div className="font-medium text-xs p-1 bg-gray-50 rounded text-center h-6 flex items-center justify-center">
+                    <div className="font-bold text-xs">Apto {apartamento.numero}</div>
                   </div>
                   {diasDoMes.map((dia) => {
-                    const reservas = getReservasDia(apartamento.numero, dia);
-                    const reserva = reservas[0]; // Primeira reserva do dia
+                    const statusInfo = getStatusDia(apartamento.numero, dia);
                     
                     return (
                       <div
                         key={dia.toISOString()}
-                        className="h-8 relative"
+                        className="h-6 relative"
                       >
-                        {reserva ? (
-                          <div
-                            className={cn(
-                              'absolute inset-0 rounded border text-xs font-medium flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity',
-                              getCorStatus(reserva.status)
+                        <div
+                          className={cn(
+                            'absolute inset-0 rounded border text-xs font-medium flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity',
+                            getCorStatus(statusInfo.status)
+                          )}
+                          title={`${apartamento.numero} - ${format(dia, 'dd/MM')} - ${statusInfo.hospede || statusInfo.status} ${statusInfo.origem === 'locacao' ? '(Locação)' : statusInfo.origem === 'disponibilidade' ? '(Reserva)' : ''}`}
+                        >
+                          <div className="text-center leading-tight overflow-hidden">
+                            {statusInfo.hospede && (
+                              <div className="truncate text-xs">
+                                {statusInfo.hospede.split(' ')[0].substring(0, 4)}
+                              </div>
                             )}
-                            title={`${apartamento.numero} - ${format(dia, 'dd/MM')} - ${reserva.hospede || reserva.status}`}
-                          >
-                            <div className="text-center leading-tight overflow-hidden">
-                              {reserva.hospede && (
-                                <div className="truncate text-xs">
-                                  {reserva.hospede.split(' ')[0].substring(0, 6)}
-                                </div>
-                              )}
-                            </div>
                           </div>
-                        ) : (
-                          <div
-                            className="absolute inset-0 border border-gray-200 rounded hover:bg-green-50 cursor-pointer transition-colors bg-green-100"
-                            title={`${apartamento.numero} - ${format(dia, 'dd/MM')} - Disponível`}
-                          />
-                        )}
+                        </div>
                       </div>
                     );
                   })}
@@ -178,7 +220,7 @@ export const MapaDisponibilidade = () => {
         <Card>
           <CardContent className="p-3">
             <div className="text-xl font-bold text-green-600">
-              {Math.round((disponibilidades.filter(d => d.status === 'disponivel').length / Math.max(disponibilidades.length, 1)) * 100)}%
+              {Math.round(((totalDiasDoMes - diasOcupados - diasBloqueados) / Math.max(totalDiasDoMes, 1)) * 100)}%
             </div>
             <div className="text-xs text-gray-500">Taxa de Disponibilidade</div>
           </CardContent>
@@ -186,23 +228,23 @@ export const MapaDisponibilidade = () => {
         <Card>
           <CardContent className="p-3">
             <div className="text-xl font-bold text-red-600">
-              {disponibilidades.filter(d => d.status === 'ocupado').length}
+              {diasOcupados}
             </div>
-            <div className="text-xs text-gray-500">Reservas Ativas</div>
+            <div className="text-xs text-gray-500">Dias Ocupados</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3">
             <div className="text-xl font-bold text-yellow-600">
-              {disponibilidades.filter(d => d.status === 'bloqueado').length}
+              {diasBloqueados}
             </div>
-            <div className="text-xs text-gray-500">Bloqueios</div>
+            <div className="text-xs text-gray-500">Dias Bloqueados</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3">
             <div className="text-xl font-bold text-gray-600">
-              {Math.round((disponibilidades.filter(d => d.status === 'ocupado').length / Math.max(disponibilidades.length, 1)) * 100)}%
+              {Math.round((diasOcupados / Math.max(totalDiasDoMes, 1)) * 100)}%
             </div>
             <div className="text-xs text-gray-500">Taxa de Ocupação</div>
           </CardContent>
