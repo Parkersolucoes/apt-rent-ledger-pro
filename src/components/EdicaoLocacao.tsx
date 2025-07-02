@@ -196,6 +196,7 @@ export const EdicaoLocacao = ({ locacao, open, onOpenChange }: EdicaoLocacaoProp
           <CamposDatas
             dataEntrada={formData.dataEntrada}
             dataSaida={formData.dataSaida}
+            apartamento={formData.apartamento}
             onDataEntradaChange={(value) => setFormData({...formData, dataEntrada: value})}
             onDataSaidaChange={(value) => setFormData({...formData, dataSaida: value})}
           />
