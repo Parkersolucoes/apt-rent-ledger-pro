@@ -1,9 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/utils/formatters';
 import { useDespesas } from '@/hooks/useDespesas';
-
 interface ResumoApartamentosProps {
   apartamentos: string[];
   totaisPorApartamento: Record<string, {
@@ -14,29 +12,25 @@ interface ResumoApartamentosProps {
     quantidade: number;
   }>;
 }
-
-export const ResumoApartamentos = ({ apartamentos, totaisPorApartamento }: ResumoApartamentosProps) => {
-  const { obterTotalDespesasPorApartamento } = useDespesas();
-
-  return (
-    <Card className="shadow-lg">
+export const ResumoApartamentos = ({
+  apartamentos,
+  totaisPorApartamento
+}: ResumoApartamentosProps) => {
+  const {
+    obterTotalDespesasPorApartamento
+  } = useDespesas();
+  return <Card className="shadow-lg">
       <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
-        <CardTitle className="text-xl">Resumo por Apartamento</CardTitle>
+        <CardTitle className="text-xl text-slate-50">Resumo por Apartamento</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {apartamentos.map((apartamento) => {
-            const totais = totaisPorApartamento[apartamento];
-            const totalDespesas = obterTotalDespesasPorApartamento(apartamento);
-            const valorLiquidoProprietario = totais?.valorProprietario - totalDespesas || 0;
-            
-            if (!totais || totais.quantidade === 0) return null;
-            
-            return (
-              <div
-                key={apartamento}
-                className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200"
-              >
+          {apartamentos.map(apartamento => {
+          const totais = totaisPorApartamento[apartamento];
+          const totalDespesas = obterTotalDespesasPorApartamento(apartamento);
+          const valorLiquidoProprietario = totais?.valorProprietario - totalDespesas || 0;
+          if (!totais || totais.quantidade === 0) return null;
+          return <div key={apartamento} className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
                 <h3 className="font-semibold text-lg text-blue-900 mb-3">
                   Apartamento {apartamento}
                 </h3>
@@ -79,11 +73,9 @@ export const ResumoApartamentos = ({ apartamentos, totaisPorApartamento }: Resum
                     </span>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              </div>;
+        })}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };

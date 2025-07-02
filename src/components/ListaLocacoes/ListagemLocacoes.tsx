@@ -1,26 +1,22 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate, getMesNome } from '@/utils/formatters';
 import { Locacao } from '@/types/locacao';
 import { Calendar, House, User, Flag, Edit, Trash2 } from 'lucide-react';
-
 interface ListagemLocacoesProps {
   locacoesFiltradas: Locacao[];
   onEditar: (locacao: Locacao) => void;
   onExcluir: (locacao: Locacao) => void;
 }
-
-export const ListagemLocacoes = ({ 
-  locacoesFiltradas, 
-  onEditar, 
-  onExcluir 
+export const ListagemLocacoes = ({
+  locacoesFiltradas,
+  onEditar,
+  onExcluir
 }: ListagemLocacoesProps) => {
-  return (
-    <Card className="shadow-professional-lg">
+  return <Card className="shadow-professional-lg">
       <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
-        <CardTitle className="flex items-center justify-between text-xl">
+        <CardTitle className="flex items-center justify-between text-xl text-slate-50">
           <span>Locações ({locacoesFiltradas.length})</span>
           <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
             Total: {formatCurrency(locacoesFiltradas.reduce((acc, loc) => acc + loc.valorLocacao, 0))}
@@ -28,21 +24,10 @@ export const ListagemLocacoes = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-6">
-        {locacoesFiltradas.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">
+        {locacoesFiltradas.length === 0 ? <p className="text-muted-foreground text-center py-8">
             Nenhuma locação encontrada com os filtros aplicados.
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {locacoesFiltradas.map((locacao) => (
-              <div
-                key={locacao.id}
-                className={`border rounded-lg p-4 hover:shadow-md transition-all duration-200 ${
-                  locacao.dataPagamentoProprietario 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-rose-50 border-rose-200'
-                }`}
-              >
+          </p> : <div className="space-y-4">
+            {locacoesFiltradas.map(locacao => <div key={locacao.id} className={`border rounded-lg p-4 hover:shadow-md transition-all duration-200 ${locacao.dataPagamentoProprietario ? 'bg-green-50 border-green-200' : 'bg-rose-50 border-rose-200'}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="lg:col-span-2 space-y-3">
                     <div className="flex items-center gap-2">
@@ -65,11 +50,9 @@ export const ListagemLocacoes = ({
                       </span>
                     </div>
                     
-                    {locacao.observacoes && (
-                      <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
+                    {locacao.observacoes && <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
                         {locacao.observacoes}
-                      </div>
-                    )}
+                      </div>}
                   </div>
                   
                   <div className="space-y-2">
@@ -86,18 +69,14 @@ export const ListagemLocacoes = ({
                         <span>1º Pagto:</span>
                         <div className="flex items-center gap-1">
                           <span className="font-medium text-green-600">{formatCurrency(locacao.primeiroPagamento)}</span>
-                          {locacao.primeiroPagamentoPago && (
-                            <Flag className="h-3 w-3 text-green-600" />
-                          )}
+                          {locacao.primeiroPagamentoPago && <Flag className="h-3 w-3 text-green-600" />}
                         </div>
                       </div>
                       <div className="flex justify-between text-muted-foreground">
                         <span>2º Pagto:</span>
                         <div className="flex items-center gap-1">
                           <span className="font-medium text-green-600">{formatCurrency(locacao.segundoPagamento)}</span>
-                          {locacao.segundoPagamentoPago && (
-                            <Flag className="h-3 w-3 text-green-600" />
-                          )}
+                          {locacao.segundoPagamentoPago && <Flag className="h-3 w-3 text-green-600" />}
                         </div>
                       </div>
                       <div className="flex justify-between text-muted-foreground">
@@ -112,41 +91,26 @@ export const ListagemLocacoes = ({
                       </div>
                     </div>
                     
-                    {locacao.dataPagamentoProprietario && (
-                      <div className="mt-2 p-2 bg-green-100 border border-green-300 rounded text-sm">
+                    {locacao.dataPagamentoProprietario && <div className="mt-2 p-2 bg-green-100 border border-green-300 rounded text-sm">
                         <span className="text-green-800">
                           Pago ao proprietário em: {formatDate(locacao.dataPagamentoProprietario)}
                         </span>
-                      </div>
-                    )}
+                      </div>}
 
                     <div className="flex gap-2 mt-3">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onEditar(locacao)}
-                        className="flex items-center gap-1"
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onEditar(locacao)} className="flex items-center gap-1">
                         <Edit className="h-3 w-3" />
                         Editar
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onExcluir(locacao)}
-                        className="flex items-center gap-1 text-red-600 border-red-200 hover:bg-red-50"
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onExcluir(locacao)} className="flex items-center gap-1 text-red-600 border-red-200 hover:bg-red-50">
                         <Trash2 className="h-3 w-3" />
                         Excluir
                       </Button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
