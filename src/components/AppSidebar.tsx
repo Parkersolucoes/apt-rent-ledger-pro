@@ -100,6 +100,11 @@ const menuItems = [
     icon: MessageCircle,
   },
   {
+    title: "Agendamentos",
+    url: "/agendamentos",
+    icon: Calendar,
+  },
+  {
     title: "Cadastro da Empresa",
     url: "/cadastro-empresa",
     icon: Building2,

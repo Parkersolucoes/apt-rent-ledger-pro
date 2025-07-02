@@ -36,6 +36,7 @@ interface Configuracoes {
   logo_empresa: string;
   mercadopago_access_token: string;
   mercadopago_public_key: string;
+  whatsapp_agendamentos: string;
 }
 
 export const useConfiguracoes = () => {
@@ -71,7 +72,8 @@ export const useConfiguracoes = () => {
     webhook_url: '',
     logo_empresa: '',
     mercadopago_access_token: '',
-    mercadopago_public_key: ''
+    mercadopago_public_key: '',
+    whatsapp_agendamentos: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -170,6 +172,9 @@ export const useConfiguracoes = () => {
             case 'mercadopago_public_key':
               mercadoPagoConfig.publicKey = config.valor || '';
               configsObj.mercadopago_public_key = config.valor || '';
+              break;
+            case 'whatsapp_agendamentos':
+              configsObj.whatsapp_agendamentos = config.valor || '';
               break;
           }
         });

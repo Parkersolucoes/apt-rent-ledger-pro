@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ModelosMensagem from "./pages/ModelosMensagem";
 import Configuracoes from "./pages/Configuracoes";
+import Agendamentos from "./pages/Agendamentos";
 import Relatorios from "./pages/Relatorios";
 import Locacoes from "./pages/Locacoes";
 import NovaLocacao from "./pages/NovaLocacao";
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="/despesas/novo" element={<NovaDespesa />} />
                 <Route path="/contratos" element={<Contratos />} />
                 <Route path="/cadastro-empresa" element={<CadastroEmpresa />} />
+                <Route path="/agendamentos" element={<Agendamentos />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

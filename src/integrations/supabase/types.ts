@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agendamentos: {
+        Row: {
+          configuracoes_extras: Json | null
+          created_at: string
+          frequencia: string
+          horario: string
+          id: string
+          nome: string
+          numero_whatsapp: string
+          proximo_envio: string | null
+          status: boolean
+          tipo_informacao: string
+          updated_at: string
+        }
+        Insert: {
+          configuracoes_extras?: Json | null
+          created_at?: string
+          frequencia: string
+          horario: string
+          id?: string
+          nome: string
+          numero_whatsapp: string
+          proximo_envio?: string | null
+          status?: boolean
+          tipo_informacao?: string
+          updated_at?: string
+        }
+        Update: {
+          configuracoes_extras?: Json | null
+          created_at?: string
+          frequencia?: string
+          horario?: string
+          id?: string
+          nome?: string
+          numero_whatsapp?: string
+          proximo_envio?: string | null
+          status?: boolean
+          tipo_informacao?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       apartamentos: {
         Row: {
           ativo: boolean
@@ -314,6 +356,47 @@ export type Database = {
           valor_proprietario?: number | null
         }
         Relationships: []
+      }
+      logs_agendamentos: {
+        Row: {
+          agendamento_id: string
+          created_at: string
+          data_envio: string
+          detalhes: Json | null
+          erro: string | null
+          id: string
+          mensagem_enviada: string | null
+          sucesso: boolean
+        }
+        Insert: {
+          agendamento_id: string
+          created_at?: string
+          data_envio?: string
+          detalhes?: Json | null
+          erro?: string | null
+          id?: string
+          mensagem_enviada?: string | null
+          sucesso: boolean
+        }
+        Update: {
+          agendamento_id?: string
+          created_at?: string
+          data_envio?: string
+          detalhes?: Json | null
+          erro?: string | null
+          id?: string
+          mensagem_enviada?: string | null
+          sucesso?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logs_agendamentos_agendamento_id_fkey"
+            columns: ["agendamento_id"]
+            isOneToOne: false
+            referencedRelation: "agendamentos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       modelos_mensagem: {
         Row: {
