@@ -501,7 +501,7 @@ export const Configuracoes = () => {
                   <Label htmlFor="whatsapp-agendamentos">Número do WhatsApp *</Label>
                   <Input
                     id="whatsapp-agendamentos"
-                    value={configEvolution.whatsappAgendamentos || ''}
+                    value={evolutionForm.whatsappAgendamentos || ''}
                     onChange={(e) => setEvolutionForm({...evolutionForm, whatsappAgendamentos: e.target.value})}
                     placeholder="5511999999999"
                   />
