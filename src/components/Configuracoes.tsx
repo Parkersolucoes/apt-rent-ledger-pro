@@ -41,7 +41,8 @@ export const Configuracoes = () => {
   const [evolutionForm, setEvolutionForm] = useState({
     apiUrl: '',
     apiKey: '',
-    instanceName: ''
+    instanceName: '',
+    whatsappAgendamentos: ''
   });
 
   const [mercadoPagoForm, setMercadoPagoForm] = useState({
@@ -58,7 +59,10 @@ export const Configuracoes = () => {
       setSMTPForm(configSMTP);
     }
     if (configEvolution.apiUrl) {
-      setEvolutionForm(configEvolution);
+      setEvolutionForm({
+        ...configEvolution,
+        whatsappAgendamentos: configEvolution.whatsappAgendamentos || ''
+      });
     }
     if (configMercadoPago.accessToken) {
       setMercadoPagoForm(configMercadoPago);
@@ -477,6 +481,52 @@ export const Configuracoes = () => {
                     <p>2. Faça login na sua conta Mercado Pago</p>
                     <p>3. Vá em "Suas integrações" → "Credenciais"</p>
                     <p>4. Copie o Access Token e Public Key de produção</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Configuração de WhatsApp para Agendamentos */}
+            <div className="space-y-4 border-t pt-6">
+              <div>
+                <Label className="font-semibold text-lg flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp para Agendamentos
+                </Label>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure o número de WhatsApp que receberá as mensagens dos agendamentos automáticos.
+                </p>
+                
+                <div>
+                  <Label htmlFor="whatsapp-agendamentos">Número do WhatsApp *</Label>
+                  <Input
+                    id="whatsapp-agendamentos"
+                    value={configEvolution.whatsappAgendamentos || ''}
+                    onChange={(e) => setEvolutionForm({...evolutionForm, whatsappAgendamentos: e.target.value})}
+                    placeholder="5511999999999"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Formato: código do país + DDD + número (ex: 5511999999999)
+                  </p>
+                </div>
+
+                <div className="mt-4">
+                  <Button 
+                    onClick={handleSaveEvolution}
+                    disabled={isLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    Salvar Número WhatsApp
+                  </Button>
+                </div>
+
+                <div className="bg-muted p-4 rounded-lg mt-4">
+                  <h4 className="font-semibold mb-2">Status do Sistema:</h4>
+                  <div className="text-sm space-y-1 text-muted-foreground">
+                    <p><strong>Cron Job:</strong> ✅ Ativo (executa a cada 5 minutos)</p>
+                    <p><strong>Evolution API:</strong> {evolutionForm.apiUrl ? '✅ Configurada' : '❌ Não configurada'}</p>
+                    <p><strong>WhatsApp:</strong> {evolutionForm.whatsappAgendamentos ? '✅ Configurado' : '❌ Não configurado'}</p>
                   </div>
                 </div>
               </div>

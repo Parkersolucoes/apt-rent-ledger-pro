@@ -15,6 +15,7 @@ interface ConfiguracaoEvolution {
   apiUrl: string;
   apiKey: string;
   instanceName: string;
+  whatsappAgendamentos?: string;
 }
 
 interface ConfiguracaoMercadoPago {
@@ -53,7 +54,8 @@ export const useConfiguracoes = () => {
   const [configEvolution, setConfigEvolution] = useState<ConfiguracaoEvolution>({
     apiUrl: '',
     apiKey: '',
-    instanceName: ''
+    instanceName: '',
+    whatsappAgendamentos: ''
   });
   const [configMercadoPago, setConfigMercadoPago] = useState<ConfiguracaoMercadoPago>({
     accessToken: '',
@@ -174,6 +176,7 @@ export const useConfiguracoes = () => {
               configsObj.mercadopago_public_key = config.valor || '';
               break;
             case 'whatsapp_agendamentos':
+              evolutionConfig.whatsappAgendamentos = config.valor || '';
               configsObj.whatsapp_agendamentos = config.valor || '';
               break;
           }
@@ -362,6 +365,7 @@ export const useConfiguracoes = () => {
         { chave: 'evolution_api_url', valor: config.apiUrl },
         { chave: 'evolution_api_key', valor: config.apiKey },
         { chave: 'evolution_instance_name', valor: config.instanceName },
+        { chave: 'whatsapp_agendamentos', valor: config.whatsappAgendamentos || '' },
       ];
 
       for (const configItem of configsToSave) {
